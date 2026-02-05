@@ -1,11 +1,11 @@
 HELP.md
 gradle/
 build/
-.gitattributes
-.gitignore
-.gradlew
-.gradlew.bat
-.settings.gradle
+gitattributes
+gitignore
+gradlew
+gradlew.bat
+settings.gradle
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
