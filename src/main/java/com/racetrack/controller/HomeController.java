@@ -16,6 +16,6 @@ public class HomeController {
 
     @GetMapping("/secure")
     public String secure() {
-        return "You are authenticated with Okta!";
+        return "Welcome to RaceTrack!";
     }
 }
