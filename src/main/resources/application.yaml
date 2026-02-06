@@ -1,0 +1,20 @@
+server:
+  port: 8080
+
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          okta:
+            client-id: 0oazviev9rwTuERv3697
+            client-secret: riXUKCwRfDqGzRRPr_6tiIcvc85Mx36qlj_NTNNp41hvVZ2Jig-3Ttpg6BQvmoRW
+            scope:
+              - openid
+              - profile
+              - email
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            authorization-grant-type: authorization_code
+        provider:
+          okta:
+            issuer-uri: https://integrator-9628955.okta.com/oauth2/default
