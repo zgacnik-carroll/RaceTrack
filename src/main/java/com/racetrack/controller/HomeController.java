@@ -14,8 +14,4 @@ public class HomeController {
         return "Public home page";
     }
 
-    @GetMapping("/secure")
-    public String secure() {
-        return "Welcome to RaceTrack!";
-    }
 }

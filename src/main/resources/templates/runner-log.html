@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Runner Log</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Tabulator CSS -->
+    <link href="https://unpkg.com/tabulator-tables@5.5.2/dist/css/tabulator.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/runner-log.css">
+</head>
+
+<body class="p-4">
+
+<div class="container-fluid">
+
+    <h3 class="mb-3 text-center">Runner Log</h3>
+
+    <!-- Add New Row Button -->
+    <div class="d-flex justify-content-center mb-3">
+        <button id="add-row-btn" class="btn btn-success">Add New Row</button>
+    </div>
+
+    <!-- Table -->
+    <div class="d-flex justify-content-center mb-4">
+        <div id="runner-log-table"></div>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <h5 class="text-center">Other Runner Logs</h5>
+    <div class="d-flex flex-wrap justify-content-center gap-2 mt-2 runner-buttons">
+        <a th:each="runner : ${runners}"
+           th:if="${runner.id != runnerId}"
+           th:href="@{/runner/{id}(id=${runner.id})}"
+           class="btn btn-outline-primary">
+            <span th:text="${runner.name}"></span>
+        </a>
+    </div>
+
+</div>
+
+<script th:inline="javascript">
+    const runnerId = [[${runnerId}]];
+</script>
+
+<script src="https://unpkg.com/tabulator-tables@5.5.2/dist/js/tabulator.min.js"></script>
+<script src="/js/runner-log.js"></script>
+
+</body>
+</html>
