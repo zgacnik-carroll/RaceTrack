@@ -1,26 +1,44 @@
 package com.racetrack.controller;
 
-import com.racetrack.model.RunningLogForm;
+import com.racetrack.model.RunningLog;
+import com.racetrack.model.User;
+import com.racetrack.repository.RunningLogRepository;
+import com.racetrack.repository.UserRepository;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
 @Controller
 public class RunningLogController {
 
-    @GetMapping("/running-log/new")
-    public String showRunningLogForm(Model model) {
-        model.addAttribute("runningLog", new RunningLogForm());
-        return "running_form";
+    private final RunningLogRepository runningLogRepository;
+    private final UserRepository userRepository;
+
+    public RunningLogController(RunningLogRepository runningLogRepository,
+                                UserRepository userRepository) {
+        this.runningLogRepository = runningLogRepository;
+        this.userRepository = userRepository;
     }
 
     @PostMapping("/running-log")
-    public String submitRunningLog(RunningLogForm runningLog) {
+    public String submitRunningLog(@AuthenticationPrincipal OidcUser oidcUser,
+                                   RunningLog runningLog) {
 
-        // TEMP: Replace with service + repository
-        System.out.println(runningLog);
+        String oktaId = oidcUser.getSubject();
 
-        return "redirect:/running-log/new?success";
+        User user = userRepository.findById(oktaId)
+                .orElseGet(() -> {
+                    User newUser = new User();
+                    newUser.setId(oktaId);
+                    newUser.setEmail(oidcUser.getEmail());
+                    newUser.setRole("athlete");
+                    return userRepository.save(newUser);
+                });
+
+        runningLog.setUser(user);
+        runningLogRepository.save(runningLog);
+
+        return "redirect:/?runningSuccess";
     }
 }

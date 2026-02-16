@@ -1,91 +1,88 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-  <meta charset="UTF-8">
-  <title>Workout Log</title>
+<body>
 
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
+<div th:fragment="workoutForm">
 
-<body class="bg-light">
+  <div class="container mt-4 mb-4">
+    <div class="row justify-content-center">
+      <div class="col-md-8 col-lg-6">
 
-<div class="container mt-5 mb-5">
-  <div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+          <div class="card-body">
 
-      <div class="card shadow-sm">
-        <div class="card-body">
+            <h3 class="text-center mb-4">Workout Log</h3>
 
-          <h3 class="text-center mb-4">Workout Log</h3>
+            <form th:action="@{/workout-log}"
+                  th:object="${workoutLog}"
+                  method="post">
 
-          <form th:action="@{/workout-log}" th:object="${workoutLog}" method="post">
+              <!-- Workout Type -->
+              <div class="mb-3">
+                <label class="form-label">Workout Type</label>
+                <select class="form-select"
+                        th:field="*{workoutType}"
+                        required>
+                  <option value="">Select type</option>
+                  <option value="Strength">Strength</option>
+                  <option value="Strides">Strides</option>
+                  <option value="Workout">Workout</option>
+                </select>
+              </div>
 
-            <!-- Workout Type -->
-            <div class="mb-3">
-              <label class="form-label">Workout Type</label>
-              <select class="form-select" th:field="*{workoutType}" required>
-                <option value="">Select type</option>
-                <option value="Strength">Strength</option>
-                <option value="Strides">Strides</option>
-                <option value="Workout">Workout</option>
-              </select>
+              <!-- Completion -->
+              <div class="mb-3">
+                <label class="form-label">
+                  Lift completed, strides performed, or assigned strength work
+                </label>
+                <textarea class="form-control"
+                          rows="2"
+                          th:field="*{completionDetails}"
+                          placeholder="e.g. Core circuit + squats, 6x100m strides"></textarea>
+              </div>
+
+              <!-- Actual Paces -->
+              <div class="mb-3">
+                <label class="form-label">
+                  Actual Paces (per interval or mile)
+                </label>
+                <textarea class="form-control"
+                          rows="2"
+                          th:field="*{actualPaces}"
+                          placeholder="e.g. 5:38, 5:42, 5:45"></textarea>
+              </div>
+
+              <!-- Workout Description -->
+              <div class="mb-3">
+                <label class="form-label">Workout Description</label>
+                <textarea class="form-control"
+                          rows="3"
+                          th:field="*{workoutDescription}"
+                          placeholder="Describe the workout structure"></textarea>
+              </div>
+
+              <div class="d-grid">
+                <button type="submit"
+                        class="btn btn-primary">
+                  Submit Workout
+                </button>
+              </div>
+
+            </form>
+
+            <div th:if="${param.success}"
+                 class="alert alert-success mt-3">
+              Workout logged successfully!
             </div>
 
-            <!-- Completion -->
-            <div class="mb-3">
-              <label class="form-label">
-                Lift completed, strides performed, or assigned strength work
-              </label>
-              <textarea class="form-control" rows="2"
-                        th:field="*{completionDetails}"
-                        placeholder="e.g. Core circuit + squats, 6x100m strides"></textarea>
-            </div>
-
-            <!-- Workout Description -->
-            <div class="mb-3">
-              <label class="form-label">Workout Description</label>
-              <textarea class="form-control" rows="3"
-                        th:field="*{workoutDescription}"
-                        placeholder="Describe the workout structure"></textarea>
-            </div>
-
-            <!-- Assigned Paces -->
-            <div class="mb-3">
-              <label class="form-label">Assigned Paces</label>
-              <input type="text" class="form-control"
-                     th:field="*{assignedPaces}"
-                     placeholder="e.g. 5:40–5:50 pace">
-            </div>
-
-            <!-- Actual Paces -->
-            <div class="mb-3">
-              <label class="form-label">
-                Actual Paces (per interval or mile)
-              </label>
-              <textarea class="form-control" rows="2"
-                        th:field="*{actualPaces}"
-                        placeholder="e.g. 5:38, 5:42, 5:45"></textarea>
-            </div>
-
-            <div class="d-grid">
-              <button type="submit" class="btn btn-primary">
-                Submit Workout
-              </button>
-            </div>
-
-          </form>
-
-          <div th:if="${param.success}" class="alert alert-success mt-3">
-            Workout logged successfully!
           </div>
-
         </div>
-      </div>
 
+      </div>
     </div>
   </div>
+
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>RaceTrackLogger</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" th:href="@{/css/home.css}">
+</head>
+
+<body class="bg-light">
+
+<div class="container mt-5">
+
+  <!-- Header -->
+  <div class="d-flex align-items-center justify-content-between mb-4 header-bar">
+    <h1 class="app-title">RaceTrackLogger</h1>
+
+    <div class="d-flex gap-2 button-group">
+      <button class="btn btn-outline-primary"
+              onclick="showForm('running')">
+        Running Log
+      </button>
+
+      <button class="btn btn-outline-success"
+              onclick="showForm('workout')">
+        Workout Log
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content Area -->
+  <div class="form-container">
+
+    <!-- Empty State (DEFAULT) -->
+    <div id="emptyState" class="empty-state">
+      <p class="text-muted mb-0">
+        Select a log above or a runner below to view data
+      </p>
+    </div>
+
+    <!-- Running Log -->
+    <div id="runningForm" class="log-form">
+      <div th:replace="running_form :: runningForm"></div>
+    </div>
+
+    <!-- Workout Log -->
+    <div id="workoutForm" class="log-form">
+      <div th:replace="workout_form :: workoutForm"></div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Custom JS -->
+<script th:src="@{/js/home.js}"></script>
+
+</body>
+</html>

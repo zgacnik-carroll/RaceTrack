@@ -1,26 +1,44 @@
 package com.racetrack.controller;
 
-import com.racetrack.model.WorkoutLogForm;
+import com.racetrack.model.User;
+import com.racetrack.model.WorkoutLog;
+import com.racetrack.repository.UserRepository;
+import com.racetrack.repository.WorkoutLogRepository;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
 @Controller
 public class WorkoutLogController {
 
-    @GetMapping("/workout-log/new")
-    public String showWorkoutForm(Model model) {
-        model.addAttribute("workoutLog", new WorkoutLogForm());
-        return "workout_form";
+    private final WorkoutLogRepository workoutLogRepository;
+    private final UserRepository userRepository;
+
+    public WorkoutLogController(WorkoutLogRepository workoutLogRepository,
+                                UserRepository userRepository) {
+        this.workoutLogRepository = workoutLogRepository;
+        this.userRepository = userRepository;
     }
 
     @PostMapping("/workout-log")
-    public String submitWorkoutLog(WorkoutLogForm workoutLog) {
+    public String submitWorkoutLog(@AuthenticationPrincipal OidcUser oidcUser,
+                                   WorkoutLog workoutLog) {
 
-        // TEMP: replace with service + repository
-        System.out.println(workoutLog);
+        String oktaId = oidcUser.getSubject();
 
-        return "redirect:/workout-log/new?success";
+        User user = userRepository.findById(oktaId)
+                .orElseGet(() -> {
+                    User newUser = new User();
+                    newUser.setId(oktaId);
+                    newUser.setEmail(oidcUser.getEmail());
+                    newUser.setRole("athlete");
+                    return userRepository.save(newUser);
+                });
+
+        workoutLog.setUser(user);
+        workoutLogRepository.save(workoutLog);
+
+        return "redirect:/?workoutSuccess";
     }
 }
