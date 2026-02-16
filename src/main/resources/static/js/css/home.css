@@ -1,0 +1,17 @@
+.sheet-wrapper {
+    overflow-x: auto;
+    padding-bottom: 10px;
+}
+
+.sheet-form {
+    min-width: max-content;
+}
+
+.sheet-form .form-group {
+    min-width: 180px;
+}
+
+.sheet-form textarea {
+    min-width: 300px;
+    resize: vertical;
+}

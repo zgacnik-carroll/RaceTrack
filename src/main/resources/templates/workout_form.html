@@ -3,77 +3,55 @@
 <body>
 
 <div th:fragment="workoutForm">
-
   <div class="container mt-4 mb-4">
     <div class="row justify-content-center">
-      <div class="col-md-8 col-lg-6">
+      <div class="col-12">
 
         <div class="card shadow-sm">
           <div class="card-body">
 
             <h3 class="text-center mb-4">Workout Log</h3>
 
-            <form th:action="@{/workout-log}"
-                  th:object="${workoutLog}"
-                  method="post">
+            <form th:action="@{/workout-log}" th:object="${workoutLog}" method="post">
 
-              <!-- Workout Type -->
-              <div class="mb-3">
-                <label class="form-label">Workout Type</label>
-                <select class="form-select"
-                        th:field="*{workoutType}"
-                        required>
-                  <option value="">Select type</option>
-                  <option value="Strength">Strength</option>
-                  <option value="Strides">Strides</option>
-                  <option value="Workout">Workout</option>
-                </select>
+              <div class="d-flex flex-row flex-wrap gap-3">
+
+                <div class="flex-grow-1">
+                  <label class="form-label">Workout Type</label>
+                  <select class="form-select" th:field="*{workoutType}" required>
+                    <option value="">Select type</option>
+                    <option value="Strength">Strength</option>
+                    <option value="Strides">Strides</option>
+                    <option value="Workout">Workout</option>
+                  </select>
+                </div>
+
+                <div class="flex-grow-1">
+                  <label class="form-label">Completion</label>
+                  <textarea class="form-control" rows="2" th:field="*{completionDetails}" placeholder="e.g. Core circuit + squats, 6x100m strides"></textarea>
+                </div>
+
+                <div class="flex-grow-1">
+                  <label class="form-label">Actual Paces</label>
+                  <textarea class="form-control" rows="2" th:field="*{actualPaces}" placeholder="e.g. 5:38, 5:42, 5:45"></textarea>
+                </div>
+
+                <div class="flex-grow-1">
+                  <label class="form-label">Workout Description</label>
+                  <textarea class="form-control" rows="2" th:field="*{workoutDescription}" placeholder="Describe the workout structure"></textarea>
+                </div>
+
               </div>
 
-              <!-- Completion -->
-              <div class="mb-3">
-                <label class="form-label">
-                  Lift completed, strides performed, or assigned strength work
-                </label>
-                <textarea class="form-control"
-                          rows="2"
-                          th:field="*{completionDetails}"
-                          placeholder="e.g. Core circuit + squats, 6x100m strides"></textarea>
+              <div class="d-grid mt-3">
+                <button type="submit" class="btn btn-primary">Submit Workout</button>
               </div>
 
-              <!-- Actual Paces -->
-              <div class="mb-3">
-                <label class="form-label">
-                  Actual Paces (per interval or mile)
-                </label>
-                <textarea class="form-control"
-                          rows="2"
-                          th:field="*{actualPaces}"
-                          placeholder="e.g. 5:38, 5:42, 5:45"></textarea>
-              </div>
-
-              <!-- Workout Description -->
-              <div class="mb-3">
-                <label class="form-label">Workout Description</label>
-                <textarea class="form-control"
-                          rows="3"
-                          th:field="*{workoutDescription}"
-                          placeholder="Describe the workout structure"></textarea>
-              </div>
-
-              <div class="d-grid">
-                <button type="submit"
-                        class="btn btn-primary">
-                  Submit Workout
-                </button>
+              <div th:if="${param.success}" class="alert alert-success mt-3">
+                Workout logged successfully!
               </div>
 
             </form>
-
-            <div th:if="${param.success}"
-                 class="alert alert-success mt-3">
-              Workout logged successfully!
-            </div>
 
           </div>
         </div>
@@ -81,7 +59,6 @@
       </div>
     </div>
   </div>
-
 </div>
 
 </body>
