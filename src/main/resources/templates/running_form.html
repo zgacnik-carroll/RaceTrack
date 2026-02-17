@@ -4,9 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Daily Running Log</title>
+
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
+
 <body>
 
 <div th:fragment="runningForm">
@@ -21,19 +23,24 @@
 
             <form th:action="@{/running-log}" th:object="${runningLog}" method="post">
 
-              <!-- Horizontal form row 1 -->
+              <!-- Horizontal form row -->
               <div class="row g-3 align-items-end">
 
                 <div class="col-md-1">
                   <label class="form-label">Mileage</label>
-                  <input type="number" step="0.01" min="0" class="form-control" th:field="*{mileage}" required
-                         data-bs-toggle="tooltip" title="Enter the total miles you ran today.">
+                  <input type="number" step="0.01" min="0"
+                         class="form-control"
+                         th:field="*{mileage}" required
+                         data-bs-toggle="tooltip"
+                         title="Enter the total miles you ran today.">
                 </div>
 
                 <div class="col-md-1">
                   <label class="form-label">Hurting?</label>
-                  <select class="form-select" th:field="*{hurting}"
-                          data-bs-toggle="tooltip" title="Did you feel any pain during your run?">
+                  <select class="form-select"
+                          th:field="*{hurting}"
+                          data-bs-toggle="tooltip"
+                          title="Did you feel any pain during your run?">
                     <option value="">Select</option>
                     <option th:value="true">Yes</option>
                     <option th:value="false">No</option>
@@ -42,30 +49,42 @@
 
                 <div class="col-md-1">
                   <label class="form-label">Sleep</label>
-                  <input type="number" min="0" max="24" class="form-control" th:field="*{sleepHours}"
-                         data-bs-toggle="tooltip" title="How many hours did you sleep last night?">
+                  <input type="number" min="0" max="24"
+                         class="form-control"
+                         th:field="*{sleepHours}"
+                         data-bs-toggle="tooltip"
+                         title="How many hours did you sleep last night?">
                 </div>
 
                 <div class="col-md-1">
                   <label class="form-label">Stress</label>
-                  <input type="number" min="1" max="10" class="form-control" th:field="*{stressLevel}"
-                         data-bs-toggle="tooltip" title="Rate your stress / anxiety level from 1 (low) to 10 (high).">
+                  <input type="number" min="1" max="10"
+                         class="form-control"
+                         th:field="*{stressLevel}"
+                         data-bs-toggle="tooltip"
+                         title="Rate your stress / anxiety level from 1 (low) to 10 (high).">
                 </div>
 
-                <div class="col-md-1">
+                <!-- Wider -->
+                <div class="col-md-2">
                   <label class="form-label">Plate Proportions?</label>
-                  <select class="form-select" th:field="*{plateProportion}"
-                          data-bs-toggle="tooltip" title="Did you eat 3 balanced plates today?">
+                  <select class="form-select"
+                          th:field="*{plateProportion}"
+                          data-bs-toggle="tooltip"
+                          title="Did you eat 3 balanced plates today?">
                     <option value="">Select</option>
                     <option th:value="true">Yes</option>
                     <option th:value="false">No</option>
                   </select>
                 </div>
 
-                <div class="col-md-1">
+                <!-- Wider -->
+                <div class="col-md-2">
                   <label class="form-label">Did you get that bread?</label>
-                  <select class="form-select" th:field="*{gotThatBread}"
-                          data-bs-toggle="tooltip" title="Did you eat enough carbs today?">
+                  <select class="form-select"
+                          th:field="*{gotThatBread}"
+                          data-bs-toggle="tooltip"
+                          title="Did you eat enough carbs today?">
                     <option value="">Select</option>
                     <option th:value="true">Yes</option>
                     <option th:value="false">No</option>
@@ -74,8 +93,10 @@
 
                 <div class="col-md-1">
                   <label class="form-label">How feel?</label>
-                  <select class="form-select" th:field="*{feel}"
-                          data-bs-toggle="tooltip" title="How do you feel overall?">
+                  <select class="form-select"
+                          th:field="*{feel}"
+                          data-bs-toggle="tooltip"
+                          title="How do you feel overall?">
                     <option value="">Select</option>
                     <option value="Good">Good</option>
                     <option value="Okay">Okay</option>
@@ -87,22 +108,32 @@
 
                 <div class="col-md-1">
                   <label class="form-label">RPE</label>
-                  <input type="number" min="1" max="10" class="form-control" th:field="*{rpe}"
-                         data-bs-toggle="tooltip" title="Rate your effort for this run (1-10).">
+                  <input type="number" min="1" max="10"
+                         class="form-control"
+                         th:field="*{rpe}"
+                         data-bs-toggle="tooltip"
+                         title="Rate your effort for this run (1-10).">
                 </div>
 
-                <div class="col-md-4">
+                <!-- Slightly smaller comments -->
+                <div class="col-md-2">
                   <label class="form-label">Comments</label>
-                  <textarea class="form-control" rows="1" th:field="*{details}"
-                            placeholder="Minimum one sentence describing the run" required
-                            data-bs-toggle="tooltip" title="Describe your run in at least one sentence."></textarea>
+                  <textarea class="form-control"
+                            rows="1"
+                            th:field="*{details}"
+                            placeholder=""
+                            required
+                            data-bs-toggle="tooltip"
+                            title="Describe your run in at least one sentence."></textarea>
                 </div>
 
               </div>
 
               <!-- Submit Button -->
               <div class="d-grid mt-3">
-                <button type="submit" class="btn btn-primary">Submit Log</button>
+                <button type="submit" class="btn btn-primary">
+                  Submit Log
+                </button>
               </div>
 
               <!-- Success Alert -->
@@ -120,9 +151,10 @@
   </div>
 </div>
 
-<!-- Bootstrap JS and Popper -->
+<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"></script>
+
 <!-- Custom Tooltip Initialization -->
 <script src="/js/tooltips.js"></script>
 
