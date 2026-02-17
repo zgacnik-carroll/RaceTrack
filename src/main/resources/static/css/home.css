@@ -1,0 +1,143 @@
+
+html, body {
+    height: 100%;
+    margin: 0;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+/* =========================
+   Header Bar Styling
+   ========================= */
+
+.header-bar {
+    background-color: #332a86;
+    color: white;
+
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* RaceTrack title */
+.header-bar .app-title {
+    color: white !important;
+    margin-bottom: 0;
+}
+
+/* Make outline buttons visible on dark background */
+.header-bar .btn-outline-primary,
+.header-bar .btn-outline-success {
+    color: white;
+    border-color: rgba(255,255,255,0.7);
+}
+
+.header-bar .btn-outline-primary:hover,
+.header-bar .btn-outline-success:hover {
+    background-color: white;
+    color: #332a86;
+    border-color: white;
+}
+
+
+/* Existing styles */
+.sheet-wrapper {
+    overflow-x: auto;
+    padding-bottom: 10px;
+}
+
+.sheet-form {
+    min-width: max-content;
+}
+
+.sheet-form .form-group {
+    min-width: 180px;
+}
+
+.sheet-form textarea {
+    min-width: 300px;
+    resize: vertical;
+}
+
+h1.app-title {
+    font-size: 2.5rem !important;
+    font-weight: 700 !important;
+    color: #0d6efd !important;
+    letter-spacing: 1px !important;
+}
+
+.container {
+    background: transparent !important;
+}
+
+/* =========================
+   Logo Styling
+   ========================= */
+
+.logo-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+.app-logo {
+    height: 56px;
+    width: auto;
+    object-fit: contain;
+}
+
+/* =========================
+   Header Bar Styling
+   ========================= */
+
+.header-bar {
+    background-color: #332a86;
+    color: white;
+
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.header-bar .app-title {
+    color: white !important;
+    margin-bottom: 0;
+}
+
+/* Buttons on dark background */
+.header-bar .btn-outline-primary,
+.header-bar .btn-outline-success {
+    color: white;
+    border-color: rgba(255,255,255,0.7);
+}
+
+.header-bar .btn-outline-primary:hover,
+.header-bar .btn-outline-success:hover {
+    background-color: white;
+    color: #332a86;
+    border-color: white;
+}
+
+/* =========================
+   Purple Submit Buttons
+   ========================= */
+
+.btn-primary {
+    background-color: #332a86 !important;
+    border-color: #332a86 !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+    background-color: #2a2270 !important;
+    border-color: #2a2270 !important;
+    box-shadow: 0 0 0 0.2rem rgba(51, 42, 134, 0.25) !important;
+}
+
+/* Optional: smoother look */
+.btn-primary {
+    border-radius: 8px;
+}
+
