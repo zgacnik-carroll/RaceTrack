@@ -1,0 +1,44 @@
+<div th:fragment="footerFragment">
+
+  <!-- Footer sits inside the same container as the forms -->
+  <div class="footer-bar mt-4">
+
+    <div class="container">
+
+      <!-- Inner flex layout -->
+      <div class="footer-container d-flex align-items-center justify-content-between gap-3">
+
+        <!-- Left: Search bar ~25% width -->
+        <div class="footer-search flex-shrink-0" style="flex: 0 0 25%;">
+          <input type="text" class="form-control" placeholder="Search athlete..." id="athleteSearch">
+        </div>
+
+        <!-- Middle: Scrollable athlete buttons -->
+        <div class="footer-athletes flex-grow-1 mx-3">
+          <div class="athlete-list d-flex gap-2 overflow-auto">
+            <button class="btn btn-sm btn-outline-light">Athlete 1</button>
+            <button class="btn btn-sm btn-outline-light">Athlete 2</button>
+            <button class="btn btn-sm btn-outline-light">Athlete 3</button>
+            <button class="btn btn-sm btn-outline-light">Athlete 4</button>
+            <button class="btn btn-sm btn-outline-light">Athlete 5</button>
+            <button class="btn btn-sm btn-outline-light">Athlete 6</button>
+            <button class="btn btn-sm btn-outline-light">Athlete 7</button>
+            <button class="btn btn-sm btn-outline-light">Athlete 8</button>
+            <button class="btn btn-sm btn-outline-light">Athlete 9</button>
+            <button class="btn btn-sm btn-outline-light">Athlete 10</button>
+          </div>
+        </div>
+
+        <!-- Right: Spreadsheet type buttons -->
+        <div class="footer-buttons flex-shrink-0 d-flex gap-2">
+          <button class="btn btn-outline-light btn-sm" onclick="showRunningSheet()">Running Sheet</button>
+          <button class="btn btn-outline-light btn-sm" onclick="showWorkoutSheet()">Workout Sheet</button>
+        </div>
+
+      </div>
+
+    </div> <!-- End container -->
+
+  </div> <!-- End footer-bar -->
+
+</div>

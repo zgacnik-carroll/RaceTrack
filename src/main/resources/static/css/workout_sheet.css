@@ -1,0 +1,60 @@
+/* =========================
+   Workout Sheet Styling
+========================= */
+
+#workoutSpreadsheet {
+    display: none;
+    margin-bottom: 100px; /* space above footer */
+}
+
+.spreadsheet-table.workout-table {
+    table-layout: fixed;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.spreadsheet-table.workout-table th,
+.spreadsheet-table.workout-table td {
+    font-size: 0.9rem;
+    vertical-align: top;
+    padding: 0.5rem;
+}
+
+/* Restrict height for ~20 rows and enable vertical scrolling */
+#workoutSpreadsheet .table-responsive {
+    max-height: 520px;
+    overflow-y: auto;
+    border: 1px solid #dee2e6;
+}
+
+/* Scrollable completion and description cells */
+.workout-expandable {
+    max-width: 300px;
+    max-height: 80px;
+    overflow-y: auto;
+    word-wrap: break-word;
+    word-break: break-word;
+    white-space: normal;
+    line-height: 1.35;
+    display: block;
+    padding: 0.25rem 0.5rem;
+}
+
+.workout-expandable::-webkit-scrollbar {
+    width: 6px;
+}
+
+.workout-expandable::-webkit-scrollbar-thumb {
+    background-color: rgba(51, 42, 134, 0.6);
+    border-radius: 3px;
+}
+
+.workout-expandable::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+/* Optional: table header background */
+#workoutSpreadsheet thead th {
+    background-color: #f8f9fa;
+}

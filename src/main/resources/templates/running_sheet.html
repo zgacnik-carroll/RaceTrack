@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="runningSheet">
+
+  <div id="runningSpreadsheet"
+       class="spreadsheet-container"
+       style="display:none;">
+
+    <h4 class="mb-3">Running Logs</h4>
+
+    <div class="table-responsive">
+      <table class="table table-bordered table-sm spreadsheet-table">
+        <thead class="table-light">
+        <tr>
+          <th>Date</th>
+          <th>Miles</th>
+          <th>Hurting?</th>
+          <th>Sleep</th>
+          <th>Plate Proportions On?</th>
+          <th>Did You Get That Bread?</th>
+          <th>How Feel?</th>
+          <th>RPE</th>
+          <th>Comments</th>
+        </tr>
+        </thead>
+
+        <tbody id="runningSpreadsheetBody">
+        <!-- JS injects rows -->
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+</div>
+
+</body>
+</html>

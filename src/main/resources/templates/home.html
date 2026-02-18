@@ -10,69 +10,56 @@
   <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <!-- Custom CSS (MUST BE AFTER BOOTSTRAP) -->
+  <!-- Custom CSS -->
   <link rel="stylesheet" th:href="@{/css/home.css}">
+  <link rel="stylesheet" th:href="@{/css/footer.css}">
+  <link rel="stylesheet" th:href="@{/css/running_sheet.css}">
+  <link rel="stylesheet" th:href="@{/css/workout_sheet.css}">
 </head>
 
 <body>
 
-  <div class="container mt-5">
+<div class="container mt-5">
 
-    <!-- Header Row -->
-    <div class="d-flex align-items-center gap-3 mb-4">
+  <!-- Header -->
+  <div th:replace="header :: headerFragment"></div>
 
-      <!-- Logo (outside purple bar) -->
-      <div class="logo-wrapper">
-        <img src="/images/CarrollLogo.png" alt="RaceTrack Logo" class="app-logo">
-      </div>
+  <!-- Main Content Area -->
+  <div class="form-container">
 
-      <!-- Purple Header Bar -->
-      <div class="d-flex align-items-center justify-content-between flex-grow-1 header-bar">
-        <h1 class="app-title">RaceTrack</h1>
-
-        <div class="d-flex gap-2 button-group">
-          <button class="btn btn-outline-primary" onclick="showForm('running')">
-            Running Log
-          </button>
-
-          <button class="btn btn-outline-success" onclick="showForm('workout')">
-            Workout Log
-          </button>
-        </div>
-      </div>
-
+    <!-- Empty State -->
+    <div id="emptyState" class="empty-state">
+      <p class="text-muted mb-0">
+        Select a log above or a runner below to view data
+      </p>
     </div>
 
-
-    <!-- Main Content Area -->
-    <div class="form-container">
-
-      <!-- Empty State -->
-      <div id="emptyState" class="empty-state">
-        <p class="text-muted mb-0">
-          Select a log above or a runner below to view data
-        </p>
-      </div>
-
-      <!-- Running Log -->
-      <div id="runningForm" class="log-form">
-        <div th:replace="running_form :: runningForm"></div>
-      </div>
-
-      <!-- Workout Log -->
-      <div id="workoutForm" class="log-form">
-        <div th:replace="workout_form :: workoutForm"></div>
-      </div>
-
+    <!-- Forms -->
+    <div id="runningForm" class="log-form">
+      <div th:replace="running_form :: runningForm"></div>
     </div>
+
+    <div id="workoutForm" class="log-form">
+      <div th:replace="workout_form :: workoutForm"></div>
+    </div>
+
+    <!-- Sheets -->
+    <div th:replace="running_sheet :: runningSheet"></div>
+    <div th:replace="workout_sheet :: workoutSheet"></div>
 
   </div>
+
+</div>
+
+<!-- Footer -->
+<div th:replace="footer :: footerFragment"></div>
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <!-- Custom JS -->
 <script th:src="@{/js/home.js}"></script>
+<script th:src="@{/js/sheets.js}"></script>
 
 </body>
 </html>

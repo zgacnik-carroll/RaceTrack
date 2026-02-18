@@ -6,6 +6,6 @@ import java.util.List;
 
 public interface WorkoutLogRepository extends JpaRepository<WorkoutLog, Long> {
 
-    // Optional: fetch all logs for a given user
-    List<WorkoutLog> findByUserId(String userId);
+    List<WorkoutLog> findByUser_IdOrderByLogDateDesc(String userId);
 }
+

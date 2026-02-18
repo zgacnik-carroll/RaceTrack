@@ -1,0 +1,27 @@
+<div th:fragment="headerFragment">
+
+  <div class="d-flex align-items-center gap-3 mb-4">
+
+    <!-- Logo -->
+    <div class="logo-wrapper">
+      <img src="/images/CarrollLogo.png" alt="RaceTrack Logo" class="app-logo">
+    </div>
+
+    <!-- Purple Header Bar -->
+    <div class="d-flex align-items-center justify-content-between flex-grow-1 header-bar">
+      <h1 class="app-title">RaceTrack</h1>
+
+      <div class="d-flex gap-2 button-group">
+        <button class="btn btn-outline-primary" onclick="showForm('running')">
+          Running Log
+        </button>
+
+        <button class="btn btn-outline-success" onclick="showForm('workout')">
+          Workout Log
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+</div>

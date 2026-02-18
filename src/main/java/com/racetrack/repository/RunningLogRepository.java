@@ -8,5 +8,7 @@ import java.util.List;
 
 @Repository
 public interface RunningLogRepository extends JpaRepository<RunningLog, Long> {
-    List<RunningLog> findByUserId(String userId);
+
+    List<RunningLog> findByUser_IdOrderByLogDateDesc(String userId);
 }
+

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="workoutSheet">
+
+  <div id="workoutSpreadsheet"
+       class="spreadsheet-container mt-5"
+       style="display:none;">
+
+    <h4 class="mb-3">Workout Logs</h4>
+
+    <div class="table-responsive">
+      <table class="table table-bordered table-sm spreadsheet-table">
+        <thead class="table-light">
+        <tr>
+          <th>Date</th>
+          <th>Workout Type</th>
+          <th>Completion Details</th>
+          <th>Actual Paces</th>
+          <th>Description</th>
+        </tr>
+        </thead>
+
+        <tbody id="workoutSpreadsheetBody">
+        <!-- JS injects rows -->
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+</div>
+
+</body>
+</html>

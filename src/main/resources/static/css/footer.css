@@ -1,0 +1,97 @@
+/* =========================
+   Footer Styling
+========================= */
+
+/* Footer wrapper — full width for positioning */
+.footer-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    z-index: 1000;
+    pointer-events: none; /* allow inner container to handle interaction */
+}
+
+/* Inner footer container matches header width */
+.footer-container {
+    pointer-events: auto; /* restore interaction */
+    background-color: #332a86; /* purple like header */
+    color: white;
+    padding: 15px 20px;
+    border-radius: 12px 12px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+    max-width: 1140px; /* same as Bootstrap container for header alignment */
+    box-shadow: 0 -4px 10px rgba(0,0,0,0.2);
+    height: 90px;
+    margin: 0 auto; /* center the container exactly */
+}
+
+/* Left: Search bar ~25% width */
+.footer-search {
+    flex: 0 0 25%;
+}
+
+.footer-container input.form-control {
+    width: 100%;
+    height: 42px;
+    font-size: 1rem;
+}
+
+/* Middle: Athlete buttons scroll under right buttons */
+.footer-athletes {
+    flex: 1 1 auto;
+    position: relative;
+    margin-right: 15px;
+    overflow: hidden;
+}
+
+.footer-athletes .athlete-list {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    position: relative;
+    z-index: 1;
+    scroll-behavior: smooth;
+}
+
+.footer-athletes .athlete-list button {
+    white-space: nowrap;
+    color: #fff;
+    border-color: rgba(255,255,255,0.7);
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    flex-shrink: 0;
+}
+
+.footer-athletes .athlete-list button:hover {
+    background-color: #fff;
+    color: #332a86;
+    border-color: #fff;
+}
+
+/* Right: Spreadsheet buttons always on top */
+.footer-buttons {
+    flex-shrink: 0;
+    display: flex;
+    gap: 10px;
+    z-index: 2;
+    position: relative;
+}
+
+.footer-buttons .btn-outline-light {
+    border-color: rgba(255,255,255,0.7);
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+}
+
+.footer-buttons .btn-outline-light:hover {
+    background-color: #fff;
+    color: #332a86;
+    border-color: #fff;
+}

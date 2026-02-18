@@ -1,0 +1,47 @@
+/* =========================
+   Header Styling
+========================= */
+
+/* Header bar */
+.header-bar {
+    background-color: #332a86;
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Title */
+.header-bar .app-title {
+    color: white !important;
+    margin-bottom: 0;
+    font-size: 2.5rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 1px;
+}
+
+/* Outline buttons on purple background */
+.header-bar .btn-outline-primary,
+.header-bar .btn-outline-success {
+    color: white;
+    border-color: rgba(255,255,255,0.7);
+}
+
+.header-bar .btn-outline-primary:hover,
+.header-bar .btn-outline-success:hover {
+    background-color: white;
+    color: #332a86;
+    border-color: white;
+}
+
+/* Logo */
+.logo-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+.app-logo {
+    height: 56px;
+    width: auto;
+    object-fit: contain;
+}

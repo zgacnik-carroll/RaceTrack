@@ -1,0 +1,60 @@
+/* =========================
+   Running Sheet Styling
+========================= */
+
+#runningSpreadsheet {
+    display: none;
+    margin-bottom: 100px; /* space above footer */
+}
+
+.spreadsheet-table.running-table {
+    table-layout: fixed;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.spreadsheet-table.running-table th,
+.spreadsheet-table.running-table td {
+    font-size: 0.9rem;
+    vertical-align: top;
+    padding: 0.5rem;
+}
+
+/* Restrict height for ~20 rows and enable vertical scrolling */
+#runningSpreadsheet .table-responsive {
+    max-height: 520px; /* adjust for row height */
+    overflow-y: auto;
+    border: 1px solid #dee2e6;
+}
+
+/* Scrollable comments cell */
+.running-comments {
+    max-width: 300px;
+    max-height: 80px;
+    overflow-y: auto;
+    word-wrap: break-word;
+    word-break: break-word;
+    white-space: normal;
+    line-height: 1.35;
+    display: block;
+    padding: 0.25rem 0.5rem;
+}
+
+.running-comments::-webkit-scrollbar {
+    width: 6px;
+}
+
+.running-comments::-webkit-scrollbar-thumb {
+    background-color: rgba(51, 42, 134, 0.6);
+    border-radius: 3px;
+}
+
+.running-comments::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+/* Optional: table header background */
+#runningSpreadsheet thead th {
+    background-color: #f8f9fa;
+}
