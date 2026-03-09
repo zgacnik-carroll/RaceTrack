@@ -10,6 +10,10 @@ const dateFilters = {
     workout: "default"
 };
 
+/**
+ * Builds JSON request headers and injects CSRF values when present.
+ * @returns {Record<string, string>}
+ */
 function jsonHeaders() {
     const headers = { "Content-Type": "application/json" };
     const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute("content");
@@ -20,6 +24,11 @@ function jsonHeaders() {
     return headers;
 }
 
+/**
+ * Formats a backend date into MM-DD-YY display format.
+ * @param {string|null|undefined} dateString
+ * @returns {string}
+ */
 function formatDate(dateString) {
     if (!dateString) return "";
     const d = new Date(dateString);
@@ -29,6 +38,11 @@ function formatDate(dateString) {
     return `${mm}-${dd}-${yy}`;
 }
 
+/**
+ * Converts backend date values into YYYY-MM-DD for `<input type="date">`.
+ * @param {string|null|undefined} dateString
+ * @returns {string}
+ */
 function formatDateForInput(dateString) {
     if (!dateString) return "";
     if (typeof dateString === "string" && dateString.includes("T")) {
@@ -46,6 +60,10 @@ function formatDateForInput(dateString) {
     return `${yyyy}-${mm}-${dd}`;
 }
 
+/**
+ * Binds focus/click handlers to open the native date picker when supported.
+ * @param {string} inputId
+ */
 function bindDateInputPicker(inputId) {
     const input = document.getElementById(inputId);
     if (!input) return;
@@ -58,12 +76,22 @@ function bindDateInputPicker(inputId) {
     input.addEventListener("click", openPicker);
 }
 
+/**
+ * Displays boolean values in read-only cells.
+ * @param {boolean|null|undefined} value
+ * @returns {string}
+ */
 function booleanDisplay(value) {
     if (value === true) return "Yes";
     if (value === false) return "No";
     return "";
 }
 
+/**
+ * Renders a yes/no select for editable boolean cells.
+ * @param {boolean|null|undefined} value
+ * @returns {string}
+ */
 function booleanSelect(value) {
     const normalized = value === true ? "true" : value === false ? "false" : "";
     return `
@@ -75,6 +103,11 @@ function booleanSelect(value) {
     `;
 }
 
+/**
+ * Renders the running "feel" select.
+ * @param {string|null|undefined} value
+ * @returns {string}
+ */
 function feelSelect(value) {
     const normalized = String(value ?? "");
     const options = ["Good", "Okay", "Tired", "Sore", "Bad"];
@@ -86,16 +119,31 @@ function feelSelect(value) {
     `;
 }
 
+/**
+ * Clamps numeric values into [0,1].
+ * @param {number} value
+ * @returns {number}
+ */
 function clamp01(value) {
     return Math.max(0, Math.min(1, value));
 }
 
+/**
+ * Produces a green-to-red background tone from normalized values.
+ * @param {number} score01
+ * @returns {string}
+ */
 function gradientColor01(score01) {
     const safe = clamp01(score01);
     const hue = 120 * safe;
     return `hsl(${hue}, 70%, 86%)`;
 }
 
+/**
+ * Computes sleep-cell color.
+ * @param {number|null|undefined} sleepHours
+ * @returns {string}
+ */
 function sleepColor(sleepHours) {
     if (sleepHours === null || sleepHours === undefined) return "";
     const n = Number(sleepHours);
@@ -103,6 +151,11 @@ function sleepColor(sleepHours) {
     return gradientColor01(n / 10);
 }
 
+/**
+ * Computes stress-cell color (inverted so lower stress is greener).
+ * @param {number|null|undefined} stressLevel
+ * @returns {string}
+ */
 function stressColor(stressLevel) {
     if (stressLevel === null || stressLevel === undefined) return "";
     const n = Number(stressLevel);
@@ -111,12 +164,22 @@ function stressColor(stressLevel) {
     return gradientColor01(normalized);
 }
 
+/**
+ * Maps yes/no values to cell background colors.
+ * @param {boolean|null|undefined} value
+ * @returns {string}
+ */
 function yesNoColor(value) {
     if (value === true) return "hsl(120, 55%, 86%)";
     if (value === false) return "hsl(0, 65%, 87%)";
     return "";
 }
 
+/**
+ * Maps "feel" values to cell background colors.
+ * @param {string|null|undefined} value
+ * @returns {string}
+ */
 function feelColor(value) {
     if (!value) return "";
     const map = {
@@ -129,17 +192,31 @@ function feelColor(value) {
     return map[value] ?? "";
 }
 
+/**
+ * Applies a background color to a row cell if it exists.
+ * @param {string} cellId
+ * @param {string} color
+ */
 function setWellnessCellColor(cellId, color) {
     const cell = document.getElementById(cellId);
     if (!cell) return;
     cell.style.backgroundColor = color || "";
 }
 
+/**
+ * Generates inline style snippets for read-only table rows.
+ * @param {string} color
+ * @returns {string}
+ */
 function styleAttrFromColor(color) {
     if (!color) return "";
     return ` style="background-color:${color}"`;
 }
 
+/**
+ * Recomputes wellness colors for a specific running-log row.
+ * @param {number} logId
+ */
 function updateRunningRowColors(logId) {
     const sleepValue = parseIntOrNull(document.getElementById(`running-sleep-${logId}`)?.value);
     const stressValue = parseIntOrNull(document.getElementById(`running-stress-${logId}`)?.value);
@@ -156,6 +233,10 @@ function updateRunningRowColors(logId) {
     setWellnessCellColor(`running-feel-cell-${logId}`, feelColor(feelValue));
 }
 
+/**
+ * Binds row inputs so color state updates as athlete edits values.
+ * @param {number} logId
+ */
 function bindRunningRowColorHandlers(logId) {
     const hurtingSelect = document.getElementById(`running-hurting-${logId}`);
     const sleepInput = document.getElementById(`running-sleep-${logId}`);
@@ -172,16 +253,32 @@ function bindRunningRowColorHandlers(logId) {
     if (feelSelect) feelSelect.addEventListener("change", () => updateRunningRowColors(logId));
 }
 
+/**
+ * Resolves active target user from explicit value, selected coach user, or self.
+ * @param {string|null|undefined} inputUserId
+ * @returns {string}
+ */
 function getTargetUserId(inputUserId) {
     return inputUserId ?? selectedUserId ?? "me";
 }
 
+/**
+ * Normalizes a date to midnight local time for range comparisons.
+ * @param {string|Date} date
+ * @returns {Date}
+ */
 function startOfDay(date) {
     const d = new Date(date);
     d.setHours(0, 0, 0, 0);
     return d;
 }
 
+/**
+ * Applies currently selected date filter to a log list.
+ * @param {Array<any>} logs
+ * @param {"running"|"workout"} type
+ * @returns {Array<any>}
+ */
 function applyDateFilter(logs, type) {
     const range = dateFilters[type] ?? "default";
     const now = new Date();
@@ -207,6 +304,11 @@ function applyDateFilter(logs, type) {
     return filtered;
 }
 
+/**
+ * Sets active date filter and refreshes corresponding sheet.
+ * @param {"running"|"workout"} type
+ * @param {"default"|"today"|"week"|"month"} range
+ */
 function setDateFilter(type, range) {
     dateFilters[type] = range;
     updateFilterButtons(type);
@@ -217,6 +319,10 @@ function setDateFilter(type, range) {
     }
 }
 
+/**
+ * Updates active/inactive state of date filter buttons.
+ * @param {"running"|"workout"} type
+ */
 function updateFilterButtons(type) {
     const ranges = ["default", "today", "week", "month"];
     ranges.forEach(range => {
@@ -226,11 +332,23 @@ function updateFilterButtons(type) {
     });
 }
 
+/**
+ * Athletes can only edit their own rows.
+ * @param {string} targetUserId
+ * @returns {boolean}
+ */
 function canAthleteEdit(targetUserId) {
     if (role !== "athlete") return false;
     return targetUserId === "me" || targetUserId === userId;
 }
 
+/**
+ * Renders coach-comment cell as textarea+button for coaches, plain text otherwise.
+ * @param {number} logId
+ * @param {string|null|undefined} comment
+ * @param {"running"|"workout"} logType
+ * @returns {string}
+ */
 function coachCommentCell(logId, comment, logType) {
     if (role !== "coach") {
         return `<td><div class="expandable-cell">${escapeHtml(comment ?? "")}</div></td>`;
@@ -248,6 +366,10 @@ function coachCommentCell(logId, comment, logType) {
    RUNNING LOGS
 ========================= */
 
+/**
+ * Loads running logs for the selected/active user and renders table rows.
+ * @param {string|null} [requestedUserId]
+ */
 function loadRunningLogs(requestedUserId) {
     const targetUserId = getTargetUserId(requestedUserId);
     fetch(`/api/running-logs/${targetUserId}`)
@@ -278,7 +400,12 @@ function loadRunningLogs(requestedUserId) {
                         <td><input class="sheet-input" type="number" value="${log.rpe ?? ""}" id="running-rpe-${log.id}"></td>
                         <td><textarea class="sheet-input sheet-textarea" id="running-details-${log.id}">${escapeHtml(log.details ?? "")}</textarea></td>
                         <td><div class="expandable-cell">${escapeHtml(log.coachComment ?? "")}</div></td>
-                        <td><button class="btn btn-sm btn-primary" onclick="saveRunningLog(${log.id})">Save</button></td>
+                        <td>
+                            <div class="d-flex flex-column gap-2">
+                                <button class="btn btn-sm btn-primary" onclick="saveRunningLog(${log.id})">Save</button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteRunningLog(${log.id})">Delete</button>
+                            </div>
+                        </td>
                     `;
                 } else {
                     row.innerHTML = `
@@ -310,12 +437,20 @@ function loadRunningLogs(requestedUserId) {
         });
 }
 
+/**
+ * Shows running sheet panel and loads data.
+ * @param {string|null} [userIdParam]
+ */
 function showRunningSheet(userIdParam = null) {
     hideMainContent();
     document.getElementById("runningSpreadsheet").style.display = "block";
     loadRunningLogs(userIdParam);
 }
 
+/**
+ * Sends athlete edits for one running row to the API.
+ * @param {number} logId
+ */
 function saveRunningLog(logId) {
     const payload = {
         mileage: parseNumber(document.getElementById(`running-mileage-${logId}`).value),
@@ -350,6 +485,10 @@ function saveRunningLog(logId) {
    WORKOUT LOGS
 ========================= */
 
+/**
+ * Loads workout logs for the selected/active user and renders table rows.
+ * @param {string|null} [requestedUserId]
+ */
 function loadWorkoutLogs(requestedUserId) {
     const targetUserId = getTargetUserId(requestedUserId);
     fetch(`/api/workout-logs/${targetUserId}`)
@@ -375,7 +514,12 @@ function loadWorkoutLogs(requestedUserId) {
                         <td><textarea class="sheet-input sheet-textarea" id="workout-paces-${log.id}">${escapeHtml(log.actualPaces ?? "")}</textarea></td>
                         <td><textarea class="sheet-input sheet-textarea" id="workout-description-${log.id}">${escapeHtml(log.workoutDescription ?? "")}</textarea></td>
                         <td><div class="expandable-cell">${escapeHtml(log.coachComment ?? "")}</div></td>
-                        <td><button class="btn btn-sm btn-primary" onclick="saveWorkoutLog(${log.id})">Save</button></td>
+                        <td>
+                            <div class="d-flex flex-column gap-2">
+                                <button class="btn btn-sm btn-primary" onclick="saveWorkoutLog(${log.id})">Save</button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteWorkoutLog(${log.id})">Delete</button>
+                            </div>
+                        </td>
                     `;
                 } else {
                     row.innerHTML = `
@@ -400,12 +544,20 @@ function loadWorkoutLogs(requestedUserId) {
         });
 }
 
+/**
+ * Shows workout sheet panel and loads data.
+ * @param {string|null} [userIdParam]
+ */
 function showWorkoutSheet(userIdParam = null) {
     hideMainContent();
     document.getElementById("workoutSpreadsheet").style.display = "block";
     loadWorkoutLogs(userIdParam);
 }
 
+/**
+ * Sends athlete edits for one workout row to the API.
+ * @param {number} logId
+ */
 function saveWorkoutLog(logId) {
     const payload = {
         workoutType: document.getElementById(`workout-type-${logId}`).value,
@@ -431,10 +583,65 @@ function saveWorkoutLog(logId) {
         });
 }
 
+/**
+ * Deletes one running row after explicit browser confirmation.
+ * @param {number} logId
+ */
+function deleteRunningLog(logId) {
+    const confirmed = window.confirm("Permanently delete this running row?");
+    if (!confirmed) {
+        return;
+    }
+
+    fetch(`/api/running-logs/${logId}`, {
+        method: "DELETE",
+        headers: jsonHeaders()
+    })
+        .then(res => {
+            if (!res.ok) throw new Error(`Failed to delete running row (${res.status})`);
+            loadRunningLogs("me");
+            if (window.showSaveNotice) window.showSaveNotice("Running row deleted.", "success");
+        })
+        .catch(error => {
+            console.error(error);
+            if (window.showSaveNotice) window.showSaveNotice("Could not delete running row.", "danger");
+        });
+}
+
+/**
+ * Deletes one workout row after explicit browser confirmation.
+ * @param {number} logId
+ */
+function deleteWorkoutLog(logId) {
+    const confirmed = window.confirm("Permanently delete this workout row?");
+    if (!confirmed) {
+        return;
+    }
+
+    fetch(`/api/workout-logs/${logId}`, {
+        method: "DELETE",
+        headers: jsonHeaders()
+    })
+        .then(res => {
+            if (!res.ok) throw new Error(`Failed to delete workout row (${res.status})`);
+            loadWorkoutLogs("me");
+            if (window.showSaveNotice) window.showSaveNotice("Workout row deleted.", "success");
+        })
+        .catch(error => {
+            console.error(error);
+            if (window.showSaveNotice) window.showSaveNotice("Could not delete workout row.", "danger");
+        });
+}
+
 /* =========================
    COACH COMMENTS
 ========================= */
 
+/**
+ * Persists coach comment for the specified row.
+ * @param {"running"|"workout"} logType
+ * @param {number} logId
+ */
 function saveCoachComment(logType, logId) {
     const fieldId = `${logType}-coach-comment-${logId}`;
     const value = document.getElementById(fieldId).value;
@@ -459,24 +666,44 @@ function saveCoachComment(logType, logId) {
         });
 }
 
+/**
+ * Parses tri-state boolean input values from select fields.
+ * @param {string} value
+ * @returns {boolean|null}
+ */
 function parseBoolean(value) {
     if (value === "true") return true;
     if (value === "false") return false;
     return null;
 }
 
+/**
+ * Parses numeric text into Number or null when blank/invalid.
+ * @param {string} value
+ * @returns {number|null}
+ */
 function parseNumber(value) {
     if (value === null || value === undefined || value === "") return null;
     const parsed = Number(value);
     return Number.isNaN(parsed) ? null : parsed;
 }
 
+/**
+ * Parses integer text into Number or null when blank/invalid.
+ * @param {string} value
+ * @returns {number|null}
+ */
 function parseIntOrNull(value) {
     if (value === null || value === undefined || value === "") return null;
     const parsed = parseInt(value, 10);
     return Number.isNaN(parsed) ? null : parsed;
 }
 
+/**
+ * Escapes text before rendering into HTML templates.
+ * @param {any} value
+ * @returns {string}
+ */
 function escapeHtml(value) {
     return String(value ?? "")
         .replaceAll("&", "&amp;")

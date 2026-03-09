@@ -10,8 +10,21 @@ import java.util.Optional;
  */
 public interface WorkoutLogRepository extends JpaRepository<WorkoutLog, Long> {
 
+    /**
+     * Returns workout logs for the given user sorted newest first.
+     *
+     * @param userId authenticated user id
+     * @return workout logs for the user
+     */
     List<WorkoutLog> findByUser_IdOrderByLogDateDesc(String userId);
 
+    /**
+     * Finds a workout log by id only when it belongs to the provided user.
+     *
+     * @param id workout log id
+     * @param userId owning user id
+     * @return optional workout log that matches id and owner
+     */
     Optional<WorkoutLog> findByIdAndUser_Id(Long id, String userId);
 }
 

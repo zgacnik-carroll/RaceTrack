@@ -12,6 +12,11 @@ const currentUserId = window.currentUserId || null;
    FORM DISPLAY
 ========================= */
 
+/**
+ * Shows one specific athlete form and hides all other main content.
+ * Coaches do not use form mode.
+ * @param {"running"|"workout"} type form type to display
+ */
 function showForm(type) {
     if (currentUserRole === "coach") return;
     hideMainContent();
@@ -25,6 +30,10 @@ function showForm(type) {
     }
 }
 
+/**
+ * Shows both athlete forms and hides sheet/empty state content.
+ * Coaches do not use form mode.
+ */
 function showAllForms() {
     if (currentUserRole === "coach") return;
     hideMainContent();
@@ -39,6 +48,10 @@ function showAllForms() {
    STUDENT SELECTION
 ========================= */
 
+/**
+ * Selects an athlete for coach view and opens that athlete's running sheet.
+ * @param {string} userId selected athlete id
+ */
 function selectStudent(userId) {
     if (currentUserRole !== "coach") return;
     selectedUserId = userId;
@@ -48,6 +61,9 @@ function selectStudent(userId) {
     showRunningSheet(userId);
 }
 
+/**
+ * Clears selected athlete and returns coach UI to empty state.
+ */
 function clearStudentSelection() {
     if (currentUserRole !== "coach") return;
     selectedUserId = null;
@@ -59,6 +75,9 @@ function clearStudentSelection() {
    MAIN CONTENT TOGGLING
 ========================= */
 
+/**
+ * Hides all form/sheet/empty-state sections before showing one target view.
+ */
 function hideMainContent() {
     // Hide forms
     const runningForm = document.getElementById("runningForm");
@@ -77,6 +96,11 @@ function hideMainContent() {
     if (emptyState) emptyState.style.display = "none";
 }
 
+/**
+ * Displays a temporary alert banner for save/delete outcomes.
+ * @param {string} message message to render
+ * @param {"success"|"danger"|"warning"} [type="success"] bootstrap alert variant
+ */
 function showSaveNotice(message, type = "success") {
     const notice = document.getElementById("saveNotice");
     if (!notice) return;
@@ -93,6 +117,9 @@ function showSaveNotice(message, type = "success") {
 
 window.showSaveNotice = showSaveNotice;
 
+/**
+ * Reads URL success params after post-redirect-get and shows corresponding banner.
+ */
 function showSubmissionNoticeFromUrl() {
     const params = new URLSearchParams(window.location.search);
     let shown = false;
@@ -113,6 +140,9 @@ function showSubmissionNoticeFromUrl() {
     }
 }
 
+/**
+ * Enables coach athlete filtering in the footer list.
+ */
 function setupAthleteSearch() {
     if (currentUserRole !== "coach") return;
 
@@ -132,9 +162,11 @@ function setupAthleteSearch() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    // Bind coach-only search and render post-submit notices.
     setupAthleteSearch();
     showSubmissionNoticeFromUrl();
 
+    // Athletes land directly on form mode.
     if (currentUserRole === "athlete") {
         showAllForms();
     }

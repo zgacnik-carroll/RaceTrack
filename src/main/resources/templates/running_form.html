@@ -26,17 +26,17 @@
               <!-- Horizontal form row -->
               <div class="row g-3 align-items-end">
 
-                <div class="col-md-2">
+                <div class="col-lg-2">
                   <label class="form-label">Date</label>
                   <input type="date"
                          class="form-control js-date-input"
-                         name="logDate"
+                         name="selectedDate"
                          required
                          data-bs-toggle="tooltip"
                          title="Select the date for this log.">
                 </div>
 
-                <div class="col-md-1">
+                <div class="col-lg-1">
                   <label class="form-label">Mileage</label>
                   <input type="number" step="0.01" min="0"
                          class="form-control"
@@ -45,7 +45,7 @@
                          title="Enter the total miles you ran today.">
                 </div>
 
-                <div class="col-md-1">
+                <div class="col-lg-1">
                   <label class="form-label">Hurting?</label>
                   <select class="form-select"
                           th:field="*{hurting}"
@@ -57,7 +57,7 @@
                   </select>
                 </div>
 
-                <div class="col-md-1">
+                <div class="col-lg-1">
                   <label class="form-label">Sleep</label>
                   <input type="number" min="0" max="24"
                          class="form-control"
@@ -66,7 +66,7 @@
                          title="How many hours did you sleep last night?">
                 </div>
 
-                <div class="col-md-1">
+                <div class="col-lg-1">
                   <label class="form-label">Stress</label>
                   <input type="number" min="1" max="10"
                          class="form-control"
@@ -76,7 +76,7 @@
                 </div>
 
                 <!-- Wider -->
-                <div class="col-md-2">
+                <div class="col-lg-2">
                   <label class="form-label">Plate Proportions?</label>
                   <select class="form-select"
                           th:field="*{plateProportion}"
@@ -89,7 +89,7 @@
                 </div>
 
                 <!-- Wider -->
-                <div class="col-md-2">
+                <div class="col-lg-2">
                   <label class="form-label">Did you get that bread?</label>
                   <select class="form-select"
                           th:field="*{gotThatBread}"
@@ -101,7 +101,7 @@
                   </select>
                 </div>
 
-                <div class="col-md-1">
+                <div class="col-lg-1">
                   <label class="form-label">How feel?</label>
                   <select class="form-select"
                           th:field="*{feel}"
@@ -116,7 +116,7 @@
                   </select>
                 </div>
 
-                <div class="col-md-1">
+                <div class="col-lg-1">
                   <label class="form-label">RPE</label>
                   <input type="number" min="1" max="10"
                          class="form-control"
@@ -126,7 +126,7 @@
                 </div>
 
                 <!-- Slightly smaller comments -->
-                <div class="col-md-2">
+                <div class="col-lg-2">
                   <label class="form-label">Comments</label>
                   <textarea class="form-control"
                             rows="1"

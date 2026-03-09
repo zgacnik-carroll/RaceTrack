@@ -2,8 +2,8 @@ package com.racetrack.controller;
 
 import com.racetrack.model.RunningLog;
 import com.racetrack.model.User;
-import com.racetrack.repository.RunningLogRepository;
-import com.racetrack.repository.UserRepository;
+import com.racetrack.service.RunningLogService;
+import com.racetrack.service.UserService;
 import java.time.LocalDate;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
@@ -18,40 +18,37 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class RunningLogController {
 
-    private final RunningLogRepository runningLogRepository;
-    private final UserRepository userRepository;
+    private final RunningLogService runningLogService;
+    private final UserService userService;
 
-    public RunningLogController(RunningLogRepository runningLogRepository,
-                                UserRepository userRepository) {
-        this.runningLogRepository = runningLogRepository;
-        this.userRepository = userRepository;
+    /**
+     * Creates the running log controller.
+     *
+     * @param runningLogService running log service
+     * @param userService user service
+     */
+    public RunningLogController(RunningLogService runningLogService,
+                                UserService userService) {
+        this.runningLogService = runningLogService;
+        this.userService = userService;
     }
 
     /**
      * Persists a running log for the authenticated user.
+     *
+     * @param oidcUser authenticated user
+     * @param runningLog submitted running log payload
+     * @param selectedDate optional date selected from form
+     * @return redirect back to home with success flag
      */
     @PostMapping("/running-log")
     public String submitRunningLog(@AuthenticationPrincipal OidcUser oidcUser,
                                    RunningLog runningLog,
-                                   @RequestParam(value = "logDate", required = false)
-                                   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate logDate) {
-
-        String oktaId = oidcUser.getSubject();
-
-        User user = userRepository.findById(oktaId)
-                .orElseGet(() -> {
-                    User newUser = new User();
-                    newUser.setId(oktaId);
-                    newUser.setEmail(oidcUser.getEmail());
-                    newUser.setRole("athlete");
-                    return userRepository.save(newUser);
-                });
-
-        if (logDate != null) {
-            runningLog.setLogDate(logDate.atStartOfDay());
-        }
+                                   @RequestParam(value = "selectedDate", required = false)
+                                   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate selectedDate) {
+        User user = userService.getOrCreateForFormSubmit(oidcUser);
         runningLog.setUser(user);
-        runningLogRepository.save(runningLog);
+        runningLogService.submitRunningLog(runningLog, selectedDate);
 
         return "redirect:/?runningSuccess";
     }

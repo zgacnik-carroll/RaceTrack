@@ -13,8 +13,21 @@ import java.util.Optional;
 @Repository
 public interface RunningLogRepository extends JpaRepository<RunningLog, Long> {
 
+    /**
+     * Returns running logs for the given user sorted newest first.
+     *
+     * @param userId authenticated user id
+     * @return running logs for the user
+     */
     List<RunningLog> findByUser_IdOrderByLogDateDesc(String userId);
 
+    /**
+     * Finds a running log by id only when it belongs to the provided user.
+     *
+     * @param id running log id
+     * @param userId owning user id
+     * @return optional running log that matches id and owner
+     */
     Optional<RunningLog> findByIdAndUser_Id(Long id, String userId);
 }
 

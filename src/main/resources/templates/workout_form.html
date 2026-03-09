@@ -21,19 +21,19 @@
 
             <form th:action="@{/workout-log}" th:object="${workoutLog}" method="post">
 
-              <div class="d-flex flex-row flex-wrap gap-3">
+              <div class="d-flex flex-row flex-wrap gap-3 workout-fields">
 
-                <div class="flex-grow-1">
+                <div class="flex-grow-1 workout-field">
                   <label class="form-label">Date</label>
                   <input type="date"
                          class="form-control js-date-input"
-                         name="logDate"
+                         name="selectedDate"
                          required
                          data-bs-toggle="tooltip"
                          title="Select the date for this workout log.">
                 </div>
 
-                <div class="flex-grow-1">
+                <div class="flex-grow-1 workout-field">
                   <label class="form-label">Workout Type</label>
                   <select class="form-select" th:field="*{workoutType}" required
                           data-bs-toggle="tooltip" title="Select the type of workout you completed.">
@@ -44,21 +44,21 @@
                   </select>
                 </div>
 
-                <div class="flex-grow-1">
+                <div class="flex-grow-1 workout-field">
                   <label class="form-label">Completion</label>
                   <textarea class="form-control" rows="2" th:field="*{completionDetails}"
                             placeholder="e.g. Core circuit + squats, 6x100m strides"
                             data-bs-toggle="tooltip" title="Provide details on what exercises you completed."></textarea>
                 </div>
 
-                <div class="flex-grow-1">
+                <div class="flex-grow-1 workout-field">
                   <label class="form-label">Actual Paces</label>
                   <textarea class="form-control" rows="2" th:field="*{actualPaces}"
                             placeholder="e.g. 5:38, 5:42, 5:45"
                             data-bs-toggle="tooltip" title="Enter the actual paces for your intervals or runs."></textarea>
                 </div>
 
-                <div class="flex-grow-1">
+                <div class="flex-grow-1 workout-field">
                   <label class="form-label">Workout Description</label>
                   <textarea class="form-control" rows="2" th:field="*{workoutDescription}"
                             placeholder="Describe the workout structure"
