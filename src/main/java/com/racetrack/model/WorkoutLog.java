@@ -33,6 +33,9 @@ public class WorkoutLog {
     @Column(columnDefinition = "TEXT")
     private String actualPaces;
 
+    @Column(columnDefinition = "TEXT")
+    private String coachComment;
+
     // Automatically store the date/time of submission
     private LocalDateTime logDate;
 
@@ -59,6 +62,9 @@ public class WorkoutLog {
 
     public String getActualPaces() { return actualPaces; }
     public void setActualPaces(String actualPaces) { this.actualPaces = actualPaces; }
+
+    public String getCoachComment() { return coachComment; }
+    public void setCoachComment(String coachComment) { this.coachComment = coachComment; }
 
     public LocalDateTime getLogDate() { return logDate; }
     public void setLogDate(LocalDateTime logDate) { this.logDate = logDate; }

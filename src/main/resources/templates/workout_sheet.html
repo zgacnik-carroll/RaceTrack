@@ -9,6 +9,13 @@
        style="display:none;">
 
     <h4 class="mb-3">Workout Logs</h4>
+    <div class="sheet-filter-bar mb-2">
+      <span class="sheet-filter-label">Filter:</span>
+      <button id="workout-filter-default" class="btn btn-sm btn-outline-secondary" onclick="setDateFilter('workout', 'default')">Recent 60</button>
+      <button id="workout-filter-today" class="btn btn-sm btn-outline-secondary" onclick="setDateFilter('workout', 'today')">Today</button>
+      <button id="workout-filter-week" class="btn btn-sm btn-outline-secondary" onclick="setDateFilter('workout', 'week')">Week</button>
+      <button id="workout-filter-month" class="btn btn-sm btn-outline-secondary" onclick="setDateFilter('workout', 'month')">Month</button>
+    </div>
 
     <div class="table-responsive">
       <table class="table table-bordered table-sm spreadsheet-table">
@@ -19,6 +26,8 @@
           <th>Completion Details</th>
           <th>Actual Paces</th>
           <th>Description</th>
+          <th>Coach Comment</th>
+          <th th:if="${!isCoach}">Actions</th>
         </tr>
         </thead>
 

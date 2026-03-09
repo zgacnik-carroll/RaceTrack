@@ -43,6 +43,9 @@ public class RunningLog {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String details;
 
+    @Column(columnDefinition = "TEXT")
+    private String coachComment;
+
     // Automatically store the date/time of submission
     @CreationTimestamp
     private LocalDateTime logDate;
@@ -84,6 +87,9 @@ public class RunningLog {
     public String getDetails() { return details; }
     public void setDetails(String details) { this.details = details; }
 
+    public String getCoachComment() { return coachComment; }
+    public void setCoachComment(String coachComment) { this.coachComment = coachComment; }
+
     public LocalDateTime getLogDate() { return logDate; }
     public void setLogDate(LocalDateTime logDate) { this.logDate = logDate; }
 
@@ -101,6 +107,7 @@ public class RunningLog {
                 ", feel='" + feel + '\'' +
                 ", rpe=" + rpe +
                 ", details='" + details + '\'' +
+                ", coachComment='" + coachComment + '\'' +
                 ", logDate=" + logDate +
                 '}';
     }

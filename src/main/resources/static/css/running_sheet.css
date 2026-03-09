@@ -9,7 +9,8 @@
 
 .spreadsheet-table.running-table {
     table-layout: fixed;
-    width: 100%;
+    width: max-content;
+    min-width: 1660px;
     border-collapse: collapse;
 }
 

@@ -9,9 +9,18 @@
 
     <!-- Purple Header Bar -->
     <div class="d-flex align-items-center justify-content-between flex-grow-1 header-bar">
-      <h1 class="app-title">RaceTrack</h1>
+      <div>
+        <h1 class="app-title">RaceTrack</h1>
+        <div class="signed-in-text">
+          Signed in as <span th:text="${currentUserName}">User</span>
+        </div>
+      </div>
 
-      <div class="d-flex gap-2 button-group">
+      <div class="d-flex gap-2 button-group" th:if="${!isCoach}">
+        <button class="btn btn-outline-light" onclick="showAllForms()">
+          All Forms
+        </button>
+
         <button class="btn btn-outline-primary" onclick="showForm('running')">
           Running Log
         </button>

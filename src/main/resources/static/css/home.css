@@ -23,6 +23,12 @@ html, body {
     margin-bottom: 0;
 }
 
+.signed-in-text {
+    font-size: 0.9rem;
+    font-weight: 500;
+    opacity: 0.9;
+}
+
 .header-bar .btn-outline-primary,
 .header-bar .btn-outline-success {
     color: white;
@@ -153,4 +159,180 @@ h1.app-title {
 
 .spreadsheet-table thead th {
     background-color: #f8f9fa;
+}
+
+/* Keep running-sheet date column visible while horizontally scrolling */
+#runningSpreadsheet .running-table th:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 5;
+    background: linear-gradient(180deg, #dff4ff 0%, #c8ebff 100%);
+    color: #0f3c57;
+    border-right: 2px solid #88c9eb;
+    box-shadow: 3px 0 10px rgba(17, 84, 122, 0.14);
+}
+
+#runningSpreadsheet .running-table td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    color: #103f5d;
+    border-right: 2px solid #c8def0;
+}
+
+#runningSpreadsheet .running-table tbody tr:nth-child(odd) td:first-child {
+    background-color: #eef8ff;
+}
+
+#runningSpreadsheet .running-table tbody tr:nth-child(even) td:first-child {
+    background-color: #e4f2fc;
+}
+
+#runningSpreadsheet .running-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 4;
+    background: linear-gradient(180deg, #dff4ff 0%, #c8ebff 100%);
+    color: #0f3c57;
+    border-bottom: 2px solid #88c9eb;
+}
+
+/* Running-sheet sizing tune */
+#runningSpreadsheet .running-table {
+    width: max-content;
+    min-width: 1660px;
+}
+
+#runningSpreadsheet .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+#runningSpreadsheet .running-table th:nth-child(1),
+#runningSpreadsheet .running-table td:nth-child(1) {
+    width: 90px;
+    min-width: 90px;
+    max-width: 90px;
+}
+
+#runningSpreadsheet .running-table th:nth-child(2),
+#runningSpreadsheet .running-table td:nth-child(2) {
+    width: 80px;
+    min-width: 80px;
+    max-width: 80px;
+}
+
+#runningSpreadsheet .running-table th:nth-child(3),
+#runningSpreadsheet .running-table td:nth-child(3) {
+    width: 90px;
+    min-width: 90px;
+    max-width: 90px;
+}
+
+#runningSpreadsheet .running-table th:nth-child(4),
+#runningSpreadsheet .running-table td:nth-child(4),
+#runningSpreadsheet .running-table th:nth-child(5),
+#runningSpreadsheet .running-table td:nth-child(5) {
+    width: 80px;
+    min-width: 80px;
+    max-width: 80px;
+}
+
+#runningSpreadsheet .running-table th:nth-child(6),
+#runningSpreadsheet .running-table td:nth-child(6) {
+    width: 140px;
+    min-width: 140px;
+    max-width: 140px;
+}
+
+#runningSpreadsheet .running-table th:nth-child(7),
+#runningSpreadsheet .running-table td:nth-child(7) {
+    width: 140px;
+    min-width: 140px;
+    max-width: 140px;
+}
+
+#runningSpreadsheet .running-table th:nth-child(8),
+#runningSpreadsheet .running-table td:nth-child(8) {
+    width: 105px;
+    min-width: 105px;
+    max-width: 105px;
+}
+
+#runningSpreadsheet .running-table th:nth-child(9),
+#runningSpreadsheet .running-table td:nth-child(9) {
+    width: 80px;
+    min-width: 80px;
+    max-width: 80px;
+}
+
+#runningSpreadsheet .running-table th:nth-child(10),
+#runningSpreadsheet .running-table td:nth-child(10) {
+    width: 360px;
+    min-width: 360px;
+}
+
+#runningSpreadsheet .running-table th:nth-child(11),
+#runningSpreadsheet .running-table td:nth-child(11) {
+    width: 260px;
+    min-width: 260px;
+}
+
+#runningSpreadsheet .running-table th:nth-child(12),
+#runningSpreadsheet .running-table td:nth-child(12) {
+    width: 90px;
+    min-width: 90px;
+}
+
+.sheet-input {
+    width: 100%;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    padding: 0.3rem 0.45rem;
+    font-size: 0.85rem;
+}
+
+.sheet-filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+}
+
+.sheet-filter-label {
+    font-size: 0.85rem;
+    color: #4d4d4d;
+}
+
+.sheet-filter-bar .btn.active {
+    background-color: #332a86;
+    border-color: #332a86;
+    color: #ffffff;
+}
+
+.sheet-textarea {
+    min-height: 70px;
+    resize: vertical;
+}
+
+.log-date-cell {
+    white-space: nowrap;
+    text-indent: 0;
+    padding-left: 0.5rem !important;
+}
+
+.wellness-cell {
+    transition: background-color 160ms ease-in-out;
+}
+
+.wellness-green {
+    background-color: #d4edda !important;
+}
+
+.wellness-yellow {
+    background-color: #fff3cd !important;
+}
+
+.wellness-red {
+    background-color: #f8d7da !important;
 }
