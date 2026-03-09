@@ -6,6 +6,9 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+/**
+ * Data access for running logs.
+ */
 @Repository
 public interface RunningLogRepository extends JpaRepository<RunningLog, Long> {
 

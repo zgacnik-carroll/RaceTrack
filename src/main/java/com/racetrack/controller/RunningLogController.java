@@ -9,6 +9,9 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 
+/**
+ * Handles form submissions for running logs.
+ */
 @Controller
 public class RunningLogController {
 
@@ -21,6 +24,9 @@ public class RunningLogController {
         this.userRepository = userRepository;
     }
 
+    /**
+     * Persists a running log for the authenticated user.
+     */
     @PostMapping("/running-log")
     public String submitRunningLog(@AuthenticationPrincipal OidcUser oidcUser,
                                    RunningLog runningLog) {

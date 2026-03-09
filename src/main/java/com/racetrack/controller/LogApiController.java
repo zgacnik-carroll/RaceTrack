@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * API endpoints for retrieving running and workout logs.
+ */
 @RestController
 @RequestMapping("/api")
 public class LogApiController {
@@ -23,12 +26,18 @@ public class LogApiController {
         this.workoutLogRepository = workoutLogRepository;
     }
 
+    /**
+     * Returns running logs for the authenticated user.
+     */
     @GetMapping("/running-logs/me")
     public List<RunningLog> myRunningLogs(@AuthenticationPrincipal OidcUser oidcUser) {
         return runningLogRepository
                 .findByUser_IdOrderByLogDateDesc(oidcUser.getSubject());
     }
 
+    /**
+     * Returns workout logs for the authenticated user.
+     */
     @GetMapping("/workout-logs/me")
     public List<WorkoutLog> myWorkoutLogs(@AuthenticationPrincipal OidcUser oidcUser) {
         return workoutLogRepository

@@ -3,6 +3,9 @@ package com.racetrack.model;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+/**
+ * Entity representing a workout log submitted by a user.
+ */
 @Entity
 @Table(name = "workout_logs")
 public class WorkoutLog {

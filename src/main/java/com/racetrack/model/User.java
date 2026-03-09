@@ -4,6 +4,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+/**
+ * Entity representing an authenticated user from the identity provider.
+ */
 @Entity
 @Table(name = "users")
 public class User {
@@ -19,6 +22,10 @@ public class User {
     // Constructors
     public User() {}
 
+    /**
+     * Creates a user record based on identity provider attributes.
+     * The {@code team} parameter is retained for compatibility even if unused.
+     */
     public User(String id, String email, String fullName, String role, String team) {
         this.id = id;
         this.email = email;

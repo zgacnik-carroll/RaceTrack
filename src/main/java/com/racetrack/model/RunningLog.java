@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import org.hibernate.annotations.CreationTimestamp;
 
+/**
+ * Entity representing a daily running log submitted by a user.
+ */
 @Entity
 @Table(name = "running_logs")
 public class RunningLog {
@@ -26,7 +29,7 @@ public class RunningLog {
 
     // Recovery & wellness
     private Integer sleepHours;
-    private Integer stressLevel; // 1–10
+    private Integer stressLevel; // 1-10
 
     // Nutrition
     private Boolean plateProportion;
@@ -34,7 +37,7 @@ public class RunningLog {
 
     // Perceived effort & feel
     private String feel;
-    private Integer rpe; // 1–10
+    private Integer rpe; // 1-10
 
     // Run description
     @Column(columnDefinition = "TEXT", nullable = false)

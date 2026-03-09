@@ -9,6 +9,9 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 
+/**
+ * Handles form submissions for workout logs.
+ */
 @Controller
 public class WorkoutLogController {
 
@@ -21,6 +24,9 @@ public class WorkoutLogController {
         this.userRepository = userRepository;
     }
 
+    /**
+     * Persists a workout log for the authenticated user.
+     */
     @PostMapping("/workout-log")
     public String submitWorkoutLog(@AuthenticationPrincipal OidcUser oidcUser,
                                    WorkoutLog workoutLog) {
