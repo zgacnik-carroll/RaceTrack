@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -101,6 +102,9 @@ public class LogApiController {
         log.setFeel(request.feel());
         log.setRpe(request.rpe());
         log.setDetails(request.details());
+        if (request.logDate() != null) {
+            log.setLogDate(request.logDate().atStartOfDay());
+        }
         runningLogRepository.save(log);
 
         return ResponseEntity.ok().build();
@@ -125,6 +129,9 @@ public class LogApiController {
         log.setCompletionDetails(request.completionDetails());
         log.setActualPaces(request.actualPaces());
         log.setWorkoutDescription(request.workoutDescription());
+        if (request.logDate() != null) {
+            log.setLogDate(request.logDate().atStartOfDay());
+        }
         workoutLogRepository.save(log);
 
         return ResponseEntity.ok().build();
@@ -235,13 +242,15 @@ public class LogApiController {
             Boolean gotThatBread,
             String feel,
             Integer rpe,
-            String details
+            String details,
+            LocalDate logDate
     ) {}
 
     public record WorkoutLogUpdateRequest(
             String workoutType,
             String completionDetails,
             String actualPaces,
-            String workoutDescription
+            String workoutDescription,
+            LocalDate logDate
     ) {}
 }

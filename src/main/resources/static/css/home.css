@@ -210,9 +210,9 @@ h1.app-title {
 
 #runningSpreadsheet .running-table th:nth-child(1),
 #runningSpreadsheet .running-table td:nth-child(1) {
-    width: 90px;
-    min-width: 90px;
-    max-width: 90px;
+    width: 118px;
+    min-width: 118px;
+    max-width: 118px;
 }
 
 #runningSpreadsheet .running-table th:nth-child(2),
@@ -319,6 +319,10 @@ h1.app-title {
     white-space: nowrap;
     text-indent: 0;
     padding-left: 0.5rem !important;
+}
+
+.log-date-cell .sheet-input[type="date"] {
+    min-width: 0;
 }
 
 .wellness-cell {

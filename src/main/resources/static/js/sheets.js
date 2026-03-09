@@ -29,6 +29,35 @@ function formatDate(dateString) {
     return `${mm}-${dd}-${yy}`;
 }
 
+function formatDateForInput(dateString) {
+    if (!dateString) return "";
+    if (typeof dateString === "string" && dateString.includes("T")) {
+        return dateString.split("T")[0];
+    }
+    if (typeof dateString === "string" && dateString.length === 10) {
+        return dateString;
+    }
+
+    const d = new Date(dateString);
+    if (Number.isNaN(d.getTime())) return "";
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    const yyyy = String(d.getFullYear());
+    return `${yyyy}-${mm}-${dd}`;
+}
+
+function bindDateInputPicker(inputId) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    const openPicker = () => {
+        if (typeof input.showPicker === "function") {
+            input.showPicker();
+        }
+    };
+    input.addEventListener("focus", openPicker);
+    input.addEventListener("click", openPicker);
+}
+
 function booleanDisplay(value) {
     if (value === true) return "Yes";
     if (value === false) return "No";
@@ -238,7 +267,7 @@ function loadRunningLogs(requestedUserId) {
 
                 if (editable) {
                     row.innerHTML = `
-                        <td class="log-date-cell">${formatDate(log.logDate)}</td>
+                        <td class="log-date-cell"><input class="sheet-input" type="date" value="${formatDateForInput(log.logDate)}" id="running-date-${log.id}"></td>
                         <td><input class="sheet-input" type="number" step="0.01" value="${log.mileage ?? ""}" id="running-mileage-${log.id}"></td>
                         <td id="running-hurting-cell-${log.id}" class="wellness-cell">${booleanSelect(log.hurting).replace('data-field="bool"', `id="running-hurting-${log.id}"`)}</td>
                         <td id="running-sleep-cell-${log.id}" class="wellness-cell"><input class="sheet-input" type="number" value="${log.sleepHours ?? ""}" id="running-sleep-${log.id}"></td>
@@ -272,6 +301,7 @@ function loadRunningLogs(requestedUserId) {
                 if (editable) {
                     bindRunningRowColorHandlers(log.id);
                     updateRunningRowColors(log.id);
+                    bindDateInputPicker(`running-date-${log.id}`);
                 }
             });
         })
@@ -296,7 +326,8 @@ function saveRunningLog(logId) {
         gotThatBread: parseBoolean(document.getElementById(`running-bread-${logId}`).value),
         feel: document.getElementById(`running-feel-${logId}`).value,
         rpe: parseIntOrNull(document.getElementById(`running-rpe-${logId}`).value),
-        details: document.getElementById(`running-details-${logId}`).value
+        details: document.getElementById(`running-details-${logId}`).value,
+        logDate: document.getElementById(`running-date-${logId}`).value || null
     };
 
     fetch(`/api/running-logs/${logId}`, {
@@ -338,7 +369,7 @@ function loadWorkoutLogs(requestedUserId) {
 
                 if (editable) {
                     row.innerHTML = `
-                        <td class="log-date-cell">${formatDate(log.logDate)}</td>
+                        <td class="log-date-cell"><input class="sheet-input" type="date" value="${formatDateForInput(log.logDate)}" id="workout-date-${log.id}"></td>
                         <td><input class="sheet-input" type="text" value="${escapeHtml(log.workoutType ?? "")}" id="workout-type-${log.id}"></td>
                         <td><textarea class="sheet-input sheet-textarea" id="workout-completion-${log.id}">${escapeHtml(log.completionDetails ?? "")}</textarea></td>
                         <td><textarea class="sheet-input sheet-textarea" id="workout-paces-${log.id}">${escapeHtml(log.actualPaces ?? "")}</textarea></td>
@@ -358,6 +389,10 @@ function loadWorkoutLogs(requestedUserId) {
                 }
 
                 tbody.appendChild(row);
+
+                if (editable) {
+                    bindDateInputPicker(`workout-date-${log.id}`);
+                }
             });
         })
         .catch(error => {
@@ -376,7 +411,8 @@ function saveWorkoutLog(logId) {
         workoutType: document.getElementById(`workout-type-${logId}`).value,
         completionDetails: document.getElementById(`workout-completion-${logId}`).value,
         actualPaces: document.getElementById(`workout-paces-${logId}`).value,
-        workoutDescription: document.getElementById(`workout-description-${logId}`).value
+        workoutDescription: document.getElementById(`workout-description-${logId}`).value,
+        logDate: document.getElementById(`workout-date-${logId}`).value || null
     };
 
     fetch(`/api/workout-logs/${logId}`, {

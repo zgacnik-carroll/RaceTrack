@@ -4,10 +4,13 @@ import com.racetrack.model.User;
 import com.racetrack.model.WorkoutLog;
 import com.racetrack.repository.UserRepository;
 import com.racetrack.repository.WorkoutLogRepository;
+import java.time.LocalDate;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * Handles form submissions for workout logs.
@@ -29,7 +32,9 @@ public class WorkoutLogController {
      */
     @PostMapping("/workout-log")
     public String submitWorkoutLog(@AuthenticationPrincipal OidcUser oidcUser,
-                                   WorkoutLog workoutLog) {
+                                   WorkoutLog workoutLog,
+                                   @RequestParam(value = "logDate", required = false)
+                                   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate logDate) {
 
         String oktaId = oidcUser.getSubject();
 
@@ -42,6 +47,9 @@ public class WorkoutLogController {
                     return userRepository.save(newUser);
                 });
 
+        if (logDate != null) {
+            workoutLog.setLogDate(logDate.atStartOfDay());
+        }
         workoutLog.setUser(user);
         workoutLogRepository.save(workoutLog);
 
