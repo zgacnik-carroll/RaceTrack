@@ -7,10 +7,22 @@ html, body {
 }
 
 /* =========================
+   Header Shell
+========================= */
+
+.header-shell {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* =========================
    Header Bar Styling
 ========================= */
 
 .header-bar {
+    flex: 1;
     background-color: #332a86;
     color: white;
     padding: 1rem 1.5rem;
@@ -119,6 +131,7 @@ html, body {
 .logo-wrapper {
     display: flex;
     align-items: center;
+    flex-shrink: 0;
 }
 
 .app-logo {
@@ -173,14 +186,12 @@ h1.app-title {
     padding: 0.5rem;
 }
 
-/* Restrict height for ~20 rows and enable vertical scrolling */
 .spreadsheet-container .table-responsive {
     max-height: 520px;
     overflow-y: auto;
     border: 1px solid #dee2e6;
 }
 
-/* Scrollable cells for long text */
 .expandable-cell {
     max-width: 400px;
     max-height: 80px;
@@ -211,7 +222,6 @@ h1.app-title {
     background-color: #f8f9fa;
 }
 
-/* Keep running-sheet date column visible while horizontally scrolling */
 #runningSpreadsheet .running-table th:first-child {
     position: sticky;
     left: 0;
@@ -247,7 +257,6 @@ h1.app-title {
     border-bottom: 2px solid #88c9eb;
 }
 
-/* Running-sheet sizing tune */
 #runningSpreadsheet .running-table {
     width: max-content;
     min-width: 1660px;
@@ -392,6 +401,11 @@ h1.app-title {
 }
 
 @media (max-width: 768px) {
+    .header-shell {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
     .container.mt-5 {
         margin-top: 1rem !important;
         padding-left: 0.75rem;

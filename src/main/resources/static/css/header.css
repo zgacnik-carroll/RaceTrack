@@ -2,8 +2,33 @@
    Header Styling
 ========================= */
 
-/* Header bar */
+/* Shell: logo + purple bar side by side */
+.header-shell {
+    display: flex;
+    flex-direction: row;
+    align-items: center;   /* vertically center logo beside the bar */
+    gap: 1rem;
+}
+
+/* Logo wrapper — sits to the LEFT of the purple bar */
+.logo-wrapper {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.app-logo {
+    height: 72px;           /* adjust to taste */
+    width: auto;
+    object-fit: contain;
+}
+
+/* Purple bar fills remaining space */
 .header-bar {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     background-color: #332a86;
     color: white;
     padding: 1rem 1.5rem;
@@ -32,16 +57,4 @@
     background-color: white;
     color: #332a86;
     border-color: white;
-}
-
-/* Logo */
-.logo-wrapper {
-    display: flex;
-    align-items: center;
-}
-
-.app-logo {
-    height: 56px;
-    width: auto;
-    object-fit: contain;
 }
