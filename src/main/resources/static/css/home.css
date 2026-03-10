@@ -15,6 +15,7 @@ html, body {
     flex-direction: row;
     align-items: center;
     gap: 1rem;
+    width: 100%;
 }
 
 /* =========================
@@ -23,6 +24,7 @@ html, body {
 
 .header-bar {
     flex: 1;
+    min-width: 0;
     background-color: #332a86;
     color: white;
     padding: 1rem 1.5rem;
@@ -45,6 +47,7 @@ html, body {
     font-size: 0.9rem;
     font-weight: 500;
     opacity: 0.9;
+    overflow-wrap: anywhere;
 }
 
 .header-brand {
@@ -151,6 +154,11 @@ h1.app-title {
 
 .container {
     background: transparent !important;
+}
+
+/* Keep form content clear of fixed desktop footer */
+.container.mt-5 {
+    padding-bottom: 110px;
 }
 
 /* =========================
@@ -402,22 +410,31 @@ h1.app-title {
 
 @media (max-width: 768px) {
     .header-shell {
-        flex-direction: column;
-        align-items: flex-start;
+        flex-direction: row;
+        align-items: stretch;
+        gap: 0.75rem;
     }
 
     .container.mt-5 {
         margin-top: 1rem !important;
         padding-left: 0.75rem;
         padding-right: 0.75rem;
+        padding-bottom: 0;
     }
 
     .app-logo {
-        height: 50px;
+        height: 64px;
+    }
+
+    .logo-wrapper {
+        align-items: flex-start;
+        padding-top: 0.15rem;
     }
 
     .header-bar {
         padding: 0.9rem;
+        width: 100%;
+        min-width: 0;
     }
 
     .header-bar .app-title {
@@ -457,6 +474,14 @@ h1.app-title {
 }
 
 @media (max-width: 480px) {
+    .header-shell {
+        gap: 0.55rem;
+    }
+
+    .app-logo {
+        height: 54px;
+    }
+
     .brand-row {
         gap: 0.5rem;
     }
