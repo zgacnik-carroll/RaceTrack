@@ -225,7 +225,7 @@ function updateRunningRowColors(logId) {
     const breadValue = parseBoolean(document.getElementById(`running-bread-${logId}`)?.value);
     const feelValue = document.getElementById(`running-feel-${logId}`)?.value ?? "";
 
-    setWellnessCellColor(`running-hurting-cell-${logId}`, yesNoColor(hurtingValue));
+
     setWellnessCellColor(`running-sleep-cell-${logId}`, sleepColor(sleepValue));
     setWellnessCellColor(`running-stress-cell-${logId}`, stressColor(stressValue));
     setWellnessCellColor(`running-plate-cell-${logId}`, yesNoColor(plateValue));
