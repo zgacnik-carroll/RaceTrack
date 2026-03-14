@@ -471,6 +471,14 @@ h1.app-title {
     .sheet-textarea {
         min-height: 56px;
     }
+
+    .logout-form {
+        width: 100%;
+    }
+
+    .logout-form .btn {
+        width: 100%;
+    }
 }
 
 @media (max-width: 480px) {
