@@ -201,6 +201,8 @@ h1.app-title {
 }
 
 .expandable-cell {
+    width: 100%;
+    box-sizing: border-box;
     max-width: 400px;
     max-height: 80px;
     overflow-y: auto;
@@ -380,6 +382,42 @@ h1.app-title {
 .sheet-textarea {
     min-height: 70px;
     resize: vertical;
+}
+
+.coach-comment-editor {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.45rem;
+}
+
+.coach-comment-input {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.coach-comment-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+}
+
+.coach-comment-save-btn {
+    white-space: nowrap;
+    min-width: 64px;
+}
+
+.comment-save-indicator {
+    font-size: 0.75rem;
+    color: #198754;
+    min-height: 1em;
+}
+
+.sheet-athlete-context {
+    font-size: 0.95rem;
+    color: #5b6670;
+    font-weight: 500;
+    margin-left: 0.25rem;
 }
 
 .log-date-cell {

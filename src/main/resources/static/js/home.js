@@ -5,6 +5,7 @@
 ========================= */
 
 let selectedUserId = null;
+let selectedAthleteDisplayName = "";
 const currentUserRole = (window.currentUserRole || "athlete").toLowerCase();
 const currentUserId = window.currentUserId || null;
 
@@ -52,9 +53,11 @@ function showAllForms() {
  * Selects an athlete for coach view and opens that athlete's running sheet.
  * @param {string} userId selected athlete id
  */
-function selectStudent(userId) {
+function selectStudent(userId, displayName) {
     if (currentUserRole !== "coach") return;
     selectedUserId = userId;
+    selectedAthleteDisplayName = displayName || "Selected athlete";
+    updateRunningSheetHeaderLabel();
     hideMainContent();
 
     // By default, show running sheet when a student is selected
@@ -67,8 +70,27 @@ function selectStudent(userId) {
 function clearStudentSelection() {
     if (currentUserRole !== "coach") return;
     selectedUserId = null;
+    selectedAthleteDisplayName = "";
+    updateRunningSheetHeaderLabel();
     hideMainContent();
     document.getElementById("emptyState").style.display = "block";
+}
+
+/**
+ * Updates running-sheet subheader text with selected athlete context.
+ */
+function updateRunningSheetHeaderLabel() {
+    const label = document.getElementById("runningSheetAthleteLabel");
+    if (!label) return;
+
+    if (currentUserRole === "coach") {
+        label.textContent = selectedAthleteDisplayName
+            ? `- ${selectedAthleteDisplayName}`
+            : "- No athlete selected";
+        return;
+    }
+
+    label.textContent = currentUserId ? "- My Logs" : "";
 }
 
 /* =========================
@@ -170,4 +192,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (currentUserRole === "athlete") {
         showAllForms();
     }
+
+    updateRunningSheetHeaderLabel();
 });
+
+window.updateRunningSheetHeaderLabel = updateRunningSheetHeaderLabel;

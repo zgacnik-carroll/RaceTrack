@@ -9,15 +9,16 @@
 
 .spreadsheet-table.workout-table {
     table-layout: fixed;
-    width: 100%;
+    width: max-content;
+    min-width: 1340px;
     border-collapse: collapse;
 }
 
 .spreadsheet-table.workout-table th,
 .spreadsheet-table.workout-table td {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     vertical-align: top;
-    padding: 0.5rem;
+    padding: 0.35rem 0.4rem;
 }
 
 /* Restrict height for ~20 rows and enable vertical scrolling */
@@ -29,15 +30,17 @@
 
 /* Scrollable completion and description cells */
 .workout-expandable {
+    width: 100%;
+    box-sizing: border-box;
     max-width: 300px;
-    max-height: 80px;
+    max-height: 72px;
     overflow-y: auto;
     word-wrap: break-word;
     word-break: break-word;
     white-space: normal;
-    line-height: 1.35;
+    line-height: 1.25;
     display: block;
-    padding: 0.25rem 0.5rem;
+    padding: 0.2rem 0.35rem;
 }
 
 .workout-expandable::-webkit-scrollbar {
@@ -57,4 +60,67 @@
 /* Optional: table header background */
 #workoutSpreadsheet thead th {
     background-color: #f8f9fa;
+    line-height: 1.2;
+}
+
+#workoutSpreadsheet .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Keep coach comment editor layout aligned with running sheet */
+#workoutSpreadsheet .workout-table td:nth-child(6) .coach-comment-editor {
+    width: 100%;
+}
+
+#workoutSpreadsheet .workout-table td:nth-child(6) .coach-comment-actions {
+    min-width: 70px;
+}
+
+#workoutSpreadsheet .workout-table td:nth-child(6) .sheet-textarea {
+    min-height: 56px;
+    max-height: 72px;
+    resize: vertical;
+    overflow-y: auto;
+    line-height: 1.25;
+}
+
+/* Compact column widths */
+#workoutSpreadsheet .workout-table th:nth-child(1),
+#workoutSpreadsheet .workout-table td:nth-child(1) {
+    width: 118px;
+    min-width: 118px;
+    max-width: 118px;
+}
+
+#workoutSpreadsheet .workout-table th:nth-child(2),
+#workoutSpreadsheet .workout-table td:nth-child(2) {
+    width: 120px;
+    min-width: 120px;
+    max-width: 120px;
+}
+
+#workoutSpreadsheet .workout-table th:nth-child(3),
+#workoutSpreadsheet .workout-table td:nth-child(3),
+#workoutSpreadsheet .workout-table th:nth-child(4),
+#workoutSpreadsheet .workout-table td:nth-child(4),
+#workoutSpreadsheet .workout-table th:nth-child(5),
+#workoutSpreadsheet .workout-table td:nth-child(5) {
+    width: 260px;
+    min-width: 260px;
+    max-width: 260px;
+}
+
+#workoutSpreadsheet .workout-table th:nth-child(6),
+#workoutSpreadsheet .workout-table td:nth-child(6) {
+    width: 260px;
+    min-width: 260px;
+    max-width: 260px;
+}
+
+#workoutSpreadsheet .workout-table th:nth-child(7),
+#workoutSpreadsheet .workout-table td:nth-child(7) {
+    width: 90px;
+    min-width: 90px;
+    max-width: 90px;
 }

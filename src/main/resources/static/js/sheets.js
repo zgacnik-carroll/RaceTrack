@@ -356,8 +356,13 @@ function coachCommentCell(logId, comment, logType) {
 
     return `
       <td>
-        <textarea class="sheet-input sheet-textarea" id="${logType}-coach-comment-${logId}">${escapeHtml(comment ?? "")}</textarea>
-        <button class="btn btn-sm btn-outline-primary mt-2" onclick="saveCoachComment('${logType}', ${logId})">Save Comment</button>
+        <div class="coach-comment-editor">
+          <textarea class="sheet-input sheet-textarea coach-comment-input" id="${logType}-coach-comment-${logId}">${escapeHtml(comment ?? "")}</textarea>
+          <div class="coach-comment-actions">
+            <button type="button" class="btn btn-sm btn-outline-primary coach-comment-save-btn" id="${logType}-coach-save-${logId}" onclick="saveCoachComment('${logType}', ${logId})">Save</button>
+            <span class="comment-save-indicator" id="${logType}-coach-indicator-${logId}" aria-live="polite"></span>
+          </div>
+        </div>
       </td>
     `;
 }
@@ -418,7 +423,7 @@ function loadRunningLogs(requestedUserId) {
                         <td class="wellness-cell"${styleAttrFromColor(yesNoColor(log.gotThatBread))}>${booleanDisplay(log.gotThatBread)}</td>
                         <td class="wellness-cell"${styleAttrFromColor(feelColor(log.feel))}>${escapeHtml(log.feel ?? "")}</td>
                         <td>${escapeHtml(log.rpe ?? "")}</td>
-                        <td class="expandable-cell">${escapeHtml(log.details ?? "")}</td>
+                        <td><div class="expandable-cell">${escapeHtml(log.details ?? "")}</div></td>
                         ${coachCommentCell(log.id, log.coachComment, "running")}
                     `;
                 }
@@ -444,6 +449,9 @@ function loadRunningLogs(requestedUserId) {
 function showRunningSheet(userIdParam = null) {
     hideMainContent();
     document.getElementById("runningSpreadsheet").style.display = "block";
+    if (window.updateRunningSheetHeaderLabel) {
+        window.updateRunningSheetHeaderLabel();
+    }
     loadRunningLogs(userIdParam);
 }
 
@@ -644,7 +652,21 @@ function deleteWorkoutLog(logId) {
  */
 function saveCoachComment(logType, logId) {
     const fieldId = `${logType}-coach-comment-${logId}`;
+    const saveButtonId = `${logType}-coach-save-${logId}`;
+    const indicatorId = `${logType}-coach-indicator-${logId}`;
     const value = document.getElementById(fieldId).value;
+    const saveButton = document.getElementById(saveButtonId);
+    const indicator = document.getElementById(indicatorId);
+
+    if (saveButton) {
+        saveButton.disabled = true;
+        saveButton.textContent = "Saving...";
+        saveButton.classList.remove("btn-outline-success", "btn-outline-danger");
+        saveButton.classList.add("btn-outline-primary");
+    }
+    if (indicator) {
+        indicator.textContent = "";
+    }
 
     fetch(`/api/${logType}-logs/${logId}/coach-comment`, {
         method: "PUT",
@@ -653,15 +675,38 @@ function saveCoachComment(logType, logId) {
     })
         .then(res => {
             if (!res.ok) throw new Error(`Failed to save coach comment (${res.status})`);
-            if (logType === "running") {
-                loadRunningLogs();
-            } else {
-                loadWorkoutLogs();
+            if (saveButton) {
+                saveButton.disabled = false;
+                saveButton.textContent = "Saved";
+                saveButton.classList.remove("btn-outline-primary", "btn-outline-danger");
+                saveButton.classList.add("btn-outline-success");
             }
+            if (indicator) {
+                indicator.textContent = "Saved";
+            }
+            window.setTimeout(() => {
+                if (saveButton) {
+                    saveButton.textContent = "Save";
+                    saveButton.classList.remove("btn-outline-success", "btn-outline-danger");
+                    saveButton.classList.add("btn-outline-primary");
+                }
+                if (indicator) {
+                    indicator.textContent = "";
+                }
+            }, 2000);
             if (window.showSaveNotice) window.showSaveNotice("Coach comment saved.", "success");
         })
         .catch(error => {
             console.error(error);
+            if (saveButton) {
+                saveButton.disabled = false;
+                saveButton.textContent = "Retry";
+                saveButton.classList.remove("btn-outline-primary", "btn-outline-success");
+                saveButton.classList.add("btn-outline-danger");
+            }
+            if (indicator) {
+                indicator.textContent = "Save failed";
+            }
             if (window.showSaveNotice) window.showSaveNotice("Could not save coach comment.", "danger");
         });
 }

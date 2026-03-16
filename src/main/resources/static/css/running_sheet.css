@@ -10,15 +10,15 @@
 .spreadsheet-table.running-table {
     table-layout: fixed;
     width: max-content;
-    min-width: 1660px;
+    min-width: 1490px;
     border-collapse: collapse;
 }
 
 .spreadsheet-table.running-table th,
 .spreadsheet-table.running-table td {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     vertical-align: top;
-    padding: 0.5rem;
+    padding: 0.35rem 0.4rem;
 }
 
 /* Restrict height for ~20 rows and enable vertical scrolling */
@@ -30,15 +30,15 @@
 
 /* Scrollable comments cell */
 .running-comments {
-    max-width: 300px;
-    max-height: 80px;
+    max-width: 220px;
+    max-height: 72px;
     overflow-y: auto;
     word-wrap: break-word;
     word-break: break-word;
     white-space: normal;
-    line-height: 1.35;
+    line-height: 1.25;
     display: block;
-    padding: 0.25rem 0.5rem;
+    padding: 0.2rem 0.35rem;
 }
 
 .running-comments::-webkit-scrollbar {
@@ -58,4 +58,93 @@
 /* Optional: table header background */
 #runningSpreadsheet thead th {
     background-color: #f8f9fa;
+    line-height: 1.2;
+}
+
+/* Keep text-heavy cells compact and scrollable instead of stretching rows */
+#runningSpreadsheet .running-table td:nth-child(10) .expandable-cell,
+#runningSpreadsheet .running-table td:nth-child(11) .expandable-cell {
+    width: 100%;
+    box-sizing: border-box;
+    max-width: 220px;
+    max-height: 72px;
+    overflow-y: auto;
+    line-height: 1.25;
+}
+
+#runningSpreadsheet .running-table td:nth-child(11) .sheet-textarea {
+    min-height: 56px;
+    max-height: 72px;
+    resize: vertical;
+    overflow-y: auto;
+    line-height: 1.25;
+}
+
+/* Running-sheet specific compact column widths */
+#runningSpreadsheet .running-table th:nth-child(2),
+#runningSpreadsheet .running-table td:nth-child(2) {
+    width: 68px;
+    min-width: 68px;
+    max-width: 68px;
+}
+
+#runningSpreadsheet .running-table th:nth-child(3),
+#runningSpreadsheet .running-table td:nth-child(3),
+#runningSpreadsheet .running-table th:nth-child(4),
+#runningSpreadsheet .running-table td:nth-child(4),
+#runningSpreadsheet .running-table th:nth-child(5),
+#runningSpreadsheet .running-table td:nth-child(5),
+#runningSpreadsheet .running-table th:nth-child(9),
+#runningSpreadsheet .running-table td:nth-child(9) {
+    width: 72px;
+    min-width: 72px;
+    max-width: 72px;
+}
+
+#runningSpreadsheet .running-table th:nth-child(6),
+#runningSpreadsheet .running-table td:nth-child(6),
+#runningSpreadsheet .running-table th:nth-child(7),
+#runningSpreadsheet .running-table td:nth-child(7) {
+    width: 112px;
+    min-width: 112px;
+    max-width: 112px;
+}
+
+#runningSpreadsheet .running-table th:nth-child(8),
+#runningSpreadsheet .running-table td:nth-child(8) {
+    width: 88px;
+    min-width: 88px;
+    max-width: 88px;
+}
+
+#runningSpreadsheet .running-table th:nth-child(10),
+#runningSpreadsheet .running-table td:nth-child(10) {
+    width: 220px;
+    min-width: 220px;
+    max-width: 220px;
+}
+
+#runningSpreadsheet .running-table th:nth-child(11),
+#runningSpreadsheet .running-table td:nth-child(11) {
+    width: 260px;
+    min-width: 260px;
+    max-width: 260px;
+}
+
+#runningSpreadsheet .running-table td:nth-child(10) .expandable-cell {
+    max-width: none;
+    margin: 0;
+    padding: 0.2rem 0.35rem;
+}
+
+#runningSpreadsheet .running-table td:nth-child(10) {
+    padding: 0.2rem 0.2rem 0.2rem 0.35rem;
+}
+
+#runningSpreadsheet .running-table td:nth-child(11) .coach-comment-editor {
+    width: 100%;
+}
+
+#runningSpreadsheet .running-table td:nth-child(11) .coach-comment-actions {
+    min-width: 70px;
 }

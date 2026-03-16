@@ -18,8 +18,8 @@
           <div class="athlete-list d-flex gap-2 overflow-auto">
             <button class="btn btn-sm btn-outline-light"
                     th:each="athlete : ${athletes}"
-                    th:attr="data-name=${athlete.fullName},data-email=${athlete.email}"
-                    th:onclick="'selectStudent(' + '\'' + ${athlete.id} + '\'' + ')'"
+                    th:attr="data-name=${athlete.fullName},data-email=${athlete.email},data-user-id=${athlete.id},data-display-name=${athlete.fullName != null and !#strings.isEmpty(athlete.fullName) ? athlete.fullName : athlete.email}"
+                    onclick="selectStudent(this.dataset.userId, this.dataset.displayName)"
                     th:text="${athlete.fullName != null and !#strings.isEmpty(athlete.fullName) ? athlete.fullName : athlete.email}">
               Athlete
             </button>
