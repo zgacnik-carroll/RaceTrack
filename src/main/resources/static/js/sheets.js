@@ -559,6 +559,9 @@ function loadWorkoutLogs(requestedUserId) {
 function showWorkoutSheet(userIdParam = null) {
     hideMainContent();
     document.getElementById("workoutSpreadsheet").style.display = "block";
+    if (window.updateRunningSheetHeaderLabel) {
+        window.updateRunningSheetHeaderLabel();
+    }
     loadWorkoutLogs(userIdParam);
 }
 

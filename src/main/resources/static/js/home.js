@@ -80,17 +80,25 @@ function clearStudentSelection() {
  * Updates running-sheet subheader text with selected athlete context.
  */
 function updateRunningSheetHeaderLabel() {
-    const label = document.getElementById("runningSheetAthleteLabel");
-    if (!label) return;
+    const runningLabel = document.getElementById("runningSheetAthleteLabel");
+    const workoutLabel = document.getElementById("workoutSheetAthleteLabel");
+    const labels = [runningLabel, workoutLabel].filter(Boolean);
+    if (labels.length === 0) return;
 
     if (currentUserRole === "coach") {
-        label.textContent = selectedAthleteDisplayName
+        const text = selectedAthleteDisplayName
             ? `- ${selectedAthleteDisplayName}`
             : "- No athlete selected";
+        labels.forEach((label) => {
+            label.textContent = text;
+        });
         return;
     }
 
-    label.textContent = currentUserId ? "- My Logs" : "";
+    const text = currentUserId ? "- My Logs" : "";
+    labels.forEach((label) => {
+        label.textContent = text;
+    });
 }
 
 /* =========================
