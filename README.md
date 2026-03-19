@@ -2,7 +2,7 @@
 
 # RaceTrack
 
-**Training log management for Carroll College Track & Cross Country**
+**Training log management for Carroll College Cross Country**
 
 ![Java](https://img.shields.io/badge/Java-25-orange?style=flat-square&logo=openjdk)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.x-6db33f?style=flat-square&logo=springboot)
