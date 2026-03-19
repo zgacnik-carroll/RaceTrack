@@ -32,20 +32,6 @@ function showForm(type) {
 }
 
 /**
- * Shows both athlete forms and hides sheet/empty state content.
- * Coaches do not use form mode.
- */
-function showAllForms() {
-    if (currentUserRole === "coach") return;
-    hideMainContent();
-
-    const runningForm = document.getElementById("runningForm");
-    const workoutForm = document.getElementById("workoutForm");
-    if (runningForm) runningForm.style.display = "block";
-    if (workoutForm) workoutForm.style.display = "block";
-}
-
-/**
  * Shows only the running log form on initial page load.
  * The workout form remains hidden until explicitly requested via the header button.
  * Coaches do not use form mode.
