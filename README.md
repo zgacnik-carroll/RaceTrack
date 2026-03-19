@@ -1,5 +1,4 @@
 <div align="center">
-  <img src="src/main/resources/static/images/CarrollLogo.png" alt="Carroll College" height="100"/>
 
 # RaceTrack
 
