@@ -45,6 +45,16 @@ function showAllForms() {
     if (workoutForm) workoutForm.style.display = "block";
 }
 
+/**
+ * Shows only the running log form on initial page load.
+ * The workout form remains hidden until explicitly requested via the header button.
+ * Coaches do not use form mode.
+ */
+function showDefaultForm() {
+    if (currentUserRole === "coach") return;
+    showForm("running");
+}
+
 /* =========================
    STUDENT SELECTION
 ========================= */
@@ -196,9 +206,10 @@ document.addEventListener("DOMContentLoaded", () => {
     setupAthleteSearch();
     showSubmissionNoticeFromUrl();
 
-    // Athletes land directly on form mode.
+    // Athletes land on the running log form by default.
+    // The workout form is shown only when explicitly requested via the header button.
     if (currentUserRole === "athlete") {
-        showAllForms();
+        showDefaultForm();
     }
 
     updateRunningSheetHeaderLabel();
