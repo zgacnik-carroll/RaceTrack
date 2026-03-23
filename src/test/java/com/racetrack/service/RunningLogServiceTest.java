@@ -206,6 +206,30 @@ class RunningLogServiceTest {
                 .isEqualTo(HttpStatus.NOT_FOUND);
     }
 
+    @Test
+    void updateAthleteOwnedLog_rejectsNegativeSleepHours() {
+        User user = userRepository.save(user("runner-3d", "r3d@example.com"));
+        RunningLog log = runningLogRepository.save(runningLog(user, 6.0, "Before"));
+
+        assertThatThrownBy(() -> runningLogService.updateAthleteOwnedLog(
+                "runner-3d",
+                log.getId(),
+                6.0,
+                false,
+                -1,
+                3,
+                true,
+                true,
+                "Good",
+                5,
+                "After",
+                LocalDate.of(2026, 3, 7)
+        ))
+                .isInstanceOf(ResponseStatusException.class)
+                .extracting(ex -> ((ResponseStatusException) ex).getStatusCode())
+                .isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
     // -------------------------------------------------------------------------
     // deleteAthleteOwnedLog
     // -------------------------------------------------------------------------
@@ -296,6 +320,18 @@ class RunningLogServiceTest {
                 .hasMessageContaining("Running log not found.")
                 .extracting(ex -> ((ResponseStatusException) ex).getStatusCode())
                 .isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void updateCoachComment_rejectsTextOver2000Characters() {
+        User user = userRepository.save(user("runner-5d", "r5d@example.com"));
+        RunningLog log = runningLogRepository.save(runningLog(user, 4.0, "Comment target"));
+        String tooLong = "x".repeat(2001);
+
+        assertThatThrownBy(() -> runningLogService.updateCoachComment(log.getId(), tooLong))
+                .isInstanceOf(ResponseStatusException.class)
+                .extracting(ex -> ((ResponseStatusException) ex).getStatusCode())
+                .isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
     // -------------------------------------------------------------------------

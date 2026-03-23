@@ -31,6 +31,7 @@
                   <input type="date"
                          class="form-control js-date-input"
                          name="selectedDate"
+                         th:value="${#temporals.format(T(java.time.LocalDate).now(), 'yyyy-MM-dd')}"
                          required
                          data-bs-toggle="tooltip"
                          title="Select the date for this log.">
@@ -128,8 +129,10 @@
                 <!-- Slightly smaller comments -->
                 <div class="col-lg-2">
                   <label class="form-label">Comments</label>
-                  <textarea class="form-control"
+                  <textarea class="form-control js-limited-text"
                             rows="1"
+                            maxlength="2000"
+                            data-char-max="2000"
                             th:field="*{details}"
                             placeholder=""
                             required
@@ -168,6 +171,7 @@
 <!-- Custom Tooltip Initialization -->
 <script src="/js/tooltips.js"></script>
 <script src="/js/date-inputs.js"></script>
+<script src="/js/input-constraints.js"></script>
 
 </body>
 </html>

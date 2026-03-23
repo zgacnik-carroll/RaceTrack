@@ -21,10 +21,12 @@
     </div>
 
     <div class="table-responsive">
-      <table class="table table-bordered table-sm spreadsheet-table running-table">
+      <table class="table table-bordered table-sm spreadsheet-table running-table"
+             th:classappend="${!isCoach} ? ' athlete-view' : ''">
         <thead class="table-light">
         <tr>
           <th>Date</th>
+          <th th:if="${!isCoach}">Actions</th>
           <th>Miles</th>
           <th>Hurting?</th>
           <th>Sleep</th>
@@ -35,7 +37,6 @@
           <th>RPE</th>
           <th>Athlete Details</th>
           <th>Coach Comment</th>
-          <th th:if="${!isCoach}">Actions</th>
         </tr>
         </thead>
 

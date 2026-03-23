@@ -14,6 +14,7 @@ import java.util.List;
  */
 @Service
 public class RunningLogService {
+    private static final int TEXT_MAX = 2000;
 
     private final RunningLogRepository runningLogRepository;
 
@@ -34,6 +35,18 @@ public class RunningLogService {
      * @return saved running log
      */
     public RunningLog submitRunningLog(RunningLog runningLog, LocalDate selectedDate) {
+        validateRunningFields(
+                runningLog.getMileage(),
+                runningLog.getSleepHours(),
+                runningLog.getStressLevel(),
+                runningLog.getFeel(),
+                runningLog.getRpe(),
+                runningLog.getDetails()
+        );
+
+        runningLog.setFeel(normalizeOptionalText(runningLog.getFeel(), "Feel"));
+        runningLog.setDetails(normalizeRequiredText(runningLog.getDetails(), "Details"));
+
         if (selectedDate != null) {
             runningLog.setLogDate(selectedDate.atStartOfDay());
         }
@@ -82,15 +95,17 @@ public class RunningLogService {
         RunningLog log = runningLogRepository.findByIdAndUser_Id(logId, userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Running log not found."));
 
+        validateRunningFields(mileage, sleepHours, stressLevel, feel, rpe, details);
+
         log.setMileage(mileage);
         log.setHurting(hurting);
         log.setSleepHours(sleepHours);
         log.setStressLevel(stressLevel);
         log.setPlateProportion(plateProportion);
         log.setGotThatBread(gotThatBread);
-        log.setFeel(feel);
+        log.setFeel(normalizeOptionalText(feel, "Feel"));
         log.setRpe(rpe);
-        log.setDetails(details);
+        log.setDetails(normalizeRequiredText(details, "Details"));
         if (logDate != null) {
             log.setLogDate(logDate.atStartOfDay());
         }
@@ -119,21 +134,82 @@ public class RunningLogService {
     public RunningLog updateCoachComment(Long logId, String coachComment) {
         RunningLog log = runningLogRepository.findById(logId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Running log not found."));
-        log.setCoachComment(normalizeText(coachComment));
+        log.setCoachComment(normalizeOptionalText(coachComment, "Coach comment"));
         return runningLogRepository.save(log);
     }
 
     /**
-     * Normalizes text inputs so empty strings are stored as null.
+     * Enforces rules for running-log numeric and text values.
+     *
+     * @param mileage mileage value
+     * @param sleepHours sleep value
+     * @param stressLevel stress value
+     * @param feel feel value
+     * @param rpe rpe value
+     * @param details details value
+     */
+    private void validateRunningFields(Double mileage,
+                                       Integer sleepHours,
+                                       Integer stressLevel,
+                                       String feel,
+                                       Integer rpe,
+                                       String details) {
+        if (mileage == null || mileage < 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mileage must be 0 or greater.");
+        }
+        if (sleepHours != null && (sleepHours < 0 || sleepHours > 24)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sleep must be between 0 and 24.");
+        }
+        if (stressLevel != null && (stressLevel < 1 || stressLevel > 10)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Stress must be between 1 and 10.");
+        }
+        if (rpe != null && (rpe < 1 || rpe > 10)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "RPE must be between 1 and 10.");
+        }
+
+        String normalizedFeel = normalizeOptionalText(feel, "Feel");
+        if (normalizedFeel != null
+                && !normalizedFeel.equals("Good")
+                && !normalizedFeel.equals("Okay")
+                && !normalizedFeel.equals("Tired")
+                && !normalizedFeel.equals("Sore")
+                && !normalizedFeel.equals("Bad")) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Feel must be one of: Good, Okay, Tired, Sore, Bad.");
+        }
+
+        normalizeRequiredText(details, "Details");
+    }
+
+    /**
+     * Normalizes optional text inputs so empty strings are stored as null.
      *
      * @param text raw text
+     * @param fieldName field label for error messages
      * @return trimmed text or null
      */
-    private String normalizeText(String text) {
+    private String normalizeOptionalText(String text, String fieldName) {
         if (text == null) {
             return null;
         }
         String trimmed = text.trim();
+        if (trimmed.length() > TEXT_MAX) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, fieldName + " cannot exceed " + TEXT_MAX + " characters.");
+        }
         return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    /**
+     * Normalizes required text inputs and rejects null/blank values.
+     *
+     * @param text raw text
+     * @param fieldName field label for error messages
+     * @return trimmed, non-empty text
+     */
+    private String normalizeRequiredText(String text, String fieldName) {
+        String normalized = normalizeOptionalText(text, fieldName);
+        if (normalized == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, fieldName + " is required.");
+        }
+        return normalized;
     }
 }

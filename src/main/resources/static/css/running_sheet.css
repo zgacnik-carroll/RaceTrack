@@ -62,8 +62,8 @@
 }
 
 /* Keep text-heavy cells compact and scrollable instead of stretching rows */
-#runningSpreadsheet .running-table td:nth-child(10) .expandable-cell,
-#runningSpreadsheet .running-table td:nth-child(11) .expandable-cell {
+#runningSpreadsheet .running-table td:nth-last-child(2) .expandable-cell,
+#runningSpreadsheet .running-table td:last-child .expandable-cell {
     width: 100%;
     box-sizing: border-box;
     max-width: 220px;
@@ -72,7 +72,7 @@
     line-height: 1.25;
 }
 
-#runningSpreadsheet .running-table td:nth-child(11) .sheet-textarea {
+#runningSpreadsheet .running-table td:last-child .sheet-textarea {
     min-height: 56px;
     max-height: 72px;
     resize: vertical;
@@ -131,20 +131,78 @@
     max-width: 260px;
 }
 
-#runningSpreadsheet .running-table td:nth-child(10) .expandable-cell {
+#runningSpreadsheet .running-table td:nth-last-child(2) .expandable-cell {
     max-width: none;
     margin: 0;
     padding: 0.2rem 0.35rem;
 }
 
-#runningSpreadsheet .running-table td:nth-child(10) {
+#runningSpreadsheet .running-table td:nth-last-child(2) {
     padding: 0.2rem 0.2rem 0.2rem 0.35rem;
 }
 
-#runningSpreadsheet .running-table td:nth-child(11) .coach-comment-editor {
+#runningSpreadsheet .running-table td:last-child .coach-comment-editor {
     width: 100%;
 }
 
-#runningSpreadsheet .running-table td:nth-child(11) .coach-comment-actions {
+#runningSpreadsheet .running-table td:last-child .coach-comment-actions {
     min-width: 70px;
+}
+
+/* Athlete view: actions moved to column 2 */
+#runningSpreadsheet .running-table.athlete-view th:nth-child(2),
+#runningSpreadsheet .running-table.athlete-view td:nth-child(2) {
+    width: 92px;
+    min-width: 92px;
+    max-width: 92px;
+}
+
+#runningSpreadsheet .running-table.athlete-view th:nth-child(3),
+#runningSpreadsheet .running-table.athlete-view td:nth-child(3) {
+    width: 68px;
+    min-width: 68px;
+    max-width: 68px;
+}
+
+#runningSpreadsheet .running-table.athlete-view th:nth-child(4),
+#runningSpreadsheet .running-table.athlete-view td:nth-child(4),
+#runningSpreadsheet .running-table.athlete-view th:nth-child(5),
+#runningSpreadsheet .running-table.athlete-view td:nth-child(5),
+#runningSpreadsheet .running-table.athlete-view th:nth-child(6),
+#runningSpreadsheet .running-table.athlete-view td:nth-child(6),
+#runningSpreadsheet .running-table.athlete-view th:nth-child(10),
+#runningSpreadsheet .running-table.athlete-view td:nth-child(10) {
+    width: 72px;
+    min-width: 72px;
+    max-width: 72px;
+}
+
+#runningSpreadsheet .running-table.athlete-view th:nth-child(7),
+#runningSpreadsheet .running-table.athlete-view td:nth-child(7),
+#runningSpreadsheet .running-table.athlete-view th:nth-child(8),
+#runningSpreadsheet .running-table.athlete-view td:nth-child(8) {
+    width: 112px;
+    min-width: 112px;
+    max-width: 112px;
+}
+
+#runningSpreadsheet .running-table.athlete-view th:nth-child(9),
+#runningSpreadsheet .running-table.athlete-view td:nth-child(9) {
+    width: 88px;
+    min-width: 88px;
+    max-width: 88px;
+}
+
+#runningSpreadsheet .running-table.athlete-view th:nth-child(11),
+#runningSpreadsheet .running-table.athlete-view td:nth-child(11) {
+    width: 220px;
+    min-width: 220px;
+    max-width: 220px;
+}
+
+#runningSpreadsheet .running-table.athlete-view th:nth-child(12),
+#runningSpreadsheet .running-table.athlete-view td:nth-child(12) {
+    width: 260px;
+    min-width: 260px;
+    max-width: 260px;
 }

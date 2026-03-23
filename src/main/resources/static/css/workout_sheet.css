@@ -57,9 +57,40 @@
     border-radius: 3px;
 }
 
-/* Optional: table header background */
-#workoutSpreadsheet thead th {
-    background-color: #f8f9fa;
+/* Match running-sheet sticky header/date-column behavior */
+#workoutSpreadsheet .workout-table th:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 5;
+    background: linear-gradient(180deg, #dff4ff 0%, #c8ebff 100%);
+    color: #0f3c57;
+    border-right: 2px solid #88c9eb;
+    box-shadow: 3px 0 10px rgba(17, 84, 122, 0.14);
+}
+
+#workoutSpreadsheet .workout-table td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    color: #103f5d;
+    border-right: 2px solid #c8def0;
+}
+
+#workoutSpreadsheet .workout-table tbody tr:nth-child(odd) td:first-child {
+    background-color: #eef8ff;
+}
+
+#workoutSpreadsheet .workout-table tbody tr:nth-child(even) td:first-child {
+    background-color: #e4f2fc;
+}
+
+#workoutSpreadsheet .workout-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 4;
+    background: linear-gradient(180deg, #dff4ff 0%, #c8ebff 100%);
+    color: #0f3c57;
+    border-bottom: 2px solid #88c9eb;
     line-height: 1.2;
 }
 
@@ -69,15 +100,15 @@
 }
 
 /* Keep coach comment editor layout aligned with running sheet */
-#workoutSpreadsheet .workout-table td:nth-child(6) .coach-comment-editor {
+#workoutSpreadsheet .workout-table td:last-child .coach-comment-editor {
     width: 100%;
 }
 
-#workoutSpreadsheet .workout-table td:nth-child(6) .coach-comment-actions {
+#workoutSpreadsheet .workout-table td:last-child .coach-comment-actions {
     min-width: 70px;
 }
 
-#workoutSpreadsheet .workout-table td:nth-child(6) .sheet-textarea {
+#workoutSpreadsheet .workout-table td:last-child .sheet-textarea {
     min-height: 56px;
     max-height: 72px;
     resize: vertical;
@@ -123,4 +154,32 @@
     width: 90px;
     min-width: 90px;
     max-width: 90px;
+}
+
+/* Athlete view: actions moved to column 2 */
+#workoutSpreadsheet .workout-table.athlete-view th:nth-child(2),
+#workoutSpreadsheet .workout-table.athlete-view td:nth-child(2) {
+    width: 90px;
+    min-width: 90px;
+    max-width: 90px;
+}
+
+#workoutSpreadsheet .workout-table.athlete-view th:nth-child(3),
+#workoutSpreadsheet .workout-table.athlete-view td:nth-child(3) {
+    width: 120px;
+    min-width: 120px;
+    max-width: 120px;
+}
+
+#workoutSpreadsheet .workout-table.athlete-view th:nth-child(4),
+#workoutSpreadsheet .workout-table.athlete-view td:nth-child(4),
+#workoutSpreadsheet .workout-table.athlete-view th:nth-child(5),
+#workoutSpreadsheet .workout-table.athlete-view td:nth-child(5),
+#workoutSpreadsheet .workout-table.athlete-view th:nth-child(6),
+#workoutSpreadsheet .workout-table.athlete-view td:nth-child(6),
+#workoutSpreadsheet .workout-table.athlete-view th:nth-child(7),
+#workoutSpreadsheet .workout-table.athlete-view td:nth-child(7) {
+    width: 260px;
+    min-width: 260px;
+    max-width: 260px;
 }

@@ -5,6 +5,7 @@
 
 const role = (window.currentUserRole || "athlete").toLowerCase();
 const userId = window.currentUserId || "";
+const TEXT_MAX = 2000;
 const dateFilters = {
     running: "default",
     workout: "default"
@@ -357,14 +358,88 @@ function coachCommentCell(logId, comment, logType) {
     return `
       <td>
         <div class="coach-comment-editor">
-          <textarea class="sheet-input sheet-textarea coach-comment-input" id="${logType}-coach-comment-${logId}">${escapeHtml(comment ?? "")}</textarea>
+          <textarea class="sheet-input sheet-textarea coach-comment-input js-limited-text" maxlength="${TEXT_MAX}" data-char-max="${TEXT_MAX}" id="${logType}-coach-comment-${logId}">${escapeHtml(comment ?? "")}</textarea>
           <div class="coach-comment-actions">
-            <button type="button" class="btn btn-sm btn-outline-primary coach-comment-save-btn" id="${logType}-coach-save-${logId}" onclick="saveCoachComment('${logType}', ${logId})">Save</button>
+            <button type="button" class="btn btn-sm btn-primary coach-comment-save-btn d-none" id="${logType}-coach-save-${logId}" onclick="saveCoachComment('${logType}', ${logId})">Save</button>
             <span class="comment-save-indicator" id="${logType}-coach-indicator-${logId}" aria-live="polite"></span>
           </div>
         </div>
       </td>
     `;
+}
+
+/**
+ * Renders workout-type select for editable workout rows.
+ * @param {string|null|undefined} value
+ * @param {string} elementId
+ * @returns {string}
+ */
+function workoutTypeSelect(value, elementId) {
+    const normalized = String(value ?? "");
+    const options = ["Strength", "Strides", "Workout"];
+    return `
+      <select class="sheet-input" id="${elementId}">
+        <option value=""></option>
+        ${options.map(option => `<option value="${option}" ${normalized === option ? "selected" : ""}>${option}</option>`).join("")}
+      </select>
+    `;
+}
+
+/**
+ * Binds row inputs so save button reflects unsaved edits.
+ * @param {"running"|"workout"} logType
+ * @param {number} logId
+ * @param {string[]} fieldIds
+ */
+function bindRowDirtyState(logType, logId, fieldIds) {
+    const saveButton = document.getElementById(`${logType}-save-${logId}`);
+    if (!saveButton) return;
+
+    saveButton.classList.add("d-none");
+    saveButton.disabled = false;
+    saveButton.textContent = "Save Changes";
+    saveButton.classList.remove("btn-outline-success", "btn-warning");
+    saveButton.classList.add("btn-primary");
+
+    const markDirty = () => {
+        if (!saveButton.classList.contains("d-none")) return;
+        saveButton.textContent = "Save Changes";
+        saveButton.classList.remove("btn-outline-success");
+        saveButton.classList.add("btn-primary");
+        saveButton.classList.remove("d-none");
+    };
+
+    fieldIds.forEach(fieldId => {
+        const input = document.getElementById(fieldId);
+        if (!input) return;
+        input.addEventListener("input", markDirty);
+        input.addEventListener("change", markDirty);
+    });
+}
+
+/**
+ * Shows coach comment save button only after comment text changes.
+ * @param {"running"|"workout"} logType
+ * @param {number} logId
+ */
+function bindCoachCommentDirtyState(logType, logId) {
+    const field = document.getElementById(`${logType}-coach-comment-${logId}`);
+    const saveButton = document.getElementById(`${logType}-coach-save-${logId}`);
+    const indicator = document.getElementById(`${logType}-coach-indicator-${logId}`);
+    if (!field || !saveButton) return;
+
+    const initial = field.value;
+    const sync = () => {
+        const changed = field.value !== initial;
+        saveButton.classList.toggle("d-none", !changed);
+        if (indicator && !changed) {
+            indicator.textContent = "";
+        }
+    };
+
+    field.addEventListener("input", sync);
+    field.addEventListener("change", sync);
+    sync();
 }
 
 /* =========================
@@ -395,28 +470,28 @@ function loadRunningLogs(requestedUserId) {
                 if (editable) {
                     row.innerHTML = `
                         <td class="log-date-cell"><input class="sheet-input" type="date" value="${formatDateForInput(log.logDate)}" id="running-date-${log.id}"></td>
-                        <td><input class="sheet-input" type="number" step="0.01" value="${log.mileage ?? ""}" id="running-mileage-${log.id}"></td>
+                        <td>
+                            <div class="d-flex flex-column gap-2">
+                                <button class="btn btn-sm btn-primary d-none" id="running-save-${log.id}" onclick="saveRunningLog(${log.id})">Save Changes</button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteRunningLog(${log.id})">Delete</button>
+                            </div>
+                        </td>
+                        <td><input class="sheet-input" type="number" step="0.01" min="0" value="${log.mileage ?? ""}" id="running-mileage-${log.id}"></td>
                         <td id="running-hurting-cell-${log.id}" class="wellness-cell">${booleanSelect(log.hurting).replace('data-field="bool"', `id="running-hurting-${log.id}"`)}</td>
-                        <td id="running-sleep-cell-${log.id}" class="wellness-cell"><input class="sheet-input" type="number" value="${log.sleepHours ?? ""}" id="running-sleep-${log.id}"></td>
+                        <td id="running-sleep-cell-${log.id}" class="wellness-cell"><input class="sheet-input" type="number" min="0" max="24" value="${log.sleepHours ?? ""}" id="running-sleep-${log.id}"></td>
                         <td id="running-stress-cell-${log.id}" class="wellness-cell"><input class="sheet-input" type="number" min="1" max="10" value="${log.stressLevel ?? ""}" id="running-stress-${log.id}"></td>
                         <td id="running-plate-cell-${log.id}" class="wellness-cell">${booleanSelect(log.plateProportion).replace('data-field="bool"', `id="running-plate-${log.id}"`)}</td>
                         <td id="running-bread-cell-${log.id}" class="wellness-cell">${booleanSelect(log.gotThatBread).replace('data-field="bool"', `id="running-bread-${log.id}"`)}</td>
                         <td id="running-feel-cell-${log.id}" class="wellness-cell">${feelSelect(log.feel).replace('id="running-feel-select"', `id="running-feel-${log.id}"`)}</td>
-                        <td><input class="sheet-input" type="number" value="${log.rpe ?? ""}" id="running-rpe-${log.id}"></td>
-                        <td><textarea class="sheet-input sheet-textarea" id="running-details-${log.id}">${escapeHtml(log.details ?? "")}</textarea></td>
+                        <td><input class="sheet-input" type="number" min="1" max="10" value="${log.rpe ?? ""}" id="running-rpe-${log.id}"></td>
+                        <td><textarea class="sheet-input sheet-textarea js-limited-text" maxlength="${TEXT_MAX}" data-char-max="${TEXT_MAX}" id="running-details-${log.id}">${escapeHtml(log.details ?? "")}</textarea></td>
                         <td><div class="expandable-cell">${escapeHtml(log.coachComment ?? "")}</div></td>
-                        <td>
-                            <div class="d-flex flex-column gap-2">
-                                <button class="btn btn-sm btn-primary" onclick="saveRunningLog(${log.id})">Save</button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="deleteRunningLog(${log.id})">Delete</button>
-                            </div>
-                        </td>
                     `;
                 } else {
                     row.innerHTML = `
                         <td class="log-date-cell">${formatDate(log.logDate)}</td>
                         <td>${escapeHtml(log.mileage ?? "")}</td>
-                        <td class="wellness-cell"${styleAttrFromColor(yesNoColor(log.hurting))}>${booleanDisplay(log.hurting)}</td>
+                        <td class="wellness-cell">${booleanDisplay(log.hurting)}</td>
                         <td class="wellness-cell"${styleAttrFromColor(sleepColor(log.sleepHours))}>${escapeHtml(log.sleepHours ?? "")}</td>
                         <td class="wellness-cell"${styleAttrFromColor(stressColor(log.stressLevel))}>${escapeHtml(log.stressLevel ?? "")}</td>
                         <td class="wellness-cell"${styleAttrFromColor(yesNoColor(log.plateProportion))}>${booleanDisplay(log.plateProportion)}</td>
@@ -429,11 +504,28 @@ function loadRunningLogs(requestedUserId) {
                 }
 
                 tbody.appendChild(row);
+                if (window.attachCharCounters) {
+                    window.attachCharCounters(row);
+                }
 
                 if (editable) {
+                    bindRowDirtyState("running", log.id, [
+                        `running-date-${log.id}`,
+                        `running-mileage-${log.id}`,
+                        `running-hurting-${log.id}`,
+                        `running-sleep-${log.id}`,
+                        `running-stress-${log.id}`,
+                        `running-plate-${log.id}`,
+                        `running-bread-${log.id}`,
+                        `running-feel-${log.id}`,
+                        `running-rpe-${log.id}`,
+                        `running-details-${log.id}`
+                    ]);
                     bindRunningRowColorHandlers(log.id);
                     updateRunningRowColors(log.id);
                     bindDateInputPicker(`running-date-${log.id}`);
+                } else if (role === "coach") {
+                    bindCoachCommentDirtyState("running", log.id);
                 }
             });
         })
@@ -460,6 +552,7 @@ function showRunningSheet(userIdParam = null) {
  * @param {number} logId
  */
 function saveRunningLog(logId) {
+    const saveButton = document.getElementById(`running-save-${logId}`);
     const payload = {
         mileage: parseNumber(document.getElementById(`running-mileage-${logId}`).value),
         hurting: parseBoolean(document.getElementById(`running-hurting-${logId}`).value),
@@ -472,6 +565,14 @@ function saveRunningLog(logId) {
         details: document.getElementById(`running-details-${logId}`).value,
         logDate: document.getElementById(`running-date-${logId}`).value || null
     };
+    const validationError = validateRunningPayload(payload);
+    if (validationError) {
+        if (window.showSaveNotice) window.showSaveNotice(validationError, "warning");
+        return;
+    }
+    if (saveButton) {
+        saveButton.classList.add("d-none");
+    }
 
     fetch(`/api/running-logs/${logId}`, {
         method: "PUT",
@@ -485,6 +586,9 @@ function saveRunningLog(logId) {
         })
         .catch(error => {
             console.error(error);
+            if (saveButton) {
+                saveButton.classList.remove("d-none");
+            }
             if (window.showSaveNotice) window.showSaveNotice("Could not save running row.", "danger");
         });
 }
@@ -517,17 +621,17 @@ function loadWorkoutLogs(requestedUserId) {
                 if (editable) {
                     row.innerHTML = `
                         <td class="log-date-cell"><input class="sheet-input" type="date" value="${formatDateForInput(log.logDate)}" id="workout-date-${log.id}"></td>
-                        <td><input class="sheet-input" type="text" value="${escapeHtml(log.workoutType ?? "")}" id="workout-type-${log.id}"></td>
-                        <td><textarea class="sheet-input sheet-textarea" id="workout-completion-${log.id}">${escapeHtml(log.completionDetails ?? "")}</textarea></td>
-                        <td><textarea class="sheet-input sheet-textarea" id="workout-paces-${log.id}">${escapeHtml(log.actualPaces ?? "")}</textarea></td>
-                        <td><textarea class="sheet-input sheet-textarea" id="workout-description-${log.id}">${escapeHtml(log.workoutDescription ?? "")}</textarea></td>
-                        <td><div class="expandable-cell">${escapeHtml(log.coachComment ?? "")}</div></td>
                         <td>
                             <div class="d-flex flex-column gap-2">
-                                <button class="btn btn-sm btn-primary" onclick="saveWorkoutLog(${log.id})">Save</button>
+                                <button class="btn btn-sm btn-primary d-none" id="workout-save-${log.id}" onclick="saveWorkoutLog(${log.id})">Save Changes</button>
                                 <button class="btn btn-sm btn-outline-danger" onclick="deleteWorkoutLog(${log.id})">Delete</button>
                             </div>
                         </td>
+                        <td>${workoutTypeSelect(log.workoutType, `workout-type-${log.id}`)}</td>
+                        <td><textarea class="sheet-input sheet-textarea js-limited-text" maxlength="${TEXT_MAX}" data-char-max="${TEXT_MAX}" id="workout-completion-${log.id}">${escapeHtml(log.completionDetails ?? "")}</textarea></td>
+                        <td><textarea class="sheet-input sheet-textarea js-limited-text" maxlength="${TEXT_MAX}" data-char-max="${TEXT_MAX}" id="workout-paces-${log.id}">${escapeHtml(log.actualPaces ?? "")}</textarea></td>
+                        <td><textarea class="sheet-input sheet-textarea js-limited-text" maxlength="${TEXT_MAX}" data-char-max="${TEXT_MAX}" id="workout-description-${log.id}">${escapeHtml(log.workoutDescription ?? "")}</textarea></td>
+                        <td><div class="expandable-cell">${escapeHtml(log.coachComment ?? "")}</div></td>
                     `;
                 } else {
                     row.innerHTML = `
@@ -541,9 +645,21 @@ function loadWorkoutLogs(requestedUserId) {
                 }
 
                 tbody.appendChild(row);
+                if (window.attachCharCounters) {
+                    window.attachCharCounters(row);
+                }
 
                 if (editable) {
+                    bindRowDirtyState("workout", log.id, [
+                        `workout-date-${log.id}`,
+                        `workout-type-${log.id}`,
+                        `workout-completion-${log.id}`,
+                        `workout-paces-${log.id}`,
+                        `workout-description-${log.id}`
+                    ]);
                     bindDateInputPicker(`workout-date-${log.id}`);
+                } else if (role === "coach") {
+                    bindCoachCommentDirtyState("workout", log.id);
                 }
             });
         })
@@ -570,6 +686,7 @@ function showWorkoutSheet(userIdParam = null) {
  * @param {number} logId
  */
 function saveWorkoutLog(logId) {
+    const saveButton = document.getElementById(`workout-save-${logId}`);
     const payload = {
         workoutType: document.getElementById(`workout-type-${logId}`).value,
         completionDetails: document.getElementById(`workout-completion-${logId}`).value,
@@ -577,6 +694,14 @@ function saveWorkoutLog(logId) {
         workoutDescription: document.getElementById(`workout-description-${logId}`).value,
         logDate: document.getElementById(`workout-date-${logId}`).value || null
     };
+    const validationError = validateWorkoutPayload(payload);
+    if (validationError) {
+        if (window.showSaveNotice) window.showSaveNotice(validationError, "warning");
+        return;
+    }
+    if (saveButton) {
+        saveButton.classList.add("d-none");
+    }
 
     fetch(`/api/workout-logs/${logId}`, {
         method: "PUT",
@@ -590,6 +715,9 @@ function saveWorkoutLog(logId) {
         })
         .catch(error => {
             console.error(error);
+            if (saveButton) {
+                saveButton.classList.remove("d-none");
+            }
             if (window.showSaveNotice) window.showSaveNotice("Could not save workout row.", "danger");
         });
 }
@@ -658,14 +786,17 @@ function saveCoachComment(logType, logId) {
     const saveButtonId = `${logType}-coach-save-${logId}`;
     const indicatorId = `${logType}-coach-indicator-${logId}`;
     const value = document.getElementById(fieldId).value;
+    if (value && value.length > TEXT_MAX) {
+        if (window.showSaveNotice) window.showSaveNotice(`Comments are limited to ${TEXT_MAX} characters.`, "warning");
+        return;
+    }
     const saveButton = document.getElementById(saveButtonId);
     const indicator = document.getElementById(indicatorId);
 
     if (saveButton) {
         saveButton.disabled = true;
-        saveButton.textContent = "Saving...";
-        saveButton.classList.remove("btn-outline-success", "btn-outline-danger");
-        saveButton.classList.add("btn-outline-primary");
+        saveButton.textContent = "Save";
+        saveButton.classList.add("btn-primary");
     }
     if (indicator) {
         indicator.textContent = "";
@@ -680,35 +811,23 @@ function saveCoachComment(logType, logId) {
             if (!res.ok) throw new Error(`Failed to save coach comment (${res.status})`);
             if (saveButton) {
                 saveButton.disabled = false;
-                saveButton.textContent = "Saved";
-                saveButton.classList.remove("btn-outline-primary", "btn-outline-danger");
-                saveButton.classList.add("btn-outline-success");
+                saveButton.textContent = "Save";
+                saveButton.classList.add("d-none");
             }
             if (indicator) {
-                indicator.textContent = "Saved";
+                indicator.textContent = "";
             }
-            window.setTimeout(() => {
-                if (saveButton) {
-                    saveButton.textContent = "Save";
-                    saveButton.classList.remove("btn-outline-success", "btn-outline-danger");
-                    saveButton.classList.add("btn-outline-primary");
-                }
-                if (indicator) {
-                    indicator.textContent = "";
-                }
-            }, 2000);
             if (window.showSaveNotice) window.showSaveNotice("Coach comment saved.", "success");
         })
         .catch(error => {
             console.error(error);
             if (saveButton) {
                 saveButton.disabled = false;
-                saveButton.textContent = "Retry";
-                saveButton.classList.remove("btn-outline-primary", "btn-outline-success");
-                saveButton.classList.add("btn-outline-danger");
+                saveButton.textContent = "Save";
+                saveButton.classList.remove("d-none");
             }
             if (indicator) {
-                indicator.textContent = "Save failed";
+                indicator.textContent = "";
             }
             if (window.showSaveNotice) window.showSaveNotice("Could not save coach comment.", "danger");
         });
@@ -745,6 +864,55 @@ function parseIntOrNull(value) {
     if (value === null || value === undefined || value === "") return null;
     const parsed = parseInt(value, 10);
     return Number.isNaN(parsed) ? null : parsed;
+}
+
+/**
+ * Returns error text when running payload is invalid; null when valid.
+ * @param {Object} payload
+ * @returns {string|null}
+ */
+function validateRunningPayload(payload) {
+    if (payload.mileage === null || payload.mileage < 0) {
+        return "Mileage must be 0 or greater.";
+    }
+    if (payload.sleepHours !== null && (payload.sleepHours < 0 || payload.sleepHours > 24)) {
+        return "Sleep must be between 0 and 24 hours.";
+    }
+    if (payload.stressLevel !== null && (payload.stressLevel < 1 || payload.stressLevel > 10)) {
+        return "Stress must be between 1 and 10.";
+    }
+    if (payload.rpe !== null && (payload.rpe < 1 || payload.rpe > 10)) {
+        return "RPE must be between 1 and 10.";
+    }
+    if (!payload.details || !payload.details.trim()) {
+        return "Details are required.";
+    }
+    if (payload.details.length > TEXT_MAX) {
+        return `Details are limited to ${TEXT_MAX} characters.`;
+    }
+    return null;
+}
+
+/**
+ * Returns error text when workout payload is invalid; null when valid.
+ * @param {Object} payload
+ * @returns {string|null}
+ */
+function validateWorkoutPayload(payload) {
+    const validWorkoutTypes = ["Strength", "Strides", "Workout"];
+    if (!validWorkoutTypes.includes(payload.workoutType)) {
+        return "Workout type must be Strength, Strides, or Workout.";
+    }
+    if (payload.completionDetails && payload.completionDetails.length > TEXT_MAX) {
+        return `Completion details are limited to ${TEXT_MAX} characters.`;
+    }
+    if (payload.actualPaces && payload.actualPaces.length > TEXT_MAX) {
+        return `Actual paces are limited to ${TEXT_MAX} characters.`;
+    }
+    if (payload.workoutDescription && payload.workoutDescription.length > TEXT_MAX) {
+        return `Workout description is limited to ${TEXT_MAX} characters.`;
+    }
+    return null;
 }
 
 /**

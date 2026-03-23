@@ -216,6 +216,13 @@ h1.app-title {
     resize: vertical;
 }
 
+.char-counter {
+    text-align: right;
+    font-size: 0.75rem;
+    color: #6c757d;
+    margin-top: 0.2rem;
+}
+
 .spreadsheet-table {
     width: 100%;
 }

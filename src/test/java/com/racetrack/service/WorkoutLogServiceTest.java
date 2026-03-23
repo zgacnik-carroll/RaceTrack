@@ -197,6 +197,20 @@ class WorkoutLogServiceTest {
                 .isEqualTo(HttpStatus.NOT_FOUND);
     }
 
+    @Test
+    void updateAthleteOwnedLog_rejectsInvalidWorkoutType() {
+        User user = userRepository.save(user("runner-w3d", "w3d@example.com"));
+        WorkoutLog log = workoutLogRepository.save(workoutLog(user, "Workout", "Before"));
+
+        assertThatThrownBy(() -> workoutLogService.updateAthleteOwnedLog(
+                "runner-w3d", log.getId(),
+                "Cycling", "Updated details", "27s per 100m", "Post-run strides", null
+        ))
+                .isInstanceOf(ResponseStatusException.class)
+                .extracting(ex -> ((ResponseStatusException) ex).getStatusCode())
+                .isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
     // -------------------------------------------------------------------------
     // deleteAthleteOwnedLog
     // -------------------------------------------------------------------------
@@ -287,6 +301,18 @@ class WorkoutLogServiceTest {
                 .hasMessageContaining("Workout log not found.")
                 .extracting(ex -> ((ResponseStatusException) ex).getStatusCode())
                 .isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void updateCoachComment_rejectsTextOver2000Characters() {
+        User user = userRepository.save(user("runner-w5d", "w5d@example.com"));
+        WorkoutLog log = workoutLogRepository.save(workoutLog(user, "Workout", "Comment target"));
+        String tooLong = "x".repeat(2001);
+
+        assertThatThrownBy(() -> workoutLogService.updateCoachComment(log.getId(), tooLong))
+                .isInstanceOf(ResponseStatusException.class)
+                .extracting(ex -> ((ResponseStatusException) ex).getStatusCode())
+                .isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
     // -------------------------------------------------------------------------
