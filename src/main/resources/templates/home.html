@@ -25,7 +25,7 @@
 <div class="container mt-5">
 
   <!-- Header -->
-  <div th:replace="header :: headerFragment"></div>
+  <div th:replace="~{header :: headerFragment}"></div>
 
   <!-- Main Content Area -->
   <div class="form-container">
@@ -40,23 +40,23 @@
 
     <!-- Forms -->
     <div id="runningForm" class="log-form">
-      <div th:replace="running_form :: runningForm"></div>
+      <div th:replace="~{running_form :: runningForm}"></div>
     </div>
 
     <div id="workoutForm" class="log-form">
-      <div th:replace="workout_form :: workoutForm"></div>
+      <div th:replace="~{workout_form :: workoutForm}"></div>
     </div>
 
     <!-- Sheets -->
-    <div th:replace="running_sheet :: runningSheet"></div>
-    <div th:replace="workout_sheet :: workoutSheet"></div>
+    <div th:replace="~{running_sheet :: runningSheet}"></div>
+    <div th:replace="~{workout_sheet :: workoutSheet}"></div>
 
   </div>
 
 </div>
 
 <!-- Footer -->
-<div th:replace="footer :: footerFragment"></div>
+<div th:replace="~{footer :: footerFragment}"></div>
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

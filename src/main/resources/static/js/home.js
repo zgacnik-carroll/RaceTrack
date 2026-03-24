@@ -143,6 +143,53 @@ function showSaveNotice(message, type = "success") {
 
 window.showSaveNotice = showSaveNotice;
 
+function storeReloadNotice(message, type = "success") {
+    try {
+        window.sessionStorage.setItem("racetrackReloadNotice", JSON.stringify({ message, type }));
+    } catch (_error) {
+        // Ignore storage failures and continue without a persisted notice.
+    }
+}
+
+function showStoredNotice() {
+    try {
+        const raw = window.sessionStorage.getItem("racetrackReloadNotice");
+        if (!raw) return;
+        window.sessionStorage.removeItem("racetrackReloadNotice");
+        const parsed = JSON.parse(raw);
+        if (parsed?.message) {
+            showSaveNotice(parsed.message, parsed.type || "success");
+        }
+    } catch (_error) {
+        // Ignore storage/parsing failures and continue normally.
+    }
+}
+
+async function readErrorMessage(response, fallbackMessage) {
+    try {
+        const text = await response.text();
+        if (!text) {
+            return fallbackMessage;
+        }
+
+        try {
+            const body = JSON.parse(text);
+            if (body?.message) {
+                return body.message;
+            }
+            if (body?.error) {
+                return body.error;
+            }
+        } catch (_error) {
+            // Non-JSON response, fall through to plain text.
+        }
+
+        return text;
+    } catch (_error) {
+        return fallbackMessage;
+    }
+}
+
 /**
  * Reads URL success params after post-redirect-get and shows corresponding banner.
  */
@@ -165,6 +212,127 @@ function showSubmissionNoticeFromUrl() {
         window.history.replaceState({}, "", cleanUrl);
     }
 }
+
+function setupCoachAdminActions() {
+    if (currentUserRole !== "coach") return;
+
+    const createAthleteForm = document.getElementById("createAthleteForm");
+    const submitButton = document.getElementById("createAthleteSubmitButton");
+    if (!createAthleteForm || !submitButton) return;
+
+    createAthleteForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const formData = new FormData(createAthleteForm);
+        const payload = {
+            firstName: String(formData.get("firstName") || "").trim(),
+            lastName: String(formData.get("lastName") || "").trim(),
+            email: String(formData.get("email") || "").trim(),
+            temporaryPassword: String(formData.get("temporaryPassword") || "").trim()
+        };
+
+        if (!payload.firstName || !payload.lastName || !payload.email) {
+            showSaveNotice("First name, last name, and email are required.", "warning");
+            return;
+        }
+
+        submitButton.disabled = true;
+        submitButton.textContent = "Creating...";
+
+        try {
+            const response = await fetch("/api/admin/athletes", {
+                method: "POST",
+                headers: jsonHeaders(),
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                throw new Error(await readErrorMessage(response, `Failed to create athlete (${response.status})`));
+            }
+
+            const modalElement = document.getElementById("createAthleteModal");
+            const modal = modalElement ? bootstrap.Modal.getInstance(modalElement) : null;
+            if (modal) {
+                modal.hide();
+            }
+
+            createAthleteForm.reset();
+            storeReloadNotice("Athlete created in Okta and added to RaceTrack.", "success");
+            window.location.reload();
+        } catch (error) {
+            console.error(error);
+            showSaveNotice(error.message || "Could not create athlete.", "danger");
+        } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = "Create Athlete";
+        }
+    });
+}
+
+async function clearData() {
+    if (currentUserRole !== "coach") return;
+
+    const confirmed = window.confirm(
+        "Clear all running logs and workout logs for every user? User accounts will be preserved."
+    );
+    if (!confirmed) {
+        return;
+    }
+
+    try {
+        const response = await fetch("/api/admin/data", {
+            method: "DELETE",
+            headers: jsonHeaders()
+        });
+
+        if (!response.ok) {
+            throw new Error(await readErrorMessage(response, `Failed to clear data (${response.status})`));
+        }
+
+        storeReloadNotice("All log data cleared. User accounts were preserved.", "success");
+        window.location.reload();
+    } catch (error) {
+        console.error(error);
+        showSaveNotice(error.message || "Could not clear log data.", "danger");
+    }
+}
+
+async function deleteSelectedAthlete() {
+    if (currentUserRole !== "coach") return;
+
+    if (!selectedUserId) {
+        showSaveNotice("Select an athlete before deleting.", "warning");
+        return;
+    }
+
+    const athleteName = selectedAthleteDisplayName || "this athlete";
+    const confirmed = window.confirm(
+        `Delete ${athleteName} from RaceTrack and Okta? This will also remove that athlete's running and workout logs.`
+    );
+    if (!confirmed) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/admin/athletes/${encodeURIComponent(selectedUserId)}`, {
+            method: "DELETE",
+            headers: jsonHeaders()
+        });
+
+        if (!response.ok) {
+            throw new Error(await readErrorMessage(response, `Failed to delete athlete (${response.status})`));
+        }
+
+        storeReloadNotice("Athlete deleted from RaceTrack and Okta.", "success");
+        window.location.reload();
+    } catch (error) {
+        console.error(error);
+        showSaveNotice(error.message || "Could not delete the selected athlete.", "danger");
+    }
+}
+
+window.clearData = clearData;
+window.deleteSelectedAthlete = deleteSelectedAthlete;
 
 /**
  * Enables coach athlete filtering in the footer list.
@@ -190,7 +358,9 @@ function setupAthleteSearch() {
 document.addEventListener("DOMContentLoaded", () => {
     // Bind coach-only search and render post-submit notices.
     setupAthleteSearch();
+    setupCoachAdminActions();
     showSubmissionNoticeFromUrl();
+    showStoredNotice();
 
     // Athletes land on the running log form by default.
     // The workout form is shown only when explicitly requested via the header button.

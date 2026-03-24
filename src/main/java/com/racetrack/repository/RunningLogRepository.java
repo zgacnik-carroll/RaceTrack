@@ -2,6 +2,7 @@ package com.racetrack.repository;
 
 import com.racetrack.model.RunningLog;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -29,5 +30,13 @@ public interface RunningLogRepository extends JpaRepository<RunningLog, Long> {
      * @return optional running log that matches id and owner
      */
     Optional<RunningLog> findByIdAndUser_Id(Long id, String userId);
+
+    /**
+     * Deletes all running logs owned by the provided user.
+     *
+     * @param userId owning user id
+     */
+    @Modifying
+    void deleteByUser_Id(String userId);
 }
 

@@ -2,6 +2,7 @@ package com.racetrack.repository;
 
 import com.racetrack.model.WorkoutLog;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,5 +27,13 @@ public interface WorkoutLogRepository extends JpaRepository<WorkoutLog, Long> {
      * @return optional workout log that matches id and owner
      */
     Optional<WorkoutLog> findByIdAndUser_Id(Long id, String userId);
+
+    /**
+     * Deletes all workout logs owned by the provided user.
+     *
+     * @param userId owning user id
+     */
+    @Modifying
+    void deleteByUser_Id(String userId);
 }
 

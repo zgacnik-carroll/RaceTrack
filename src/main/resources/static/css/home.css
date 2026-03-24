@@ -77,6 +77,71 @@ html, body {
     min-width: 240px;
 }
 
+.coach-header-tools {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1rem;
+    width: 100%;
+}
+
+.coach-header-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.15rem;
+    min-width: 0;
+    text-align: right;
+}
+
+.coach-header-label {
+    color: #ffffff;
+    font-size: 0.82rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.coach-header-description {
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 0.88rem;
+    font-weight: 600;
+}
+
+.coach-header-buttons {
+    display: flex;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.coach-header-primary {
+    background-color: #ffffff !important;
+    border-color: #ffffff !important;
+    color: #332a86 !important;
+}
+
+.coach-header-primary:hover,
+.coach-header-primary:focus,
+.coach-header-primary:active {
+    background-color: #efeefe !important;
+    border-color: #efeefe !important;
+    color: #2a2270 !important;
+}
+
+.coach-header-buttons .btn-outline-light {
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.62);
+    background-color: rgba(255, 255, 255, 0.04);
+}
+
+.coach-header-buttons .btn-outline-light:hover,
+.coach-header-buttons .btn-outline-light:focus,
+.coach-header-buttons .btn-outline-light:active {
+    color: #332a86;
+    background-color: #ffffff;
+    border-color: #ffffff;
+}
+
 @media (max-width: 1100px) {
     .header-bar {
         display: grid;
@@ -97,6 +162,16 @@ html, body {
         grid-area: actions;
         width: 100%;
         margin-left: 0;
+    }
+
+    .coach-header-tools {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .coach-header-copy {
+        align-items: flex-start;
+        text-align: left;
     }
 
     .logout-form {
@@ -122,6 +197,12 @@ html, body {
 
     .header-bar .button-group .btn:first-child {
         grid-column: 1 / -1;
+    }
+
+    .coach-header-buttons {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
     #runningForm .row.g-3.align-items-end > [class*="col-"] {
@@ -531,6 +612,18 @@ h1.app-title {
     }
 
     .header-bar .button-group .btn {
+        width: 100%;
+    }
+
+    .coach-header-description {
+        font-size: 0.82rem;
+    }
+
+    .coach-header-buttons {
+        grid-template-columns: 1fr;
+    }
+
+    .coach-header-buttons .btn {
         width: 100%;
     }
 
