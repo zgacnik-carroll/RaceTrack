@@ -39,9 +39,7 @@ public class HomeController {
     public String home(@AuthenticationPrincipal OidcUser oidcUser, Model model) {
         User user = userService.getOrCreateForHome(oidcUser);
         boolean isCoach = userService.isCoach(user);
-        List<User> athletes = isCoach
-                ? userService.getAthletesOrderedByName()
-                : List.of();
+        List<User> athletes = userService.getAthletesOrderedByName();
 
         model.addAttribute("runningLog", new RunningLog());
         model.addAttribute("workoutLog", new WorkoutLog());

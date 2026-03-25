@@ -7,8 +7,8 @@ const role = (window.currentUserRole || "athlete").toLowerCase();
 const userId = window.currentUserId || "";
 const TEXT_MAX = 2000;
 const dateFilters = {
-    running: "default",
-    workout: "default"
+    running: "week",
+    workout: "week"
 };
 
 /**
@@ -281,7 +281,7 @@ function startOfDay(date) {
  * @returns {Array<any>}
  */
 function applyDateFilter(logs, type) {
-    const range = dateFilters[type] ?? "default";
+    const range = dateFilters[type] ?? "week";
     const now = new Date();
     const todayStart = startOfDay(now);
 
@@ -298,17 +298,13 @@ function applyDateFilter(logs, type) {
         filtered = logs.filter(log => new Date(log.logDate) >= monthStart);
     }
 
-    if (range === "default") {
-        return filtered.slice(0, 60);
-    }
-
     return filtered;
 }
 
 /**
  * Sets active date filter and refreshes corresponding sheet.
  * @param {"running"|"workout"} type
- * @param {"default"|"today"|"week"|"month"} range
+ * @param {"today"|"week"|"month"} range
  */
 function setDateFilter(type, range) {
     dateFilters[type] = range;
@@ -325,7 +321,7 @@ function setDateFilter(type, range) {
  * @param {"running"|"workout"} type
  */
 function updateFilterButtons(type) {
-    const ranges = ["default", "today", "week", "month"];
+    const ranges = ["today", "week", "month"];
     ranges.forEach(range => {
         const button = document.getElementById(`${type}-filter-${range}`);
         if (!button) return;

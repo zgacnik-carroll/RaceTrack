@@ -268,13 +268,8 @@ public class LogApiController {
      * @param targetUserId requested target user id
      */
     private void assertCanViewTargetUser(User currentUser, String authenticatedUserId, String targetUserId) {
-        if (userService.isCoach(currentUser)) {
-            return;
-        }
-
-        if (!authenticatedUserId.equals(targetUserId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Athletes can only view their own logs.");
-        }
+        // All authenticated users may view athlete logs. Edit/delete permissions remain owner-only,
+        // and coach-comment permissions remain coach-only.
     }
 
     /**

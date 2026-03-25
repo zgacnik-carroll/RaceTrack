@@ -90,6 +90,53 @@ public class OktaAdminClient {
     }
 
     /**
+     * Updates an Okta user's profile and optional password with partial-update semantics.
+     *
+     * @param userId Okta user id
+     * @param firstName first name
+     * @param lastName last name
+     * @param email primary email / login
+     * @param temporaryPassword optional password replacement
+     */
+    public void updateAthlete(String userId,
+                              String firstName,
+                              String lastName,
+                              String email,
+                              String temporaryPassword) {
+        validateConfiguration();
+
+        Map<String, Object> profile = new LinkedHashMap<>();
+        profile.put("firstName", firstName);
+        profile.put("lastName", lastName);
+        profile.put("email", email);
+        profile.put("login", email);
+
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("profile", profile);
+
+        if (temporaryPassword != null) {
+            payload.put("credentials", Map.of("password", Map.of("value", temporaryPassword)));
+        }
+
+        try {
+            restClient().post()
+                    .uri(uriBuilder -> uriBuilder.path("/api/v1/users/{id}").build(userId))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .body(payload)
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (RestClientResponseException ex) {
+            if (ex.getStatusCode().value() == 409) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "An Okta user with that email already exists.", ex);
+            }
+            handleOktaError("Okta user update failed.", ex);
+        } catch (RestClientException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Could not reach Okta management API.", ex);
+        }
+    }
+
+    /**
      * Permanently deletes an Okta user after deactivation.
      *
      * @param userId Okta user id

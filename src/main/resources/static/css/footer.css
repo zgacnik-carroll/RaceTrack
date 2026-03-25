@@ -22,18 +22,26 @@
     padding: 15px 20px;
     border-radius: 12px 12px 0 0;
     display: flex;
-    align-items: center;
-    gap: 15px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
     width: 100%;
     max-width: 1140px; /* same as Bootstrap container for header alignment */
     box-shadow: 0 -4px 10px rgba(0,0,0,0.2);
-    height: 90px;
+    min-height: 126px;
     margin: 0 auto; /* center the container exactly */
 }
 
-/* Left: Search bar ~25% width */
+.footer-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    width: 100%;
+}
+
 .footer-search {
-    flex: 0 0 25%;
+    flex: 0 1 320px;
 }
 
 .footer-container input.form-control {
@@ -42,11 +50,8 @@
     font-size: 1rem;
 }
 
-/* Middle: Athlete buttons scroll under right buttons */
 .footer-athletes {
-    flex: 1 1 auto;
-    position: relative;
-    margin-right: 15px;
+    width: 100%;
     overflow: hidden;
 }
 
@@ -77,11 +82,10 @@
 
 /* Right: Spreadsheet buttons always on top */
 .footer-buttons {
-    flex-shrink: 0;
     display: flex;
     gap: 10px;
-    z-index: 2;
-    position: relative;
+    flex-wrap: wrap;
+    justify-content: flex-end;
 }
 
 .footer-buttons .btn-outline-light {
@@ -107,8 +111,12 @@
         height: auto;
         border-radius: 12px;
         padding: 12px;
-        flex-wrap: wrap;
         gap: 10px;
+    }
+
+    .footer-top-row {
+        flex-direction: column;
+        align-items: stretch;
     }
 
     .footer-search {
@@ -117,16 +125,14 @@
 
     .footer-athletes {
         flex: 1 1 100%;
-        margin-right: 0;
     }
 
     .footer-buttons {
         flex: 1 1 100%;
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr;
         gap: 8px;
     }
-
 
     .footer-buttons .btn-outline-light {
         width: 100%;

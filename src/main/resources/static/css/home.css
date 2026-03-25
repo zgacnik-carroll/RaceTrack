@@ -85,28 +85,6 @@ html, body {
     width: 100%;
 }
 
-.coach-header-copy {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 0.15rem;
-    min-width: 0;
-    text-align: right;
-}
-
-.coach-header-label {
-    color: #ffffff;
-    font-size: 0.82rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-}
-
-.coach-header-description {
-    color: rgba(255, 255, 255, 0.78);
-    font-size: 0.88rem;
-    font-weight: 600;
-}
-
 .coach-header-buttons {
     display: flex;
     gap: 0.55rem;
@@ -167,11 +145,6 @@ html, body {
     .coach-header-tools {
         align-items: stretch;
         flex-direction: column;
-    }
-
-    .coach-header-copy {
-        align-items: flex-start;
-        text-align: left;
     }
 
     .logout-form {
@@ -272,7 +245,7 @@ h1.app-title {
 
 /* Keep form content clear of fixed desktop footer */
 .container.mt-5 {
-    padding-bottom: 110px;
+    padding-bottom: 150px;
 }
 
 /* =========================
@@ -613,10 +586,6 @@ h1.app-title {
 
     .header-bar .button-group .btn {
         width: 100%;
-    }
-
-    .coach-header-description {
-        font-size: 0.82rem;
     }
 
     .coach-header-buttons {

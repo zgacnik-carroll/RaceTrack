@@ -9,6 +9,7 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,6 +44,34 @@ public class AdminApiController {
                                                 @AuthenticationPrincipal OidcUser oidcUser) {
         requireCoach(oidcUser);
         User athlete = adminService.createAthlete(
+                request.firstName(),
+                request.lastName(),
+                request.email(),
+                request.temporaryPassword()
+        );
+        return new CreatedAthleteResponse(
+                athlete.getId(),
+                athlete.getEmail(),
+                athlete.getFullName(),
+                athlete.getRole()
+        );
+    }
+
+    /**
+     * Updates an athlete in Okta and in the application.
+     *
+     * @param athleteId target athlete id
+     * @param request athlete update payload
+     * @param oidcUser authenticated coach
+     * @return updated athlete summary
+     */
+    @PutMapping("/athletes/{athleteId}")
+    public CreatedAthleteResponse updateAthlete(@PathVariable String athleteId,
+                                                @RequestBody UpdateAthleteRequest request,
+                                                @AuthenticationPrincipal OidcUser oidcUser) {
+        requireCoach(oidcUser);
+        User athlete = adminService.updateAthlete(
+                athleteId,
                 request.firstName(),
                 request.lastName(),
                 request.email(),
@@ -92,6 +121,13 @@ public class AdminApiController {
     }
 
     public record CreateAthleteRequest(
+            String firstName,
+            String lastName,
+            String email,
+            String temporaryPassword
+    ) {}
+
+    public record UpdateAthleteRequest(
             String firstName,
             String lastName,
             String email,

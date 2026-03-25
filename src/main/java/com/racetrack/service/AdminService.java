@@ -64,6 +64,47 @@ public class AdminService {
     }
 
     /**
+     * Updates an athlete in Okta and syncs the local user record.
+     *
+     * @param athleteId athlete user id / Okta id
+     * @param firstName athlete first name
+     * @param lastName athlete last name
+     * @param email athlete email/login
+     * @param temporaryPassword optional replacement password
+     * @return updated athlete record
+     */
+    public User updateAthlete(String athleteId,
+                              String firstName,
+                              String lastName,
+                              String email,
+                              String temporaryPassword) {
+        String normalizedAthleteId = normalizeRequired(athleteId, "Athlete id");
+        User athlete = userRepository.findById(normalizedAthleteId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Athlete not found."));
+
+        if (!"athlete".equalsIgnoreCase(athlete.getRole())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only athletes can be edited.");
+        }
+
+        String normalizedFirstName = normalizeRequired(firstName, "First name");
+        String normalizedLastName = normalizeRequired(lastName, "Last name");
+        String normalizedEmail = normalizeEmail(email);
+        String normalizedPassword = normalizeOptional(temporaryPassword);
+
+        oktaAdminClient.updateAthlete(
+                normalizedAthleteId,
+                normalizedFirstName,
+                normalizedLastName,
+                normalizedEmail,
+                normalizedPassword
+        );
+
+        athlete.setEmail(normalizedEmail);
+        athlete.setFullName(normalizedFirstName + " " + normalizedLastName);
+        return userRepository.save(athlete);
+    }
+
+    /**
      * Deletes an athlete from Okta and removes the athlete plus owned logs from the local database.
      *
      * @param athleteId athlete user id / Okta id

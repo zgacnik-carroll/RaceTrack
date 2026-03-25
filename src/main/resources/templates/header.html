@@ -9,7 +9,10 @@
     <div class="header-bar">
       <div class="header-brand">
         <div class="brand-row">
-          <h1 class="app-title">RaceTrack</h1>
+          <h1 class="app-title">
+            RaceTrack -
+            <span th:text="${isCoach} ? 'Coach' : 'Athlete'">Athlete</span>
+          </h1>
         </div>
         <div class="signed-in-text">
           Signed in as <span th:text="${currentUserName}">User</span>
@@ -22,18 +25,17 @@
           <button class="btn btn-outline-success" onclick="showForm('workout')">Workout Log</button>
         </div>
         <div class="coach-header-tools" th:if="${isCoach}">
-          <div class="coach-header-copy">
-            <span class="coach-header-label">Coach Admin</span>
-            <span class="coach-header-description">
-              Add athletes, delete the selected athlete, or clear log data.
-            </span>
-          </div>
           <div class="coach-header-buttons">
             <button type="button"
                     class="btn btn-light coach-header-primary"
                     data-bs-toggle="modal"
                     data-bs-target="#createAthleteModal">
               Add Athlete
+            </button>
+            <button type="button"
+                    class="btn btn-outline-light"
+                    onclick="openEditAthleteModal()">
+              Edit Athlete
             </button>
             <button type="button"
                     class="btn btn-outline-light"

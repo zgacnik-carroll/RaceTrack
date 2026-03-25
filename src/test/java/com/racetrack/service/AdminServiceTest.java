@@ -62,6 +62,42 @@ class AdminServiceTest {
     }
 
     @Test
+    void updateAthlete_updatesOktaAndLocalAthleteRecord() {
+        User athlete = new User();
+        athlete.setId("ath-2");
+        athlete.setRole("athlete");
+        athlete.setEmail("old@example.com");
+        athlete.setFullName("Old Name");
+        when(userRepository.findById("ath-2")).thenReturn(Optional.of(athlete));
+        when(userRepository.save(athlete)).thenReturn(athlete);
+
+        User updated = adminService.updateAthlete("ath-2", "Jane", "Runner", "jane@example.com", "NewPass123");
+
+        verify(oktaAdminClient).updateAthlete("ath-2", "Jane", "Runner", "jane@example.com", "NewPass123");
+        assertThat(updated.getEmail()).isEqualTo("jane@example.com");
+        assertThat(updated.getFullName()).isEqualTo("Jane Runner");
+    }
+
+    @Test
+    void updateAthlete_rejectsEditingNonAthlete() {
+        User coach = new User();
+        coach.setId("coach-1");
+        coach.setRole("coach");
+        when(userRepository.findById("coach-1")).thenReturn(Optional.of(coach));
+
+        assertThatThrownBy(() -> adminService.updateAthlete("coach-1", "A", "B", "coach@example.com", null))
+                .hasMessageContaining("Only athletes can be edited.");
+
+        verify(oktaAdminClient, never()).updateAthlete(
+                org.mockito.ArgumentMatchers.any(),
+                org.mockito.ArgumentMatchers.any(),
+                org.mockito.ArgumentMatchers.any(),
+                org.mockito.ArgumentMatchers.any(),
+                org.mockito.ArgumentMatchers.any()
+        );
+    }
+
+    @Test
     void clearAllLogData_deletesOnlyLogs() {
         adminService.clearAllLogData();
 

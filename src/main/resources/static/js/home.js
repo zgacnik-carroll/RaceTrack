@@ -6,6 +6,7 @@
 
 let selectedUserId = null;
 let selectedAthleteDisplayName = "";
+let selectedAthleteEmail = "";
 const currentUserRole = (window.currentUserRole || "athlete").toLowerCase();
 const currentUserId = window.currentUserId || null;
 
@@ -47,27 +48,35 @@ function showDefaultForm() {
 
 /**
  * Selects an athlete for coach view and opens that athlete's running sheet.
- * @param {string} userId selected athlete id
+ * @param {HTMLButtonElement} button selected athlete button
  */
-function selectStudent(userId, displayName) {
-    if (currentUserRole !== "coach") return;
-    selectedUserId = userId;
-    selectedAthleteDisplayName = displayName || "Selected athlete";
+function selectStudent(button) {
+    if (!button?.dataset) return;
+
+    selectedUserId = button.dataset.userId || null;
+    selectedAthleteDisplayName = button.dataset.displayName || "Selected athlete";
+    selectedAthleteEmail = button.dataset.email || "";
     updateRunningSheetHeaderLabel();
     hideMainContent();
 
     // By default, show running sheet when a student is selected
-    showRunningSheet(userId);
+    showRunningSheet(selectedUserId);
 }
 
 /**
  * Clears selected athlete and returns coach UI to empty state.
  */
 function clearStudentSelection() {
-    if (currentUserRole !== "coach") return;
     selectedUserId = null;
     selectedAthleteDisplayName = "";
+    selectedAthleteEmail = "";
     updateRunningSheetHeaderLabel();
+
+    if (currentUserRole === "athlete") {
+        showDefaultForm();
+        return;
+    }
+
     hideMainContent();
     document.getElementById("emptyState").style.display = "block";
 }
@@ -91,7 +100,9 @@ function updateRunningSheetHeaderLabel() {
         return;
     }
 
-    const text = currentUserId ? "- My Logs" : "";
+    const text = selectedAthleteDisplayName
+        ? `- ${selectedAthleteDisplayName}`
+        : currentUserId ? "- My Logs" : "";
     labels.forEach((label) => {
         label.textContent = text;
     });
@@ -218,7 +229,9 @@ function setupCoachAdminActions() {
 
     const createAthleteForm = document.getElementById("createAthleteForm");
     const submitButton = document.getElementById("createAthleteSubmitButton");
-    if (!createAthleteForm || !submitButton) return;
+    const editAthleteForm = document.getElementById("editAthleteForm");
+    const editSubmitButton = document.getElementById("editAthleteSubmitButton");
+    if (!createAthleteForm || !submitButton || !editAthleteForm || !editSubmitButton) return;
 
     createAthleteForm.addEventListener("submit", async (event) => {
         event.preventDefault();
@@ -267,6 +280,99 @@ function setupCoachAdminActions() {
             submitButton.textContent = "Create Athlete";
         }
     });
+
+    editAthleteForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        if (!selectedUserId) {
+            showSaveNotice("Select an athlete before editing.", "warning");
+            return;
+        }
+
+        const formData = new FormData(editAthleteForm);
+        const payload = {
+            firstName: String(formData.get("firstName") || "").trim(),
+            lastName: String(formData.get("lastName") || "").trim(),
+            email: String(formData.get("email") || "").trim(),
+            temporaryPassword: String(formData.get("temporaryPassword") || "").trim()
+        };
+
+        if (!payload.firstName || !payload.lastName || !payload.email) {
+            showSaveNotice("First name, last name, and email are required.", "warning");
+            return;
+        }
+
+        editSubmitButton.disabled = true;
+        editSubmitButton.textContent = "Saving...";
+
+        try {
+            const response = await fetch(`/api/admin/athletes/${encodeURIComponent(selectedUserId)}`, {
+                method: "PUT",
+                headers: jsonHeaders(),
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                throw new Error(await readErrorMessage(response, `Failed to edit athlete (${response.status})`));
+            }
+
+            const modalElement = document.getElementById("editAthleteModal");
+            const modal = modalElement ? bootstrap.Modal.getInstance(modalElement) : null;
+            if (modal) {
+                modal.hide();
+            }
+
+            editAthleteForm.reset();
+            storeReloadNotice("Athlete updated in RaceTrack and Okta.", "success");
+            window.location.reload();
+        } catch (error) {
+            console.error(error);
+            showSaveNotice(error.message || "Could not update athlete.", "danger");
+        } finally {
+            editSubmitButton.disabled = false;
+            editSubmitButton.textContent = "Save Changes";
+        }
+    });
+}
+
+function splitSelectedAthleteName() {
+    const trimmed = (selectedAthleteDisplayName || "").trim();
+    if (!trimmed) {
+        return { firstName: "", lastName: "" };
+    }
+
+    const parts = trimmed.split(/\s+/);
+    if (parts.length === 1) {
+        return { firstName: parts[0], lastName: "" };
+    }
+
+    return {
+        firstName: parts[0],
+        lastName: parts.slice(1).join(" ")
+    };
+}
+
+function openEditAthleteModal() {
+    if (currentUserRole !== "coach") return;
+    if (!selectedUserId) {
+        showSaveNotice("Select an athlete before editing.", "warning");
+        return;
+    }
+
+    const name = splitSelectedAthleteName();
+    const firstNameInput = document.getElementById("editAthleteFirstName");
+    const lastNameInput = document.getElementById("editAthleteLastName");
+    const emailInput = document.getElementById("editAthleteEmail");
+    const passwordInput = document.getElementById("editAthleteTemporaryPassword");
+
+    if (firstNameInput) firstNameInput.value = name.firstName;
+    if (lastNameInput) lastNameInput.value = name.lastName;
+    if (emailInput) emailInput.value = selectedAthleteEmail;
+    if (passwordInput) passwordInput.value = "";
+
+    const modalElement = document.getElementById("editAthleteModal");
+    if (!modalElement) return;
+    bootstrap.Modal.getOrCreateInstance(modalElement).show();
 }
 
 async function clearData() {
@@ -333,13 +439,12 @@ async function deleteSelectedAthlete() {
 
 window.clearData = clearData;
 window.deleteSelectedAthlete = deleteSelectedAthlete;
+window.openEditAthleteModal = openEditAthleteModal;
 
 /**
  * Enables coach athlete filtering in the footer list.
  */
 function setupAthleteSearch() {
-    if (currentUserRole !== "coach") return;
-
     const search = document.getElementById("athleteSearch");
     const athleteButtons = Array.from(document.querySelectorAll(".athlete-list button"));
     if (!search || athleteButtons.length === 0) return;
