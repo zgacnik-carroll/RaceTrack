@@ -2,7 +2,6 @@ package com.racetrack.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import org.hibernate.annotations.CreationTimestamp;
 
 /**
  * Entity representing a daily running log submitted by a user.
@@ -46,8 +45,6 @@ public class RunningLog {
     @Column(columnDefinition = "TEXT")
     private String coachComment;
 
-    // Automatically store the date/time of submission
-    @CreationTimestamp
     private LocalDateTime logDate;
 
     /**

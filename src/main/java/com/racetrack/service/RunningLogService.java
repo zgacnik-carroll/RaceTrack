@@ -35,10 +35,16 @@ public class RunningLogService {
      * @return saved running log
      */
     public RunningLog submitRunningLog(RunningLog runningLog, LocalDate selectedDate) {
+        if (selectedDate == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Date is required.");
+        }
         validateRunningFields(
                 runningLog.getMileage(),
+                runningLog.getHurting(),
                 runningLog.getSleepHours(),
                 runningLog.getStressLevel(),
+                runningLog.getPlateProportion(),
+                runningLog.getGotThatBread(),
                 runningLog.getFeel(),
                 runningLog.getRpe(),
                 runningLog.getDetails()
@@ -49,6 +55,8 @@ public class RunningLogService {
 
         if (selectedDate != null) {
             runningLog.setLogDate(selectedDate.atStartOfDay());
+        } else if (runningLog.getLogDate() == null) {
+            runningLog.setLogDate(LocalDate.now().atStartOfDay());
         }
         return runningLogRepository.save(runningLog);
     }
@@ -95,7 +103,7 @@ public class RunningLogService {
         RunningLog log = runningLogRepository.findByIdAndUser_Id(logId, userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Running log not found."));
 
-        validateRunningFields(mileage, sleepHours, stressLevel, feel, rpe, details);
+        validateRunningFields(mileage, hurting, sleepHours, stressLevel, plateProportion, gotThatBread, feel, rpe, details);
 
         log.setMileage(mileage);
         log.setHurting(hurting);
@@ -149,27 +157,38 @@ public class RunningLogService {
      * @param details details value
      */
     private void validateRunningFields(Double mileage,
+                                       Boolean hurting,
                                        Integer sleepHours,
                                        Integer stressLevel,
+                                       Boolean plateProportion,
+                                       Boolean gotThatBread,
                                        String feel,
                                        Integer rpe,
                                        String details) {
         if (mileage == null || mileage < 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mileage must be 0 or greater.");
         }
-        if (sleepHours != null && (sleepHours < 0 || sleepHours > 24)) {
+        if (hurting == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Hurting is required.");
+        }
+        if (sleepHours == null || sleepHours < 0 || sleepHours > 24) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sleep must be between 0 and 24.");
         }
-        if (stressLevel != null && (stressLevel < 1 || stressLevel > 10)) {
+        if (stressLevel == null || stressLevel < 1 || stressLevel > 10) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Stress must be between 1 and 10.");
         }
-        if (rpe != null && (rpe < 1 || rpe > 10)) {
+        if (plateProportion == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Plate proportions is required.");
+        }
+        if (gotThatBread == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Did you get that bread is required.");
+        }
+        if (rpe == null || rpe < 1 || rpe > 10) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "RPE must be between 1 and 10.");
         }
 
-        String normalizedFeel = normalizeOptionalText(feel, "Feel");
-        if (normalizedFeel != null
-                && !normalizedFeel.equals("Good")
+        String normalizedFeel = normalizeRequiredText(feel, "Feel");
+        if (!normalizedFeel.equals("Good")
                 && !normalizedFeel.equals("Okay")
                 && !normalizedFeel.equals("Tired")
                 && !normalizedFeel.equals("Sore")

@@ -39,12 +39,7 @@ public class WorkoutLog {
     // Automatically store the date/time of submission
     private LocalDateTime logDate;
 
-    /**
-     * Creates a workout log with a default date timestamp.
-     */
-    public WorkoutLog() {
-        this.logDate = LocalDateTime.now(); // default to now
-    }
+    public WorkoutLog() {}
 
     /**
      * Returns the workout log id.

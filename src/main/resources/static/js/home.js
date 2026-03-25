@@ -7,6 +7,7 @@
 let selectedUserId = null;
 let selectedAthleteDisplayName = "";
 let selectedAthleteEmail = "";
+let activeFooterAthleteMenu = null;
 const currentUserRole = (window.currentUserRole || "athlete").toLowerCase();
 const currentUserId = window.currentUserId || null;
 
@@ -47,20 +48,119 @@ function showDefaultForm() {
 ========================= */
 
 /**
- * Selects an athlete for coach view and opens that athlete's running sheet.
- * @param {HTMLButtonElement} button selected athlete button
+ * Stores selected athlete metadata in shared state.
+ * @param {HTMLElement} element selected athlete trigger/menu item
+ * @returns {boolean}
  */
-function selectStudent(button) {
-    if (!button?.dataset) return;
+function setSelectedStudent(element) {
+    const source = element?.closest?.(".athlete-menu") || element;
+    if (!source?.dataset) return false;
 
-    selectedUserId = button.dataset.userId || null;
-    selectedAthleteDisplayName = button.dataset.displayName || "Selected athlete";
-    selectedAthleteEmail = button.dataset.email || "";
+    selectedUserId = source.dataset.userId || null;
+    selectedAthleteDisplayName = source.dataset.displayName || "Selected athlete";
+    selectedAthleteEmail = source.dataset.email || "";
     updateRunningSheetHeaderLabel();
-    hideMainContent();
+    return true;
+}
 
-    // By default, show running sheet when a student is selected
+/**
+ * Selects an athlete and opens the requested sheet.
+ * @param {HTMLElement} element selected athlete trigger/menu item
+ * @param {"running"|"workout"} sheetType
+ */
+function viewStudentSheet(element, sheetType) {
+    if (!setSelectedStudent(element)) return;
+
+    closeAthleteMenus();
+    hideMainContent();
+    if (sheetType === "workout") {
+        showWorkoutSheet(selectedUserId);
+        return;
+    }
     showRunningSheet(selectedUserId);
+}
+
+/**
+ * Selects an athlete for coach view and opens that athlete's running sheet.
+ * @param {HTMLElement} element selected athlete button
+ */
+function selectStudent(element) {
+    viewStudentSheet(element, "running");
+}
+
+/**
+ * Closes all open athlete menus in the footer.
+ */
+function closeAthleteMenus() {
+    document.querySelectorAll(".athlete-menu.is-active").forEach((menu) => {
+        menu.classList.remove("is-active");
+    });
+
+    const floatingMenu = document.getElementById("athleteFloatingMenu");
+    if (floatingMenu) {
+        floatingMenu.classList.remove("is-open");
+        floatingMenu.setAttribute("aria-hidden", "true");
+        floatingMenu.style.left = "";
+        floatingMenu.style.top = "";
+        floatingMenu.style.bottom = "";
+    }
+
+    activeFooterAthleteMenu = null;
+}
+
+/**
+ * Positions the shared floating footer menu above the clicked athlete button.
+ * @param {HTMLElement} button
+ */
+function positionFooterMenu(button) {
+    const floatingMenu = document.getElementById("athleteFloatingMenu");
+    const footerAthletes = document.querySelector(".footer-athletes");
+    if (!floatingMenu || !footerAthletes || !button) return;
+
+    const footerRect = footerAthletes.getBoundingClientRect();
+    const buttonRect = button.getBoundingClientRect();
+    const menuWidth = floatingMenu.offsetWidth;
+    const left = buttonRect.left - footerRect.left + ((buttonRect.width - menuWidth) / 2);
+    const maxLeft = Math.max(0, footerRect.width - menuWidth);
+    const clampedLeft = Math.min(Math.max(0, left), maxLeft);
+    const gap = 10;
+    const bottom = footerRect.bottom - buttonRect.top + gap;
+
+    floatingMenu.style.left = `${clampedLeft}px`;
+    floatingMenu.style.top = "auto";
+    floatingMenu.style.bottom = `${bottom}px`;
+}
+
+/**
+ * Opens the shared floating footer menu for one athlete button.
+ * @param {HTMLElement} button
+ */
+function openAthleteMenu(button) {
+    const menu = button?.closest?.(".athlete-menu");
+    const floatingMenu = document.getElementById("athleteFloatingMenu");
+    if (!menu || !floatingMenu) return;
+
+    if (activeFooterAthleteMenu === menu && floatingMenu.classList.contains("is-open")) {
+        closeAthleteMenus();
+        return;
+    }
+
+    setSelectedStudent(menu);
+    closeAthleteMenus();
+    activeFooterAthleteMenu = menu;
+    menu.classList.add("is-active");
+    floatingMenu.classList.add("is-open");
+    floatingMenu.setAttribute("aria-hidden", "false");
+    positionFooterMenu(button);
+}
+
+/**
+ * Opens the selected athlete's sheet from the shared footer menu.
+ * @param {"running"|"workout"} sheetType
+ */
+function viewSelectedFooterSheet(sheetType) {
+    if (!activeFooterAthleteMenu) return;
+    viewStudentSheet(activeFooterAthleteMenu, sheetType);
 }
 
 /**
@@ -375,6 +475,11 @@ function openEditAthleteModal() {
     bootstrap.Modal.getOrCreateInstance(modalElement).show();
 }
 
+function openEditAthleteModalFor(element) {
+    if (!setSelectedStudent(element)) return;
+    openEditAthleteModal();
+}
+
 async function clearData() {
     if (currentUserRole !== "coach") return;
 
@@ -437,25 +542,35 @@ async function deleteSelectedAthlete() {
     }
 }
 
+async function deleteAthleteFor(element) {
+    if (!setSelectedStudent(element)) return;
+    await deleteSelectedAthlete();
+}
+
 window.clearData = clearData;
 window.deleteSelectedAthlete = deleteSelectedAthlete;
+window.deleteAthleteFor = deleteAthleteFor;
+window.openAthleteMenu = openAthleteMenu;
 window.openEditAthleteModal = openEditAthleteModal;
+window.openEditAthleteModalFor = openEditAthleteModalFor;
+window.viewSelectedFooterSheet = viewSelectedFooterSheet;
+window.viewStudentSheet = viewStudentSheet;
 
 /**
  * Enables coach athlete filtering in the footer list.
  */
 function setupAthleteSearch() {
     const search = document.getElementById("athleteSearch");
-    const athleteButtons = Array.from(document.querySelectorAll(".athlete-list button"));
-    if (!search || athleteButtons.length === 0) return;
+    const athleteMenus = Array.from(document.querySelectorAll(".athlete-list .athlete-menu"));
+    if (!search || athleteMenus.length === 0) return;
 
     search.addEventListener("input", (event) => {
         const query = event.target.value.trim().toLowerCase();
-        athleteButtons.forEach((button) => {
-            const name = (button.dataset.name || "").toLowerCase();
-            const email = (button.dataset.email || "").toLowerCase();
+        athleteMenus.forEach((menu) => {
+            const name = (menu.dataset.name || "").toLowerCase();
+            const email = (menu.dataset.email || "").toLowerCase();
             const visible = !query || name.includes(query) || email.includes(query);
-            button.style.display = visible ? "" : "none";
+            menu.style.display = visible ? "" : "none";
         });
     });
 }
@@ -474,6 +589,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     updateRunningSheetHeaderLabel();
+});
+
+document.addEventListener("click", (event) => {
+    if (event.target.closest(".athlete-menu") || event.target.closest("#athleteFloatingMenu")) return;
+    closeAthleteMenus();
 });
 
 window.updateRunningSheetHeaderLabel = updateRunningSheetHeaderLabel;

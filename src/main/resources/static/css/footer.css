@@ -52,52 +52,91 @@
 
 .footer-athletes {
     width: 100%;
-    overflow: hidden;
+    overflow: visible;
+    position: relative;
+}
+
+.footer-athletes .athlete-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-top: 0.25rem;
+    padding-bottom: 2px;
+    -webkit-overflow-scrolling: touch;
 }
 
 .footer-athletes .athlete-list {
     display: flex;
     gap: 10px;
-    overflow-x: auto;
-    padding-bottom: 2px;
     position: relative;
     z-index: 1;
     scroll-behavior: smooth;
+    overflow: visible;
+    width: max-content;
+    min-width: 100%;
 }
 
-.footer-athletes .athlete-list button {
+.footer-athletes .athlete-list .athlete-menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
     white-space: nowrap;
     color: #fff;
     border-color: rgba(255,255,255,0.7);
     font-size: 1rem;
     padding: 0.5rem 1rem;
     flex-shrink: 0;
+    cursor: pointer;
 }
 
-.footer-athletes .athlete-list button:hover {
+.footer-athletes .athlete-menu-arrow {
+    font-size: 0.72rem;
+    line-height: 1;
+    opacity: 0.9;
+}
+
+.footer-athletes .athlete-list .athlete-menu-toggle:hover,
+.footer-athletes .athlete-list .athlete-menu-toggle:focus,
+.footer-athletes .athlete-menu.is-active .athlete-menu-toggle {
     background-color: #fff;
     color: #332a86;
     border-color: #fff;
 }
 
-/* Right: Spreadsheet buttons always on top */
-.footer-buttons {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    justify-content: flex-end;
+.footer-athletes .athlete-menu {
+    flex-shrink: 0;
 }
 
-.footer-buttons .btn-outline-light {
-    border-color: rgba(255,255,255,0.7);
-    font-size: 1rem;
-    padding: 0.5rem 1rem;
+.footer-athletes .athlete-floating-menu {
+    position: absolute;
+    display: none;
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
+    min-width: 180px;
+    padding: 0.45rem;
+    background: rgba(255,255,255,0.96);
+    border: 1px solid rgba(255,255,255,0.6);
+    border-radius: 0.5rem;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+    backdrop-filter: blur(4px);
+    z-index: 20;
 }
 
-.footer-buttons .btn-outline-light:hover {
-    background-color: #fff;
+.footer-athletes .athlete-floating-menu.is-open {
+    display: grid;
+}
+
+.footer-athletes .athlete-action-button {
+    width: 100%;
+    text-align: left;
     color: #332a86;
-    border-color: #fff;
+    border: none;
+    background: #fff;
+}
+
+.footer-athletes .athlete-action-button:hover,
+.footer-athletes .athlete-action-button:focus {
+    background-color: rgba(51, 42, 134, 0.08);
+    color: #241d63;
 }
 
 @media (max-width: 768px) {
@@ -125,18 +164,5 @@
 
     .footer-athletes {
         flex: 1 1 100%;
-    }
-
-    .footer-buttons {
-        flex: 1 1 100%;
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 8px;
-    }
-
-    .footer-buttons .btn-outline-light {
-        width: 100%;
-        font-size: 0.92rem;
-        padding: 0.45rem 0.65rem;
     }
 }

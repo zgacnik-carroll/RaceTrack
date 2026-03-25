@@ -50,6 +50,7 @@
                   <label class="form-label">Hurting?</label>
                   <select class="form-select"
                           th:field="*{hurting}"
+                          required
                           data-bs-toggle="tooltip"
                           title="Did you feel any pain during your run?">
                     <option value="">Select</option>
@@ -63,6 +64,7 @@
                   <input type="number" min="0" max="24"
                          class="form-control"
                          th:field="*{sleepHours}"
+                         required
                          data-bs-toggle="tooltip"
                          title="How many hours did you sleep last night?">
                 </div>
@@ -72,6 +74,7 @@
                   <input type="number" min="1" max="10"
                          class="form-control"
                          th:field="*{stressLevel}"
+                         required
                          data-bs-toggle="tooltip"
                          title="Rate your stress / anxiety level from 1 (low) to 10 (high).">
                 </div>
@@ -81,6 +84,7 @@
                   <label class="form-label">Plate Proportions?</label>
                   <select class="form-select"
                           th:field="*{plateProportion}"
+                          required
                           data-bs-toggle="tooltip"
                           title="Did you eat 3 balanced plates today?">
                     <option value="">Select</option>
@@ -94,6 +98,7 @@
                   <label class="form-label">Did you get that bread?</label>
                   <select class="form-select"
                           th:field="*{gotThatBread}"
+                          required
                           data-bs-toggle="tooltip"
                           title="Did you eat enough carbs today?">
                     <option value="">Select</option>
@@ -106,6 +111,7 @@
                   <label class="form-label">How feel?</label>
                   <select class="form-select"
                           th:field="*{feel}"
+                          required
                           data-bs-toggle="tooltip"
                           title="How do you feel overall?">
                     <option value="">Select</option>
@@ -122,6 +128,7 @@
                   <input type="number" min="1" max="10"
                          class="form-control"
                          th:field="*{rpe}"
+                         required
                          data-bs-toggle="tooltip"
                          title="Rate your effort for this run (1-10).">
                 </div>

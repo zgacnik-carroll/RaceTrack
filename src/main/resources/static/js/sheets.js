@@ -10,6 +10,10 @@ const dateFilters = {
     running: "week",
     workout: "week"
 };
+const customDateFilterBindings = {
+    running: false,
+    workout: false
+};
 
 /**
  * Builds JSON request headers and injects CSRF values when present.
@@ -296,6 +300,16 @@ function applyDateFilter(logs, type) {
         const monthStart = new Date(todayStart);
         monthStart.setDate(monthStart.getDate() - 29);
         filtered = logs.filter(log => new Date(log.logDate) >= monthStart);
+    } else if (range === "custom") {
+        const customRange = getCustomDateRange(type);
+        if (customRange.start && customRange.end) {
+            const start = customRange.start <= customRange.end ? customRange.start : customRange.end;
+            const end = customRange.start <= customRange.end ? customRange.end : customRange.start;
+            filtered = logs.filter(log => {
+                const logDay = startOfDay(log.logDate).getTime();
+                return logDay >= start.getTime() && logDay <= end.getTime();
+            });
+        }
     }
 
     return filtered;
@@ -304,10 +318,11 @@ function applyDateFilter(logs, type) {
 /**
  * Sets active date filter and refreshes corresponding sheet.
  * @param {"running"|"workout"} type
- * @param {"today"|"week"|"month"} range
+ * @param {"today"|"week"|"month"|"custom"} range
  */
 function setDateFilter(type, range) {
     dateFilters[type] = range;
+    syncCustomFilterVisibility(type);
     updateFilterButtons(type);
     if (type === "running") {
         loadRunningLogs();
@@ -321,12 +336,63 @@ function setDateFilter(type, range) {
  * @param {"running"|"workout"} type
  */
 function updateFilterButtons(type) {
-    const ranges = ["today", "week", "month"];
+    const ranges = ["today", "week", "month", "custom"];
     ranges.forEach(range => {
         const button = document.getElementById(`${type}-filter-${range}`);
         if (!button) return;
         button.classList.toggle("active", dateFilters[type] === range);
     });
+}
+
+/**
+ * Reads the custom start/end date inputs for a sheet filter.
+ * @param {"running"|"workout"} type
+ * @returns {{start: Date|null, end: Date|null}}
+ */
+function getCustomDateRange(type) {
+    const startValue = document.getElementById(`${type}-custom-start`)?.value ?? "";
+    const endValue = document.getElementById(`${type}-custom-end`)?.value ?? "";
+    return {
+        start: startValue ? startOfDay(startValue) : null,
+        end: endValue ? startOfDay(endValue) : null
+    };
+}
+
+/**
+ * Shows/hides the custom date input row for the active filter.
+ * @param {"running"|"workout"} type
+ */
+function syncCustomFilterVisibility(type) {
+    const customFilter = document.getElementById(`${type}-custom-filter-inputs`);
+    if (!customFilter) return;
+    customFilter.classList.toggle("d-none", dateFilters[type] !== "custom");
+}
+
+/**
+ * Binds custom filter date inputs once so coaches can filter by inclusive range.
+ * @param {"running"|"workout"} type
+ */
+function bindCustomDateFilterInputs(type) {
+    if (customDateFilterBindings[type]) return;
+
+    const startInput = document.getElementById(`${type}-custom-start`);
+    const endInput = document.getElementById(`${type}-custom-end`);
+    if (!startInput || !endInput) return;
+
+    const refresh = () => {
+        if (dateFilters[type] !== "custom") return;
+        if (type === "running") {
+            loadRunningLogs();
+        } else {
+            loadWorkoutLogs();
+        }
+    };
+
+    startInput.addEventListener("change", refresh);
+    endInput.addEventListener("change", refresh);
+    bindDateInputPicker(`${type}-custom-start`);
+    bindDateInputPicker(`${type}-custom-end`);
+    customDateFilterBindings[type] = true;
 }
 
 /**
@@ -337,6 +403,24 @@ function updateFilterButtons(type) {
 function canAthleteEdit(targetUserId) {
     if (role !== "athlete") return false;
     return targetUserId === "me" || targetUserId === userId;
+}
+
+/**
+ * Keeps athlete-only actions header and column sizing in sync with editability.
+ * @param {"running"|"workout"} logType
+ * @param {boolean} editable
+ */
+function syncSheetLayout(logType, editable) {
+    const table = document.querySelector(`.${logType}-table`);
+    const actionsHeader = document.getElementById(`${logType}-actions-header`);
+
+    if (table) {
+        table.classList.toggle("athlete-view", editable);
+    }
+
+    if (actionsHeader) {
+        actionsHeader.style.display = editable ? "" : "none";
+    }
 }
 
 /**
@@ -459,6 +543,7 @@ function loadRunningLogs(requestedUserId) {
             updateFilterButtons("running");
 
             const editable = canAthleteEdit(targetUserId);
+            syncSheetLayout("running", editable);
             const filteredData = applyDateFilter(data, "running");
             filteredData.forEach(log => {
                 const row = document.createElement("tr");
@@ -537,6 +622,8 @@ function loadRunningLogs(requestedUserId) {
 function showRunningSheet(userIdParam = null) {
     hideMainContent();
     document.getElementById("runningSpreadsheet").style.display = "block";
+    bindCustomDateFilterInputs("running");
+    syncCustomFilterVisibility("running");
     if (window.updateRunningSheetHeaderLabel) {
         window.updateRunningSheetHeaderLabel();
     }
@@ -610,6 +697,7 @@ function loadWorkoutLogs(requestedUserId) {
             updateFilterButtons("workout");
 
             const editable = canAthleteEdit(targetUserId);
+            syncSheetLayout("workout", editable);
             const filteredData = applyDateFilter(data, "workout");
             filteredData.forEach(log => {
                 const row = document.createElement("tr");
@@ -671,6 +759,8 @@ function loadWorkoutLogs(requestedUserId) {
 function showWorkoutSheet(userIdParam = null) {
     hideMainContent();
     document.getElementById("workoutSpreadsheet").style.display = "block";
+    bindCustomDateFilterInputs("workout");
+    syncCustomFilterVisibility("workout");
     if (window.updateRunningSheetHeaderLabel) {
         window.updateRunningSheetHeaderLabel();
     }

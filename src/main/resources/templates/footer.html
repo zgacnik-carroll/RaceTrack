@@ -6,21 +6,34 @@
           <div class="footer-search">
             <input type="text" class="form-control" placeholder="Search athlete..." id="athleteSearch">
           </div>
-
-          <div class="footer-buttons">
-            <button class="btn btn-outline-light btn-sm" onclick="showRunningSheet()">Running Sheet</button>
-            <button class="btn btn-outline-light btn-sm" onclick="showWorkoutSheet()">Workout Sheet</button>
-          </div>
         </div>
 
         <div class="footer-athletes">
-          <div class="athlete-list d-flex gap-2 overflow-auto">
-            <button class="btn btn-sm btn-outline-light"
-                    th:each="athlete : ${athletes}"
-                    th:attr="data-name=${athlete.fullName},data-email=${athlete.email},data-user-id=${athlete.id},data-display-name=${athlete.fullName != null and !#strings.isEmpty(athlete.fullName) ? athlete.fullName : athlete.email}"
-                    onclick="selectStudent(this)"
-                    th:text="${athlete.fullName != null and !#strings.isEmpty(athlete.fullName) ? athlete.fullName : athlete.email}">
-              Athlete
+          <div class="athlete-scroll">
+            <div class="athlete-list d-flex gap-2">
+              <div class="athlete-menu"
+                   th:each="athlete : ${athletes}"
+                   th:attr="data-name=${athlete.fullName},data-email=${athlete.email},data-user-id=${athlete.id},data-display-name=${athlete.fullName != null and !#strings.isEmpty(athlete.fullName) ? athlete.fullName : athlete.email}">
+                <button class="btn btn-sm btn-outline-light athlete-menu-toggle"
+                        type="button"
+                        onclick="openAthleteMenu(this)"
+                        th:attr="data-label=${athlete.fullName != null and !#strings.isEmpty(athlete.fullName) ? athlete.fullName : athlete.email}">
+                  <span th:text="${athlete.fullName != null and !#strings.isEmpty(athlete.fullName) ? athlete.fullName : athlete.email}">Athlete</span>
+                  <span class="athlete-menu-arrow" aria-hidden="true">▲</span>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div id="athleteFloatingMenu" class="athlete-floating-menu" aria-hidden="true">
+            <button class="btn btn-light btn-sm athlete-action-button"
+                    type="button"
+                    onclick="viewSelectedFooterSheet('running')">
+              Running Sheet
+            </button>
+            <button class="btn btn-light btn-sm athlete-action-button"
+                    type="button"
+                    onclick="viewSelectedFooterSheet('workout')">
+              Workout Sheet
             </button>
           </div>
         </div>

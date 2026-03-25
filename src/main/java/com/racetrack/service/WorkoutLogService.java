@@ -35,6 +35,9 @@ public class WorkoutLogService {
      * @return saved workout log
      */
     public WorkoutLog submitWorkoutLog(WorkoutLog workoutLog, LocalDate selectedDate) {
+        if (selectedDate == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Date is required.");
+        }
         validateWorkoutFields(
                 workoutLog.getWorkoutType(),
                 workoutLog.getCompletionDetails(),
@@ -49,6 +52,8 @@ public class WorkoutLogService {
 
         if (selectedDate != null) {
             workoutLog.setLogDate(selectedDate.atStartOfDay());
+        } else if (workoutLog.getLogDate() == null) {
+            workoutLog.setLogDate(LocalDate.now().atStartOfDay());
         }
         return workoutLogRepository.save(workoutLog);
     }
@@ -136,9 +141,9 @@ public class WorkoutLogService {
                                        String actualPaces,
                                        String workoutDescription) {
         normalizeWorkoutType(workoutType);
-        normalizeOptionalText(completionDetails, "Completion details");
-        normalizeOptionalText(actualPaces, "Actual paces");
-        normalizeOptionalText(workoutDescription, "Workout description");
+        normalizeRequiredText(completionDetails, "Completion details");
+        normalizeRequiredText(actualPaces, "Actual paces");
+        normalizeRequiredText(workoutDescription, "Workout description");
     }
 
     /**

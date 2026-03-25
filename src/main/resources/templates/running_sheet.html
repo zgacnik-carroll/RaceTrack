@@ -17,15 +17,20 @@
       <button id="running-filter-today" class="btn btn-sm btn-outline-secondary" onclick="setDateFilter('running', 'today')">Today</button>
       <button id="running-filter-week" class="btn btn-sm btn-outline-secondary" onclick="setDateFilter('running', 'week')">Week</button>
       <button id="running-filter-month" class="btn btn-sm btn-outline-secondary" onclick="setDateFilter('running', 'month')">Month</button>
+      <button th:if="${isCoach}" id="running-filter-custom" class="btn btn-sm btn-outline-secondary" onclick="setDateFilter('running', 'custom')">Custom</button>
+      <div th:if="${isCoach}" id="running-custom-filter-inputs" class="sheet-custom-filter d-none">
+        <input id="running-custom-start" type="date" class="form-control form-control-sm sheet-custom-date-input" aria-label="Running logs custom start date">
+        <span class="sheet-custom-filter-separator">to</span>
+        <input id="running-custom-end" type="date" class="form-control form-control-sm sheet-custom-date-input" aria-label="Running logs custom end date">
+      </div>
     </div>
 
     <div class="table-responsive">
-      <table class="table table-bordered table-sm spreadsheet-table running-table"
-             th:classappend="${!isCoach} ? ' athlete-view' : ''">
+      <table class="table table-bordered table-sm spreadsheet-table running-table">
         <thead class="table-light">
         <tr>
           <th>Date</th>
-          <th th:if="${!isCoach}">Actions</th>
+          <th th:if="${!isCoach}" id="running-actions-header" style="display:none;">Actions</th>
           <th>Miles</th>
           <th>Hurting?</th>
           <th>Sleep</th>

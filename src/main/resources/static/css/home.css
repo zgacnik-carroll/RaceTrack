@@ -163,19 +163,26 @@ html, body {
     .header-bar .button-group {
         width: 100%;
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr;
         gap: 0.5rem;
         margin-top: 0.2rem;
     }
 
     .header-bar .button-group .btn:first-child {
-        grid-column: 1 / -1;
+        grid-column: auto;
     }
 
     .coach-header-buttons {
         width: 100%;
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: 1fr;
+    }
+
+    .header-bar .button-group .btn,
+    .coach-header-buttons .btn,
+    .coach-header-buttons .dropdown,
+    .coach-header-buttons .dropdown .btn {
+        width: 100%;
     }
 
     #runningForm .row.g-3.align-items-end > [class*="col-"] {
@@ -462,6 +469,21 @@ h1.app-title {
     flex-wrap: wrap;
 }
 
+.sheet-custom-filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.sheet-custom-date-input {
+    width: 150px;
+}
+
+.sheet-custom-filter-separator {
+    font-size: 0.85rem;
+    color: #4d4d4d;
+}
+
 .sheet-filter-label {
     font-size: 0.85rem;
     color: #4d4d4d;
@@ -603,6 +625,14 @@ h1.app-title {
     .sheet-filter-bar .btn {
         font-size: 0.8rem;
         padding: 0.3rem 0.55rem;
+    }
+
+    .sheet-custom-filter {
+        width: 100%;
+    }
+
+    .sheet-custom-date-input {
+        width: 100%;
     }
 
     .sheet-input {
