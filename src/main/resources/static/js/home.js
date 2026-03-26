@@ -10,6 +10,7 @@ let selectedAthleteEmail = "";
 let activeFooterAthleteMenu = null;
 const currentUserRole = (window.currentUserRole || "athlete").toLowerCase();
 const currentUserId = window.currentUserId || null;
+const currentUserName = window.currentUserName || "";
 
 /* =========================
    FORM DISPLAY
@@ -22,6 +23,7 @@ const currentUserId = window.currentUserId || null;
  */
 function showForm(type) {
     if (currentUserRole === "coach") return;
+    clearAthleteViewSelection();
     hideMainContent();
 
     if (type === "running") {
@@ -167,9 +169,7 @@ function viewSelectedFooterSheet(sheetType) {
  * Clears selected athlete and returns coach UI to empty state.
  */
 function clearStudentSelection() {
-    selectedUserId = null;
-    selectedAthleteDisplayName = "";
-    selectedAthleteEmail = "";
+    clearAthleteViewSelection();
     updateRunningSheetHeaderLabel();
 
     if (currentUserRole === "athlete") {
@@ -179,6 +179,15 @@ function clearStudentSelection() {
 
     hideMainContent();
     document.getElementById("emptyState").style.display = "block";
+}
+
+/**
+ * Clears athlete-view selection context so self-navigation does not reuse another athlete.
+ */
+function clearAthleteViewSelection() {
+    selectedUserId = null;
+    selectedAthleteDisplayName = "";
+    selectedAthleteEmail = "";
 }
 
 /**
@@ -202,7 +211,7 @@ function updateRunningSheetHeaderLabel() {
 
     const text = selectedAthleteDisplayName
         ? `- ${selectedAthleteDisplayName}`
-        : currentUserId ? "- My Logs" : "";
+        : currentUserName ? `- ${currentUserName}` : currentUserId ? "- My Logs" : "";
     labels.forEach((label) => {
         label.textContent = text;
     });
@@ -596,4 +605,5 @@ document.addEventListener("click", (event) => {
     closeAthleteMenus();
 });
 
+window.clearAthleteViewSelection = clearAthleteViewSelection;
 window.updateRunningSheetHeaderLabel = updateRunningSheetHeaderLabel;

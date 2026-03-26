@@ -11,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Handles the public home page routes.
@@ -40,6 +41,11 @@ public class HomeController {
         User user = userService.getOrCreateForHome(oidcUser);
         boolean isCoach = userService.isCoach(user);
         List<User> athletes = userService.getAthletesOrderedByName();
+        if (!isCoach) {
+            athletes = athletes.stream()
+                    .filter(athlete -> !user.getId().equals(athlete.getId()))
+                    .collect(Collectors.toList());
+        }
 
         model.addAttribute("runningLog", new RunningLog());
         model.addAttribute("workoutLog", new WorkoutLog());

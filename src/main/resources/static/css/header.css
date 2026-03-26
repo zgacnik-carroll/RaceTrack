@@ -60,8 +60,9 @@
 }
 
 .header-bar .coach-athlete-menu {
-    max-height: 280px;
-    overflow-y: auto;
+    max-height: 15rem !important;
+    overflow-y: scroll !important;
+    overscroll-behavior: contain;
 }
 
 @media (min-width: 768px) and (max-width: 1200px) {

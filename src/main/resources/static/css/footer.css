@@ -19,11 +19,12 @@
     pointer-events: auto; /* restore interaction */
     background-color: #332a86; /* purple like header */
     color: white;
-    padding: 15px 20px;
+    padding: 15px 20px 10px;
     border-radius: 12px 12px 0 0;
     display: flex;
     flex-direction: column;
     align-items: stretch;
+    justify-content: center;
     gap: 12px;
     width: 100%;
     max-width: 1140px; /* same as Bootstrap container for header alignment */
@@ -51,7 +52,8 @@
 }
 
 .footer-athletes {
-    width: 100%;
+    flex: 1 1 auto;
+    min-width: 0;
     overflow: visible;
     position: relative;
 }
@@ -60,8 +62,29 @@
     overflow-x: auto;
     overflow-y: hidden;
     padding-top: 0.25rem;
-    padding-bottom: 2px;
+    padding-bottom: 0.55rem;
     -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.82) rgba(255,255,255,0.16);
+}
+
+.footer-athletes .athlete-scroll::-webkit-scrollbar {
+    height: 10px;
+}
+
+.footer-athletes .athlete-scroll::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.14);
+    border-radius: 999px;
+}
+
+.footer-athletes .athlete-scroll::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, rgba(255,255,255,0.92) 0%, rgba(223,233,255,0.78) 100%);
+    border-radius: 999px;
+    border: 2px solid rgba(51,42,134,0.18);
+}
+
+.footer-athletes .athlete-scroll::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(235,242,255,0.9) 100%);
 }
 
 .footer-athletes .athlete-list {
@@ -72,7 +95,7 @@
     scroll-behavior: smooth;
     overflow: visible;
     width: max-content;
-    min-width: 100%;
+    min-width: max-content;
 }
 
 .footer-athletes .athlete-list .athlete-menu-toggle {

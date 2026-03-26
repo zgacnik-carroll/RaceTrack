@@ -17,8 +17,8 @@
       <button id="running-filter-today" class="btn btn-sm btn-outline-secondary" onclick="setDateFilter('running', 'today')">Today</button>
       <button id="running-filter-week" class="btn btn-sm btn-outline-secondary" onclick="setDateFilter('running', 'week')">Week</button>
       <button id="running-filter-month" class="btn btn-sm btn-outline-secondary" onclick="setDateFilter('running', 'month')">Month</button>
-      <button th:if="${isCoach}" id="running-filter-custom" class="btn btn-sm btn-outline-secondary" onclick="setDateFilter('running', 'custom')">Custom</button>
-      <div th:if="${isCoach}" id="running-custom-filter-inputs" class="sheet-custom-filter d-none">
+      <button id="running-filter-custom" class="btn btn-sm btn-outline-secondary" onclick="setDateFilter('running', 'custom')">Custom</button>
+      <div id="running-custom-filter-inputs" class="sheet-custom-filter d-none">
         <input id="running-custom-start" type="date" class="form-control form-control-sm sheet-custom-date-input" aria-label="Running logs custom start date">
         <span class="sheet-custom-filter-separator">to</span>
         <input id="running-custom-end" type="date" class="form-control form-control-sm sheet-custom-date-input" aria-label="Running logs custom end date">
@@ -38,7 +38,7 @@
           <th>Plate Proportions On?</th>
           <th>Did You Get That Bread?</th>
           <th>How Feel?</th>
-          <th>RPE</th>
+          <th class="running-rpe-column">RPE</th>
           <th>Athlete Details</th>
           <th>Coach Comment</th>
         </tr>

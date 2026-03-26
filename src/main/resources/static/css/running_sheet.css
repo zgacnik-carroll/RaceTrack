@@ -117,6 +117,13 @@
     max-width: 88px;
 }
 
+#runningSpreadsheet .running-table th:nth-child(9),
+#runningSpreadsheet .running-table td:nth-child(9) {
+    width: 52px;
+    min-width: 52px;
+    max-width: 52px;
+}
+
 #runningSpreadsheet .running-table th:nth-child(10),
 #runningSpreadsheet .running-table td:nth-child(10) {
     width: 220px;
@@ -147,6 +154,12 @@
 
 #runningSpreadsheet .running-table td:last-child .coach-comment-actions {
     min-width: 70px;
+}
+
+#runningSpreadsheet .running-table .running-rpe-column {
+    width: 52px !important;
+    min-width: 52px !important;
+    max-width: 52px !important;
 }
 
 /* Athlete view: actions moved to column 2 */
@@ -191,6 +204,13 @@
     width: 88px;
     min-width: 88px;
     max-width: 88px;
+}
+
+#runningSpreadsheet .running-table.athlete-view th:nth-child(10),
+#runningSpreadsheet .running-table.athlete-view td:nth-child(10) {
+    width: 52px;
+    min-width: 52px;
+    max-width: 52px;
 }
 
 #runningSpreadsheet .running-table.athlete-view th:nth-child(11),

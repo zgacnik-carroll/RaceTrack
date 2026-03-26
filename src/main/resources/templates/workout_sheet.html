@@ -17,8 +17,8 @@
       <button id="workout-filter-today" class="btn btn-sm btn-outline-secondary" onclick="setDateFilter('workout', 'today')">Today</button>
       <button id="workout-filter-week" class="btn btn-sm btn-outline-secondary" onclick="setDateFilter('workout', 'week')">Week</button>
       <button id="workout-filter-month" class="btn btn-sm btn-outline-secondary" onclick="setDateFilter('workout', 'month')">Month</button>
-      <button th:if="${isCoach}" id="workout-filter-custom" class="btn btn-sm btn-outline-secondary" onclick="setDateFilter('workout', 'custom')">Custom</button>
-      <div th:if="${isCoach}" id="workout-custom-filter-inputs" class="sheet-custom-filter d-none">
+      <button id="workout-filter-custom" class="btn btn-sm btn-outline-secondary" onclick="setDateFilter('workout', 'custom')">Custom</button>
+      <div id="workout-custom-filter-inputs" class="sheet-custom-filter d-none">
         <input id="workout-custom-start" type="date" class="form-control form-control-sm sheet-custom-date-input" aria-label="Workout logs custom start date">
         <span class="sheet-custom-filter-separator">to</span>
         <input id="workout-custom-end" type="date" class="form-control form-control-sm sheet-custom-date-input" aria-label="Workout logs custom end date">

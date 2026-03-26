@@ -268,14 +268,28 @@ function getTargetUserId(inputUserId) {
 }
 
 /**
- * Normalizes a date to midnight local time for range comparisons.
- * @param {string|Date} date
- * @returns {Date}
+ * Converts a date-like value to YYYY-MM-DD using the stored calendar date.
+ * @param {string|Date|null|undefined} date
+ * @returns {string}
  */
-function startOfDay(date) {
+function dateKey(date) {
+    return formatDateForInput(date);
+}
+
+/**
+ * Returns a YYYY-MM-DD string shifted by a day offset.
+ * @param {Date} date
+ * @param {number} offsetDays
+ * @returns {string}
+ */
+function shiftedDateKey(date, offsetDays = 0) {
     const d = new Date(date);
     d.setHours(0, 0, 0, 0);
-    return d;
+    d.setDate(d.getDate() + offsetDays);
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    const yyyy = String(d.getFullYear());
+    return `${yyyy}-${mm}-${dd}`;
 }
 
 /**
@@ -287,27 +301,31 @@ function startOfDay(date) {
 function applyDateFilter(logs, type) {
     const range = dateFilters[type] ?? "week";
     const now = new Date();
-    const todayStart = startOfDay(now);
+    const todayKey = shiftedDateKey(now, 0);
 
     let filtered = logs;
     if (range === "today") {
-        filtered = logs.filter(log => startOfDay(log.logDate).getTime() === todayStart.getTime());
+        filtered = logs.filter(log => dateKey(log.logDate) === todayKey);
     } else if (range === "week") {
-        const weekStart = new Date(todayStart);
-        weekStart.setDate(weekStart.getDate() - 6);
-        filtered = logs.filter(log => new Date(log.logDate) >= weekStart);
+        const weekStartKey = shiftedDateKey(now, -6);
+        filtered = logs.filter(log => {
+            const logKey = dateKey(log.logDate);
+            return logKey >= weekStartKey && logKey <= todayKey;
+        });
     } else if (range === "month") {
-        const monthStart = new Date(todayStart);
-        monthStart.setDate(monthStart.getDate() - 29);
-        filtered = logs.filter(log => new Date(log.logDate) >= monthStart);
+        const monthStartKey = shiftedDateKey(now, -29);
+        filtered = logs.filter(log => {
+            const logKey = dateKey(log.logDate);
+            return logKey >= monthStartKey && logKey <= todayKey;
+        });
     } else if (range === "custom") {
         const customRange = getCustomDateRange(type);
         if (customRange.start && customRange.end) {
             const start = customRange.start <= customRange.end ? customRange.start : customRange.end;
             const end = customRange.start <= customRange.end ? customRange.end : customRange.start;
             filtered = logs.filter(log => {
-                const logDay = startOfDay(log.logDate).getTime();
-                return logDay >= start.getTime() && logDay <= end.getTime();
+                const logKey = dateKey(log.logDate);
+                return logKey >= start && logKey <= end;
             });
         }
     }
@@ -347,14 +365,14 @@ function updateFilterButtons(type) {
 /**
  * Reads the custom start/end date inputs for a sheet filter.
  * @param {"running"|"workout"} type
- * @returns {{start: Date|null, end: Date|null}}
+ * @returns {{start: string|null, end: string|null}}
  */
 function getCustomDateRange(type) {
     const startValue = document.getElementById(`${type}-custom-start`)?.value ?? "";
     const endValue = document.getElementById(`${type}-custom-end`)?.value ?? "";
     return {
-        start: startValue ? startOfDay(startValue) : null,
-        end: endValue ? startOfDay(endValue) : null
+        start: startValue || null,
+        end: endValue || null
     };
 }
 
@@ -564,7 +582,7 @@ function loadRunningLogs(requestedUserId) {
                         <td id="running-plate-cell-${log.id}" class="wellness-cell">${booleanSelect(log.plateProportion).replace('data-field="bool"', `id="running-plate-${log.id}"`)}</td>
                         <td id="running-bread-cell-${log.id}" class="wellness-cell">${booleanSelect(log.gotThatBread).replace('data-field="bool"', `id="running-bread-${log.id}"`)}</td>
                         <td id="running-feel-cell-${log.id}" class="wellness-cell">${feelSelect(log.feel).replace('id="running-feel-select"', `id="running-feel-${log.id}"`)}</td>
-                        <td><input class="sheet-input" type="number" min="1" max="10" value="${log.rpe ?? ""}" id="running-rpe-${log.id}"></td>
+                        <td class="running-rpe-column"><input class="sheet-input" type="number" min="1" max="10" value="${log.rpe ?? ""}" id="running-rpe-${log.id}"></td>
                         <td><textarea class="sheet-input sheet-textarea js-limited-text" maxlength="${TEXT_MAX}" data-char-max="${TEXT_MAX}" id="running-details-${log.id}">${escapeHtml(log.details ?? "")}</textarea></td>
                         <td><div class="expandable-cell">${escapeHtml(log.coachComment ?? "")}</div></td>
                     `;
@@ -578,7 +596,7 @@ function loadRunningLogs(requestedUserId) {
                         <td class="wellness-cell"${styleAttrFromColor(yesNoColor(log.plateProportion))}>${booleanDisplay(log.plateProportion)}</td>
                         <td class="wellness-cell"${styleAttrFromColor(yesNoColor(log.gotThatBread))}>${booleanDisplay(log.gotThatBread)}</td>
                         <td class="wellness-cell"${styleAttrFromColor(feelColor(log.feel))}>${escapeHtml(log.feel ?? "")}</td>
-                        <td>${escapeHtml(log.rpe ?? "")}</td>
+                        <td class="running-rpe-column">${escapeHtml(log.rpe ?? "")}</td>
                         <td><div class="expandable-cell">${escapeHtml(log.details ?? "")}</div></td>
                         ${coachCommentCell(log.id, log.coachComment, "running")}
                     `;
@@ -620,6 +638,12 @@ function loadRunningLogs(requestedUserId) {
  * @param {string|null} [userIdParam]
  */
 function showRunningSheet(userIdParam = null) {
+    if (role === "athlete" && (!userIdParam || userIdParam === "me")) {
+        if (window.clearAthleteViewSelection) {
+            window.clearAthleteViewSelection();
+        }
+    }
+    dateFilters.running = "week";
     hideMainContent();
     document.getElementById("runningSpreadsheet").style.display = "block";
     bindCustomDateFilterInputs("running");
@@ -757,6 +781,11 @@ function loadWorkoutLogs(requestedUserId) {
  * @param {string|null} [userIdParam]
  */
 function showWorkoutSheet(userIdParam = null) {
+    if (role === "athlete" && (!userIdParam || userIdParam === "me")) {
+        if (window.clearAthleteViewSelection) {
+            window.clearAthleteViewSelection();
+        }
+    }
     hideMainContent();
     document.getElementById("workoutSpreadsheet").style.display = "block";
     bindCustomDateFilterInputs("workout");
