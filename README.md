@@ -5,9 +5,9 @@
 **Training log management for Carroll College Cross Country**
 
 ![Java](https://img.shields.io/badge/Java-25-orange?style=flat-square&logo=openjdk)
-![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.x-6db33f?style=flat-square&logo=springboot)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-336791?style=flat-square&logo=postgresql)
-![Gradle](https://img.shields.io/badge/Gradle-8+-02303a?style=flat-square&logo=gradle)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-4.0.2-6db33f?style=flat-square&logo=springboot)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18.2-336791?style=flat-square&logo=postgresql)
+![Gradle](https://img.shields.io/badge/Gradle-9.3.0-02303a?style=flat-square&logo=gradle)
 ![Okta](https://img.shields.io/badge/Auth-Okta_OIDC-00297a?style=flat-square&logo=okta)
 
 </div>
