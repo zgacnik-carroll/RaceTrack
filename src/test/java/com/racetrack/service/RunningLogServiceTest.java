@@ -52,15 +52,15 @@ class RunningLogServiceTest {
     }
 
     @Test
-    void submitRunningLog_usesCurrentTimestampWhenNullDateProvided() {
+    void submitRunningLog_rejectsNullDate() {
         User user = userRepository.save(user("runner-1b", "r1b@example.com"));
         RunningLog log = runningLog(user, 5.0, "No date provided");
 
-        RunningLog saved = runningLogService.submitRunningLog(log, null);
-
-        // logDate is set by @CreationTimestamp so it should be non-null and recent
-        assertThat(saved.getId()).isNotNull();
-        assertThat(saved.getLogDate()).isNotNull();
+        assertThatThrownBy(() -> runningLogService.submitRunningLog(log, null))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Date is required.")
+                .extracting(ex -> ((ResponseStatusException) ex).getStatusCode())
+                .isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
     @Test
@@ -74,7 +74,7 @@ class RunningLogServiceTest {
         log.setStressLevel(4);
         log.setPlateProportion(true);
         log.setGotThatBread(true);
-        log.setFeel("Good");
+        log.setFeel("Legs felt smooth, lungs a little heavy.");
         log.setRpe(7);
         log.setDetails("Long run with strides");
 
@@ -86,7 +86,7 @@ class RunningLogServiceTest {
         assertThat(saved.getStressLevel()).isEqualTo(4);
         assertThat(saved.getPlateProportion()).isTrue();
         assertThat(saved.getGotThatBread()).isTrue();
-        assertThat(saved.getFeel()).isEqualTo("Good");
+        assertThat(saved.getFeel()).isEqualTo("Legs felt smooth, lungs a little heavy.");
         assertThat(saved.getRpe()).isEqualTo(7);
         assertThat(saved.getDetails()).isEqualTo("Long run with strides");
     }
@@ -152,7 +152,7 @@ class RunningLogServiceTest {
                 3,
                 true,
                 false,
-                "Good",
+                "Felt better after the first mile.",
                 6,
                 "After",
                 LocalDate.of(2026, 3, 2)
@@ -164,7 +164,7 @@ class RunningLogServiceTest {
         assertThat(updated.getStressLevel()).isEqualTo(3);
         assertThat(updated.getPlateProportion()).isTrue();
         assertThat(updated.getGotThatBread()).isFalse();
-        assertThat(updated.getFeel()).isEqualTo("Good");
+        assertThat(updated.getFeel()).isEqualTo("Felt better after the first mile.");
         assertThat(updated.getRpe()).isEqualTo(6);
         assertThat(updated.getDetails()).isEqualTo("After");
         assertThat(updated.getLogDate()).isEqualTo(LocalDateTime.of(2026, 3, 2, 0, 0));
@@ -220,12 +220,36 @@ class RunningLogServiceTest {
                 3,
                 true,
                 true,
-                "Good",
+                "Pretty flat today",
                 5,
                 "After",
                 LocalDate.of(2026, 3, 7)
         ))
                 .isInstanceOf(ResponseStatusException.class)
+                .extracting(ex -> ((ResponseStatusException) ex).getStatusCode())
+                .isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    void submitRunningLog_trimsFreeformFeelText() {
+        User user = userRepository.save(user("runner-1d", "r1d@example.com"));
+        RunningLog log = runningLog(user, 6.0, "Steady run");
+        log.setFeel("  A little sore but improving  ");
+
+        RunningLog saved = runningLogService.submitRunningLog(log, LocalDate.of(2026, 3, 9));
+
+        assertThat(saved.getFeel()).isEqualTo("A little sore but improving");
+    }
+
+    @Test
+    void submitRunningLog_rejectsFeelOver100Characters() {
+        User user = userRepository.save(user("runner-1e", "r1e@example.com"));
+        RunningLog log = runningLog(user, 6.0, "Steady run");
+        log.setFeel("x".repeat(101));
+
+        assertThatThrownBy(() -> runningLogService.submitRunningLog(log, LocalDate.of(2026, 3, 10)))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Feel cannot exceed 100 characters.")
                 .extracting(ex -> ((ResponseStatusException) ex).getStatusCode())
                 .isEqualTo(HttpStatus.BAD_REQUEST);
     }
@@ -350,6 +374,13 @@ class RunningLogServiceTest {
         RunningLog log = new RunningLog();
         log.setUser(user);
         log.setMileage(mileage);
+        log.setHurting(false);
+        log.setSleepHours(8);
+        log.setStressLevel(3);
+        log.setPlateProportion(true);
+        log.setGotThatBread(true);
+        log.setFeel("Solid overall");
+        log.setRpe(5);
         log.setDetails(details);
         return log;
     }

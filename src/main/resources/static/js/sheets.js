@@ -109,18 +109,13 @@ function booleanSelect(value) {
 }
 
 /**
- * Renders the running "feel" select.
+ * Renders the running "feel" textarea.
  * @param {string|null|undefined} value
  * @returns {string}
  */
-function feelSelect(value) {
-    const normalized = String(value ?? "");
-    const options = ["Good", "Okay", "Tired", "Sore", "Bad"];
+function feelTextarea(value, id) {
     return `
-      <select class="sheet-input" id="running-feel-select">
-        <option value="" ${normalized === "" ? "selected" : ""}></option>
-        ${options.map(option => `<option value="${option}" ${normalized === option ? "selected" : ""}>${option}</option>`).join("")}
-      </select>
+      <textarea class="sheet-input sheet-textarea js-limited-text" maxlength="100" data-char-max="100" id="${id}">${escapeHtml(value ?? "")}</textarea>
     `;
 }
 
@@ -181,7 +176,7 @@ function yesNoColor(value) {
 }
 
 /**
- * Maps "feel" values to cell background colors.
+ * Maps legacy "feel" values to cell background colors.
  * @param {string|null|undefined} value
  * @returns {string}
  */
@@ -248,14 +243,14 @@ function bindRunningRowColorHandlers(logId) {
     const stressInput = document.getElementById(`running-stress-${logId}`);
     const plateSelect = document.getElementById(`running-plate-${logId}`);
     const breadSelect = document.getElementById(`running-bread-${logId}`);
-    const feelSelect = document.getElementById(`running-feel-${logId}`);
+    const feelInput = document.getElementById(`running-feel-${logId}`);
 
     if (hurtingSelect) hurtingSelect.addEventListener("change", () => updateRunningRowColors(logId));
     if (sleepInput) sleepInput.addEventListener("input", () => updateRunningRowColors(logId));
     if (stressInput) stressInput.addEventListener("input", () => updateRunningRowColors(logId));
     if (plateSelect) plateSelect.addEventListener("change", () => updateRunningRowColors(logId));
     if (breadSelect) breadSelect.addEventListener("change", () => updateRunningRowColors(logId));
-    if (feelSelect) feelSelect.addEventListener("change", () => updateRunningRowColors(logId));
+    if (feelInput) feelInput.addEventListener("input", () => updateRunningRowColors(logId));
 }
 
 /**
@@ -581,7 +576,7 @@ function loadRunningLogs(requestedUserId) {
                         <td id="running-stress-cell-${log.id}" class="wellness-cell"><input class="sheet-input" type="number" min="1" max="10" value="${log.stressLevel ?? ""}" id="running-stress-${log.id}"></td>
                         <td id="running-plate-cell-${log.id}" class="wellness-cell">${booleanSelect(log.plateProportion).replace('data-field="bool"', `id="running-plate-${log.id}"`)}</td>
                         <td id="running-bread-cell-${log.id}" class="wellness-cell">${booleanSelect(log.gotThatBread).replace('data-field="bool"', `id="running-bread-${log.id}"`)}</td>
-                        <td id="running-feel-cell-${log.id}" class="wellness-cell">${feelSelect(log.feel).replace('id="running-feel-select"', `id="running-feel-${log.id}"`)}</td>
+                        <td id="running-feel-cell-${log.id}" class="running-feel-cell">${feelTextarea(log.feel, `running-feel-${log.id}`)}</td>
                         <td class="running-rpe-column"><input class="sheet-input" type="number" min="1" max="10" value="${log.rpe ?? ""}" id="running-rpe-${log.id}"></td>
                         <td><textarea class="sheet-input sheet-textarea js-limited-text" maxlength="${TEXT_MAX}" data-char-max="${TEXT_MAX}" id="running-details-${log.id}">${escapeHtml(log.details ?? "")}</textarea></td>
                         <td><div class="expandable-cell">${escapeHtml(log.coachComment ?? "")}</div></td>
@@ -595,7 +590,7 @@ function loadRunningLogs(requestedUserId) {
                         <td class="wellness-cell"${styleAttrFromColor(stressColor(log.stressLevel))}>${escapeHtml(log.stressLevel ?? "")}</td>
                         <td class="wellness-cell"${styleAttrFromColor(yesNoColor(log.plateProportion))}>${booleanDisplay(log.plateProportion)}</td>
                         <td class="wellness-cell"${styleAttrFromColor(yesNoColor(log.gotThatBread))}>${booleanDisplay(log.gotThatBread)}</td>
-                        <td class="wellness-cell"${styleAttrFromColor(feelColor(log.feel))}>${escapeHtml(log.feel ?? "")}</td>
+                        <td class="running-feel-cell"><div class="expandable-cell">${escapeHtml(log.feel ?? "")}</div></td>
                         <td class="running-rpe-column">${escapeHtml(log.rpe ?? "")}</td>
                         <td><div class="expandable-cell">${escapeHtml(log.details ?? "")}</div></td>
                         ${coachCommentCell(log.id, log.coachComment, "running")}
@@ -998,6 +993,12 @@ function validateRunningPayload(payload) {
     }
     if (payload.rpe !== null && (payload.rpe < 1 || payload.rpe > 10)) {
         return "RPE must be between 1 and 10.";
+    }
+    if (!payload.feel || !payload.feel.trim()) {
+        return "Feel is required.";
+    }
+    if (payload.feel.length > 100) {
+        return "Feel is limited to 100 characters.";
     }
     if (!payload.details || !payload.details.trim()) {
         return "Details are required.";

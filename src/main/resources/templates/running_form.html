@@ -21,10 +21,10 @@
 
             <h3 class="text-center mb-4">Daily Running Log</h3>
 
-            <form th:action="@{/running-log}" th:object="${runningLog}" method="post">
+            <form id="runningForm" th:action="@{/running-log}" th:object="${runningLog}" method="post">
 
               <!-- Horizontal form row -->
-              <div class="row g-3 align-items-end">
+              <div class="row g-3 running-form-top-row">
 
                 <div class="col-lg-2">
                   <label class="form-label">Date</label>
@@ -109,18 +109,14 @@
 
                 <div class="col-lg-1">
                   <label class="form-label">How feel?</label>
-                  <select class="form-select"
-                          th:field="*{feel}"
-                          required
-                          data-bs-toggle="tooltip"
-                          title="How do you feel overall?">
-                    <option value="">Select</option>
-                    <option value="Good">Good</option>
-                    <option value="Okay">Okay</option>
-                    <option value="Tired">Tired</option>
-                    <option value="Sore">Sore</option>
-                    <option value="Bad">Bad</option>
-                  </select>
+                  <textarea class="form-control running-feel-input js-limited-text"
+                            rows="1"
+                            maxlength="100"
+                            data-char-max="100"
+                            th:field="*{feel}"
+                            required
+                            data-bs-toggle="tooltip"
+                            title="How do you feel overall?"></textarea>
                 </div>
 
                 <div class="col-lg-1">
@@ -133,6 +129,9 @@
                          title="Rate your effort for this run (1-10).">
                 </div>
 
+              </div>
+
+              <div class="row g-3 mt-2">
                 <div class="col-12">
                   <label class="form-label">Comments</label>
                   <textarea class="form-control js-limited-text"
@@ -145,7 +144,6 @@
                             data-bs-toggle="tooltip"
                             title="Describe your run in at least one sentence."></textarea>
                 </div>
-
               </div>
 
               <!-- Submit Button -->

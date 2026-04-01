@@ -15,6 +15,7 @@ import java.util.List;
 @Service
 public class RunningLogService {
     private static final int TEXT_MAX = 2000;
+    private static final int FEEL_MAX = 100;
 
     private final RunningLogRepository runningLogRepository;
 
@@ -50,7 +51,7 @@ public class RunningLogService {
                 runningLog.getDetails()
         );
 
-        runningLog.setFeel(normalizeOptionalText(runningLog.getFeel(), "Feel"));
+        runningLog.setFeel(normalizeRequiredText(runningLog.getFeel(), "Feel", FEEL_MAX));
         runningLog.setDetails(normalizeRequiredText(runningLog.getDetails(), "Details"));
 
         if (selectedDate != null) {
@@ -111,7 +112,7 @@ public class RunningLogService {
         log.setStressLevel(stressLevel);
         log.setPlateProportion(plateProportion);
         log.setGotThatBread(gotThatBread);
-        log.setFeel(normalizeOptionalText(feel, "Feel"));
+        log.setFeel(normalizeRequiredText(feel, "Feel", FEEL_MAX));
         log.setRpe(rpe);
         log.setDetails(normalizeRequiredText(details, "Details"));
         if (logDate != null) {
@@ -187,14 +188,7 @@ public class RunningLogService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "RPE must be between 1 and 10.");
         }
 
-        String normalizedFeel = normalizeRequiredText(feel, "Feel");
-        if (!normalizedFeel.equals("Good")
-                && !normalizedFeel.equals("Okay")
-                && !normalizedFeel.equals("Tired")
-                && !normalizedFeel.equals("Sore")
-                && !normalizedFeel.equals("Bad")) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Feel must be one of: Good, Okay, Tired, Sore, Bad.");
-        }
+        normalizeRequiredText(feel, "Feel", FEEL_MAX);
 
         normalizeRequiredText(details, "Details");
     }
@@ -230,5 +224,27 @@ public class RunningLogService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, fieldName + " is required.");
         }
         return normalized;
+    }
+
+    /**
+     * Normalizes required text inputs with a custom max length.
+     *
+     * @param text raw text
+     * @param fieldName field label for error messages
+     * @param maxLength maximum allowed length
+     * @return trimmed, non-empty text
+     */
+    private String normalizeRequiredText(String text, String fieldName, int maxLength) {
+        if (text == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, fieldName + " is required.");
+        }
+        String trimmed = text.trim();
+        if (trimmed.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, fieldName + " is required.");
+        }
+        if (trimmed.length() > maxLength) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, fieldName + " cannot exceed " + maxLength + " characters.");
+        }
+        return trimmed;
     }
 }

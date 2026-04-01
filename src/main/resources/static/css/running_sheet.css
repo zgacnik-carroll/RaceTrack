@@ -80,6 +80,16 @@
     line-height: 1.25;
 }
 
+#runningSpreadsheet .running-table .running-feel-cell .sheet-textarea,
+#runningSpreadsheet .running-table .running-feel-cell .expandable-cell {
+    width: 100%;
+    min-height: 56px;
+    max-height: 72px;
+    box-sizing: border-box;
+    line-height: 1.25;
+    overflow-y: auto;
+}
+
 /* Running-sheet specific compact column widths */
 #runningSpreadsheet .running-table th:nth-child(2),
 #runningSpreadsheet .running-table td:nth-child(2) {
@@ -112,9 +122,9 @@
 
 #runningSpreadsheet .running-table th:nth-child(8),
 #runningSpreadsheet .running-table td:nth-child(8) {
-    width: 88px;
-    min-width: 88px;
-    max-width: 88px;
+    width: 220px;
+    min-width: 220px;
+    max-width: 220px;
 }
 
 #runningSpreadsheet .running-table th:nth-child(9),
@@ -201,9 +211,9 @@
 
 #runningSpreadsheet .running-table.athlete-view th:nth-child(9),
 #runningSpreadsheet .running-table.athlete-view td:nth-child(9) {
-    width: 88px;
-    min-width: 88px;
-    max-width: 88px;
+    width: 220px;
+    min-width: 220px;
+    max-width: 220px;
 }
 
 #runningSpreadsheet .running-table.athlete-view th:nth-child(10),
