@@ -107,6 +107,13 @@
     max-width: 72px;
 }
 
+#runningSpreadsheet .running-table th:nth-child(3),
+#runningSpreadsheet .running-table td:nth-child(3) {
+    width: 118px;
+    min-width: 118px;
+    max-width: 118px;
+}
+
 #runningSpreadsheet .running-table th:nth-child(6),
 #runningSpreadsheet .running-table td:nth-child(6),
 #runningSpreadsheet .running-table th:nth-child(7),
@@ -187,6 +194,13 @@
     width: 72px;
     min-width: 72px;
     max-width: 72px;
+}
+
+#runningSpreadsheet .running-table.athlete-view th:nth-child(4),
+#runningSpreadsheet .running-table.athlete-view td:nth-child(4) {
+    width: 118px;
+    min-width: 118px;
+    max-width: 118px;
 }
 
 #runningSpreadsheet .running-table.athlete-view th:nth-child(7),
