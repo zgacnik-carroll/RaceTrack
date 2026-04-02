@@ -121,6 +121,7 @@ public class LogApiController {
                 id,
                 request.mileage(),
                 request.hurting(),
+                request.painDetails(),
                 request.sleepHours(),
                 request.stressLevel(),
                 request.plateProportion(),
@@ -277,6 +278,7 @@ public class LogApiController {
      *
      * @param mileage mileage value
      * @param hurting hurting flag
+     * @param painDetails hurting details
      * @param sleepHours sleep hours
      * @param stressLevel stress level
      * @param plateProportion plate flag
@@ -289,6 +291,7 @@ public class LogApiController {
     public record RunningLogUpdateRequest(
             Double mileage,
             Boolean hurting,
+            String painDetails,
             Integer sleepHours,
             Integer stressLevel,
             Boolean plateProportion,

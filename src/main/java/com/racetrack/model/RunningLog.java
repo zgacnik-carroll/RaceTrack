@@ -26,6 +26,9 @@ public class RunningLog {
     // Injury / hurting
     private Boolean hurting;
 
+    @Column(columnDefinition = "TEXT")
+    private String painDetails;
+
     // Recovery & wellness
     private Integer sleepHours;
     private Integer stressLevel; // 1-10
@@ -107,6 +110,20 @@ public class RunningLog {
      * @param hurting hurting value
      */
     public void setHurting(Boolean hurting) { this.hurting = hurting; }
+
+    /**
+     * Returns hurting description text.
+     *
+     * @return hurting details
+     */
+    public String getPainDetails() { return painDetails; }
+
+    /**
+     * Sets hurting description text.
+     *
+     * @param painDetails hurting details
+     */
+    public void setPainDetails(String painDetails) { this.painDetails = painDetails; }
 
     /**
      * Returns sleep hours.
@@ -246,6 +263,7 @@ public class RunningLog {
                 ", user=" + (user != null ? user.getEmail() : "null") +
                 ", mileage=" + mileage +
                 ", hurting=" + hurting +
+                ", painDetails='" + painDetails + '\'' +
                 ", sleepHours=" + sleepHours +
                 ", stressLevel=" + stressLevel +
                 ", plateProportion=" + plateProportion +

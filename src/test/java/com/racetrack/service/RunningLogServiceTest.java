@@ -74,6 +74,7 @@ class RunningLogServiceTest {
         log.setStressLevel(4);
         log.setPlateProportion(true);
         log.setGotThatBread(true);
+        log.setPainDetails(null);
         log.setFeel("Legs felt smooth, lungs a little heavy.");
         log.setRpe(7);
         log.setDetails("Long run with strides");
@@ -86,6 +87,7 @@ class RunningLogServiceTest {
         assertThat(saved.getStressLevel()).isEqualTo(4);
         assertThat(saved.getPlateProportion()).isTrue();
         assertThat(saved.getGotThatBread()).isTrue();
+        assertThat(saved.getPainDetails()).isNull();
         assertThat(saved.getFeel()).isEqualTo("Legs felt smooth, lungs a little heavy.");
         assertThat(saved.getRpe()).isEqualTo(7);
         assertThat(saved.getDetails()).isEqualTo("Long run with strides");
@@ -148,6 +150,7 @@ class RunningLogServiceTest {
                 log.getId(),
                 10.25,
                 true,
+                "Left shin",
                 8,
                 3,
                 true,
@@ -160,6 +163,7 @@ class RunningLogServiceTest {
 
         assertThat(updated.getMileage()).isEqualTo(10.25);
         assertThat(updated.getHurting()).isTrue();
+        assertThat(updated.getPainDetails()).isEqualTo("Left shin");
         assertThat(updated.getSleepHours()).isEqualTo(8);
         assertThat(updated.getStressLevel()).isEqualTo(3);
         assertThat(updated.getPlateProportion()).isTrue();
@@ -183,6 +187,7 @@ class RunningLogServiceTest {
                 null,
                 null,
                 null,
+                null,
                 "none",
                 null
         ))
@@ -199,7 +204,7 @@ class RunningLogServiceTest {
 
         assertThatThrownBy(() -> runningLogService.updateAthleteOwnedLog(
                 "different-user", log.getId(),
-                4.0, null, null, null, null, null, null, null, "hack attempt", null
+                4.0, null, null, null, null, null, null, null, null, "hack attempt", null
         ))
                 .isInstanceOf(ResponseStatusException.class)
                 .extracting(ex -> ((ResponseStatusException) ex).getStatusCode())
@@ -216,6 +221,7 @@ class RunningLogServiceTest {
                 log.getId(),
                 6.0,
                 false,
+                "",
                 -1,
                 3,
                 true,
@@ -252,6 +258,32 @@ class RunningLogServiceTest {
                 .hasMessageContaining("Feel cannot exceed 100 characters.")
                 .extracting(ex -> ((ResponseStatusException) ex).getStatusCode())
                 .isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    void submitRunningLog_requiresPainDetailsWhenHurting() {
+        User user = userRepository.save(user("runner-1f", "r1f@example.com"));
+        RunningLog log = runningLog(user, 6.0, "Steady run");
+        log.setHurting(true);
+        log.setPainDetails("   ");
+
+        assertThatThrownBy(() -> runningLogService.submitRunningLog(log, LocalDate.of(2026, 3, 11)))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Hurting details is required.")
+                .extracting(ex -> ((ResponseStatusException) ex).getStatusCode())
+                .isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    void submitRunningLog_clearsPainDetailsWhenNotHurting() {
+        User user = userRepository.save(user("runner-1g", "r1g@example.com"));
+        RunningLog log = runningLog(user, 6.0, "Steady run");
+        log.setHurting(false);
+        log.setPainDetails("Old note");
+
+        RunningLog saved = runningLogService.submitRunningLog(log, LocalDate.of(2026, 3, 12));
+
+        assertThat(saved.getPainDetails()).isNull();
     }
 
     // -------------------------------------------------------------------------
@@ -379,6 +411,7 @@ class RunningLogServiceTest {
         log.setStressLevel(3);
         log.setPlateProportion(true);
         log.setGotThatBread(true);
+        log.setPainDetails(null);
         log.setFeel("Solid overall");
         log.setRpe(5);
         log.setDetails(details);

@@ -21,7 +21,7 @@
 
             <h3 class="text-center mb-4">Daily Running Log</h3>
 
-            <form id="runningForm" th:action="@{/running-log}" th:object="${runningLog}" method="post">
+            <form id="runningLogForm" th:action="@{/running-log}" th:object="${runningLog}" method="post">
 
               <!-- Horizontal form row -->
               <div class="row g-3 running-form-top-row">
@@ -49,6 +49,7 @@
                 <div class="col-lg-1">
                   <label class="form-label">Hurting?</label>
                   <select class="form-select"
+                          id="runningHurtingSelect"
                           th:field="*{hurting}"
                           required
                           data-bs-toggle="tooltip"
@@ -57,6 +58,16 @@
                     <option th:value="true">Yes</option>
                     <option th:value="false">No</option>
                   </select>
+                  <div id="runningPainDetailsWrapper" class="mt-2" style="display:none;">
+                    <textarea class="form-control js-limited-text"
+                              id="runningPainDetailsInput"
+                              rows="2"
+                              maxlength="100"
+                              data-char-max="100"
+                              th:field="*{painDetails}"
+                              data-bs-toggle="tooltip"
+                              title="Describe what is hurting."></textarea>
+                  </div>
                 </div>
 
                 <div class="col-lg-1">

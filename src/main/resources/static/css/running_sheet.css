@@ -4,7 +4,7 @@
 
 #runningSpreadsheet {
     display: none;
-    margin-bottom: 100px; /* space above footer */
+    margin-bottom: 100px;
 }
 
 .spreadsheet-table.running-table {
@@ -21,14 +21,12 @@
     padding: 0.35rem 0.4rem;
 }
 
-/* Restrict height for ~20 rows and enable vertical scrolling */
 #runningSpreadsheet .table-responsive {
-    max-height: 520px; /* adjust for row height */
+    max-height: 520px;
     overflow-y: auto;
     border: 1px solid #dee2e6;
 }
 
-/* Scrollable comments cell */
 .running-comments {
     max-width: 220px;
     max-height: 72px;
@@ -55,13 +53,11 @@
     border-radius: 3px;
 }
 
-/* Optional: table header background */
 #runningSpreadsheet thead th {
     background-color: #f8f9fa;
     line-height: 1.2;
 }
 
-/* Keep text-heavy cells compact and scrollable instead of stretching rows */
 #runningSpreadsheet .running-table td:nth-last-child(2) .expandable-cell,
 #runningSpreadsheet .running-table td:last-child .expandable-cell {
     width: 100%;
@@ -90,7 +86,7 @@
     overflow-y: auto;
 }
 
-/* Running-sheet specific compact column widths */
+/* Coach layout */
 #runningSpreadsheet .running-table th:nth-child(2),
 #runningSpreadsheet .running-table td:nth-child(2) {
     width: 68px;
@@ -125,13 +121,6 @@
     width: 220px;
     min-width: 220px;
     max-width: 220px;
-}
-
-#runningSpreadsheet .running-table th:nth-child(9),
-#runningSpreadsheet .running-table td:nth-child(9) {
-    width: 52px;
-    min-width: 52px;
-    max-width: 52px;
 }
 
 #runningSpreadsheet .running-table th:nth-child(10),
@@ -214,13 +203,6 @@
     width: 220px;
     min-width: 220px;
     max-width: 220px;
-}
-
-#runningSpreadsheet .running-table.athlete-view th:nth-child(10),
-#runningSpreadsheet .running-table.athlete-view td:nth-child(10) {
-    width: 52px;
-    min-width: 52px;
-    max-width: 52px;
 }
 
 #runningSpreadsheet .running-table.athlete-view th:nth-child(11),

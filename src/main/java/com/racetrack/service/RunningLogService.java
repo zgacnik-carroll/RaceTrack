@@ -16,6 +16,7 @@ import java.util.List;
 public class RunningLogService {
     private static final int TEXT_MAX = 2000;
     private static final int FEEL_MAX = 100;
+    private static final int PAIN_DETAILS_MAX = 100;
 
     private final RunningLogRepository runningLogRepository;
 
@@ -42,6 +43,7 @@ public class RunningLogService {
         validateRunningFields(
                 runningLog.getMileage(),
                 runningLog.getHurting(),
+                runningLog.getPainDetails(),
                 runningLog.getSleepHours(),
                 runningLog.getStressLevel(),
                 runningLog.getPlateProportion(),
@@ -52,6 +54,7 @@ public class RunningLogService {
         );
 
         runningLog.setFeel(normalizeRequiredText(runningLog.getFeel(), "Feel", FEEL_MAX));
+        runningLog.setPainDetails(normalizePainDetails(runningLog.getHurting(), runningLog.getPainDetails()));
         runningLog.setDetails(normalizeRequiredText(runningLog.getDetails(), "Details"));
 
         if (selectedDate != null) {
@@ -93,6 +96,7 @@ public class RunningLogService {
                                             Long logId,
                                             Double mileage,
                                             Boolean hurting,
+                                            String painDetails,
                                             Integer sleepHours,
                                             Integer stressLevel,
                                             Boolean plateProportion,
@@ -104,10 +108,11 @@ public class RunningLogService {
         RunningLog log = runningLogRepository.findByIdAndUser_Id(logId, userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Running log not found."));
 
-        validateRunningFields(mileage, hurting, sleepHours, stressLevel, plateProportion, gotThatBread, feel, rpe, details);
+        validateRunningFields(mileage, hurting, painDetails, sleepHours, stressLevel, plateProportion, gotThatBread, feel, rpe, details);
 
         log.setMileage(mileage);
         log.setHurting(hurting);
+        log.setPainDetails(normalizePainDetails(hurting, painDetails));
         log.setSleepHours(sleepHours);
         log.setStressLevel(stressLevel);
         log.setPlateProportion(plateProportion);
@@ -159,6 +164,7 @@ public class RunningLogService {
      */
     private void validateRunningFields(Double mileage,
                                        Boolean hurting,
+                                       String painDetails,
                                        Integer sleepHours,
                                        Integer stressLevel,
                                        Boolean plateProportion,
@@ -172,6 +178,7 @@ public class RunningLogService {
         if (hurting == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Hurting is required.");
         }
+        normalizePainDetails(hurting, painDetails);
         if (sleepHours == null || sleepHours < 0 || sleepHours > 24) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sleep must be between 0 and 24.");
         }
@@ -246,5 +253,19 @@ public class RunningLogService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, fieldName + " cannot exceed " + maxLength + " characters.");
         }
         return trimmed;
+    }
+
+    /**
+     * Normalizes hurting details based on hurting selection.
+     *
+     * @param hurting hurting flag
+     * @param painDetails hurting details text
+     * @return trimmed hurting details or null when not hurting
+     */
+    private String normalizePainDetails(Boolean hurting, String painDetails) {
+        if (Boolean.FALSE.equals(hurting)) {
+            return null;
+        }
+        return normalizeRequiredText(painDetails, "Hurting details", PAIN_DETAILS_MAX);
     }
 }

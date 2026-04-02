@@ -45,6 +45,25 @@ function showDefaultForm() {
     showForm("running");
 }
 
+function syncRunningPainDetailsVisibility() {
+    const hurtingSelect = document.getElementById("runningHurtingSelect");
+    const painRow = document.getElementById("runningPainDetailsWrapper");
+    const painInput = document.getElementById("runningPainDetailsInput");
+    if (!hurtingSelect || !painRow || !painInput) return;
+
+    const isHurting = hurtingSelect.value === "true";
+    painRow.style.display = isHurting ? "" : "none";
+    painInput.required = isHurting;
+
+    if (!isHurting) {
+        painInput.value = "";
+        const counter = painInput.nextElementSibling;
+        if (counter?.classList?.contains("char-counter")) {
+            counter.textContent = "0/100 characters";
+        }
+    }
+}
+
 /* =========================
    STUDENT SELECTION
 ========================= */
@@ -595,6 +614,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // The workout form is shown only when explicitly requested via the header button.
     if (currentUserRole === "athlete") {
         showDefaultForm();
+    }
+
+    const hurtingSelect = document.getElementById("runningHurtingSelect");
+    if (hurtingSelect) {
+        hurtingSelect.addEventListener("change", syncRunningPainDetailsVisibility);
+        syncRunningPainDetailsVisibility();
     }
 
     updateRunningSheetHeaderLabel();

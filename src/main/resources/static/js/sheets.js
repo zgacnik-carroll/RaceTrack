@@ -234,6 +234,28 @@ function updateRunningRowColors(logId) {
 }
 
 /**
+ * Shows/hides the running pain-details editor based on hurting selection.
+ * @param {number} logId
+ */
+function syncRunningPainDetailsEditor(logId) {
+    const hurtingValue = parseBoolean(document.getElementById(`running-hurting-${logId}`)?.value);
+    const wrapper = document.getElementById(`running-pain-details-wrapper-${logId}`);
+    const field = document.getElementById(`running-pain-details-${logId}`);
+    if (!wrapper || !field) return;
+
+    const show = hurtingValue === true;
+    wrapper.style.display = show ? "" : "none";
+    field.required = show;
+    if (!show) {
+        field.value = "";
+        const counter = field.nextElementSibling;
+        if (counter?.classList?.contains("char-counter")) {
+            counter.textContent = "0/100 characters";
+        }
+    }
+}
+
+/**
  * Binds row inputs so color state updates as athlete edits values.
  * @param {number} logId
  */
@@ -245,7 +267,10 @@ function bindRunningRowColorHandlers(logId) {
     const breadSelect = document.getElementById(`running-bread-${logId}`);
     const feelInput = document.getElementById(`running-feel-${logId}`);
 
-    if (hurtingSelect) hurtingSelect.addEventListener("change", () => updateRunningRowColors(logId));
+    if (hurtingSelect) hurtingSelect.addEventListener("change", () => {
+        updateRunningRowColors(logId);
+        syncRunningPainDetailsEditor(logId);
+    });
     if (sleepInput) sleepInput.addEventListener("input", () => updateRunningRowColors(logId));
     if (stressInput) stressInput.addEventListener("input", () => updateRunningRowColors(logId));
     if (plateSelect) plateSelect.addEventListener("change", () => updateRunningRowColors(logId));
@@ -571,7 +596,12 @@ function loadRunningLogs(requestedUserId) {
                             </div>
                         </td>
                         <td><input class="sheet-input" type="number" step="0.01" min="0" value="${log.mileage ?? ""}" id="running-mileage-${log.id}"></td>
-                        <td id="running-hurting-cell-${log.id}" class="wellness-cell">${booleanSelect(log.hurting).replace('data-field="bool"', `id="running-hurting-${log.id}"`)}</td>
+                        <td id="running-hurting-cell-${log.id}" class="wellness-cell">
+                            ${booleanSelect(log.hurting).replace('data-field="bool"', `id="running-hurting-${log.id}"`)}
+                            <div id="running-pain-details-wrapper-${log.id}" class="mt-2" style="display:${log.hurting === true ? "block" : "none"};">
+                                <textarea class="sheet-input sheet-textarea js-limited-text" maxlength="100" data-char-max="100" id="running-pain-details-${log.id}">${escapeHtml(log.painDetails ?? "")}</textarea>
+                            </div>
+                        </td>
                         <td id="running-sleep-cell-${log.id}" class="wellness-cell"><input class="sheet-input" type="number" min="0" max="24" value="${log.sleepHours ?? ""}" id="running-sleep-${log.id}"></td>
                         <td id="running-stress-cell-${log.id}" class="wellness-cell"><input class="sheet-input" type="number" min="1" max="10" value="${log.stressLevel ?? ""}" id="running-stress-${log.id}"></td>
                         <td id="running-plate-cell-${log.id}" class="wellness-cell">${booleanSelect(log.plateProportion).replace('data-field="bool"', `id="running-plate-${log.id}"`)}</td>
@@ -585,7 +615,7 @@ function loadRunningLogs(requestedUserId) {
                     row.innerHTML = `
                         <td class="log-date-cell">${formatDate(log.logDate)}</td>
                         <td>${escapeHtml(log.mileage ?? "")}</td>
-                        <td class="wellness-cell">${booleanDisplay(log.hurting)}</td>
+                        <td class="wellness-cell"><div>${booleanDisplay(log.hurting)}</div><div class="expandable-cell mt-2">${escapeHtml(log.painDetails ?? "")}</div></td>
                         <td class="wellness-cell"${styleAttrFromColor(sleepColor(log.sleepHours))}>${escapeHtml(log.sleepHours ?? "")}</td>
                         <td class="wellness-cell"${styleAttrFromColor(stressColor(log.stressLevel))}>${escapeHtml(log.stressLevel ?? "")}</td>
                         <td class="wellness-cell"${styleAttrFromColor(yesNoColor(log.plateProportion))}>${booleanDisplay(log.plateProportion)}</td>
@@ -607,6 +637,7 @@ function loadRunningLogs(requestedUserId) {
                         `running-date-${log.id}`,
                         `running-mileage-${log.id}`,
                         `running-hurting-${log.id}`,
+                        `running-pain-details-${log.id}`,
                         `running-sleep-${log.id}`,
                         `running-stress-${log.id}`,
                         `running-plate-${log.id}`,
@@ -617,6 +648,7 @@ function loadRunningLogs(requestedUserId) {
                     ]);
                     bindRunningRowColorHandlers(log.id);
                     updateRunningRowColors(log.id);
+                    syncRunningPainDetailsEditor(log.id);
                     bindDateInputPicker(`running-date-${log.id}`);
                 } else if (role === "coach") {
                     bindCoachCommentDirtyState("running", log.id);
@@ -658,6 +690,7 @@ function saveRunningLog(logId) {
     const payload = {
         mileage: parseNumber(document.getElementById(`running-mileage-${logId}`).value),
         hurting: parseBoolean(document.getElementById(`running-hurting-${logId}`).value),
+        painDetails: document.getElementById(`running-pain-details-${logId}`)?.value ?? "",
         sleepHours: parseIntOrNull(document.getElementById(`running-sleep-${logId}`).value),
         stressLevel: parseIntOrNull(document.getElementById(`running-stress-${logId}`).value),
         plateProportion: parseBoolean(document.getElementById(`running-plate-${logId}`).value),
@@ -987,6 +1020,12 @@ function validateRunningPayload(payload) {
     }
     if (payload.sleepHours !== null && (payload.sleepHours < 0 || payload.sleepHours > 24)) {
         return "Sleep must be between 0 and 24 hours.";
+    }
+    if (payload.hurting === true && (!payload.painDetails || !payload.painDetails.trim())) {
+        return "Hurting details are required when hurting is Yes.";
+    }
+    if (payload.painDetails && payload.painDetails.length > 100) {
+        return "Hurting details are limited to 100 characters.";
     }
     if (payload.stressLevel !== null && (payload.stressLevel < 1 || payload.stressLevel > 10)) {
         return "Stress must be between 1 and 10.";
