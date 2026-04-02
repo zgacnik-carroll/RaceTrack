@@ -41,9 +41,17 @@ public class HomeController {
         User user = userService.getOrCreateForHome(oidcUser);
         boolean isCoach = userService.isCoach(user);
         List<User> athletes = userService.getAthletesOrderedByName();
+        List<User> manageableUsers = userService.getUsersOrderedByName();
         if (!isCoach) {
             athletes = athletes.stream()
                     .filter(athlete -> !user.getId().equals(athlete.getId()))
+                    .collect(Collectors.toList());
+            manageableUsers = manageableUsers.stream()
+                    .filter(manageableUser -> !user.getId().equals(manageableUser.getId()))
+                    .collect(Collectors.toList());
+        } else {
+            manageableUsers = manageableUsers.stream()
+                    .filter(manageableUser -> !user.getId().equals(manageableUser.getId()))
                     .collect(Collectors.toList());
         }
 
@@ -54,6 +62,7 @@ public class HomeController {
         model.addAttribute("currentUserName", userService.displayName(user));
         model.addAttribute("isCoach", isCoach);
         model.addAttribute("athletes", athletes);
+        model.addAttribute("manageableUsers", manageableUsers);
 
         return isCoach ? "home_coach" : "home";
     }

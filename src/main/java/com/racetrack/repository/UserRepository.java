@@ -16,4 +16,11 @@ public interface UserRepository extends JpaRepository<User, String> {
      * @return ordered users matching the role
      */
     List<User> findByRoleIgnoreCaseOrderByFullNameAsc(String role);
+
+    /**
+     * Returns all users ordered by full name.
+     *
+     * @return ordered users
+     */
+    List<User> findAllByOrderByFullNameAsc();
 }

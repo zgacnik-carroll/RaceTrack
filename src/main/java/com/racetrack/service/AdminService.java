@@ -31,24 +31,27 @@ public class AdminService {
     }
 
     /**
-     * Creates an athlete in Okta, then upserts the local user record.
+     * Creates an app user in Okta, then upserts the local user record.
      *
-     * @param firstName athlete first name
-     * @param lastName athlete last name
-     * @param email athlete email/login
+     * @param firstName user first name
+     * @param lastName user last name
+     * @param email user email/login
+     * @param role requested app role
      * @param temporaryPassword optional temporary password
-     * @return saved athlete record
+     * @return saved user record
      */
-    public User createAthlete(String firstName,
-                              String lastName,
-                              String email,
-                              String temporaryPassword) {
+    public User createUser(String firstName,
+                           String lastName,
+                           String email,
+                           String role,
+                           String temporaryPassword) {
         String normalizedFirstName = normalizeRequired(firstName, "First name");
         String normalizedLastName = normalizeRequired(lastName, "Last name");
         String normalizedEmail = normalizeEmail(email);
+        String normalizedRole = normalizeRole(role);
         String normalizedPassword = normalizeOptional(temporaryPassword);
 
-        OktaAdminClient.CreatedOktaUser createdUser = oktaAdminClient.createAthlete(
+        OktaAdminClient.CreatedOktaUser createdUser = oktaAdminClient.createUser(
                 normalizedFirstName,
                 normalizedLastName,
                 normalizedEmail,
@@ -59,7 +62,7 @@ public class AdminService {
         user.setId(createdUser.id());
         user.setEmail(createdUser.email());
         user.setFullName(normalizedFirstName + " " + normalizedLastName);
-        user.setRole("athlete");
+        user.setRole(normalizedRole);
         return userRepository.save(user);
     }
 
@@ -73,35 +76,33 @@ public class AdminService {
      * @param temporaryPassword optional replacement password
      * @return updated athlete record
      */
-    public User updateAthlete(String athleteId,
-                              String firstName,
-                              String lastName,
-                              String email,
-                              String temporaryPassword) {
-        String normalizedAthleteId = normalizeRequired(athleteId, "Athlete id");
-        User athlete = userRepository.findById(normalizedAthleteId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Athlete not found."));
-
-        if (!"athlete".equalsIgnoreCase(athlete.getRole())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only athletes can be edited.");
-        }
-
+    public User updateUser(String userId,
+                           String firstName,
+                           String lastName,
+                           String email,
+                           String role,
+                           String temporaryPassword) {
+        String normalizedUserId = normalizeRequired(userId, "User id");
+        User user = userRepository.findById(normalizedUserId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found."));
         String normalizedFirstName = normalizeRequired(firstName, "First name");
         String normalizedLastName = normalizeRequired(lastName, "Last name");
         String normalizedEmail = normalizeEmail(email);
+        String normalizedRole = normalizeRole(role);
         String normalizedPassword = normalizeOptional(temporaryPassword);
 
-        oktaAdminClient.updateAthlete(
-                normalizedAthleteId,
+        oktaAdminClient.updateUser(
+                normalizedUserId,
                 normalizedFirstName,
                 normalizedLastName,
                 normalizedEmail,
                 normalizedPassword
         );
 
-        athlete.setEmail(normalizedEmail);
-        athlete.setFullName(normalizedFirstName + " " + normalizedLastName);
-        return userRepository.save(athlete);
+        user.setEmail(normalizedEmail);
+        user.setFullName(normalizedFirstName + " " + normalizedLastName);
+        user.setRole(normalizedRole);
+        return userRepository.save(user);
     }
 
     /**
@@ -110,19 +111,15 @@ public class AdminService {
      * @param athleteId athlete user id / Okta id
      */
     @Transactional
-    public void deleteAthlete(String athleteId) {
-        String normalizedAthleteId = normalizeRequired(athleteId, "Athlete id");
-        User athlete = userRepository.findById(normalizedAthleteId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Athlete not found."));
+    public void deleteUser(String userId) {
+        String normalizedUserId = normalizeRequired(userId, "User id");
+        User user = userRepository.findById(normalizedUserId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found."));
 
-        if (!"athlete".equalsIgnoreCase(athlete.getRole())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only athletes can be deleted.");
-        }
-
-        oktaAdminClient.deleteUser(normalizedAthleteId);
-        workoutLogRepository.deleteByUser_Id(normalizedAthleteId);
-        runningLogRepository.deleteByUser_Id(normalizedAthleteId);
-        userRepository.delete(athlete);
+        oktaAdminClient.deleteUser(normalizedUserId);
+        workoutLogRepository.deleteByUser_Id(normalizedUserId);
+        runningLogRepository.deleteByUser_Id(normalizedUserId);
+        userRepository.delete(user);
     }
 
     /**
@@ -146,6 +143,14 @@ public class AdminService {
         String normalized = normalizeRequired(email, "Email").toLowerCase();
         if (!normalized.contains("@")) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email must be valid.");
+        }
+        return normalized;
+    }
+
+    private String normalizeRole(String role) {
+        String normalized = normalizeRequired(role, "Role").toLowerCase();
+        if (!"athlete".equals(normalized) && !"coach".equals(normalized)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Role must be athlete or coach.");
         }
         return normalized;
     }

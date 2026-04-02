@@ -7,6 +7,7 @@
 let selectedUserId = null;
 let selectedAthleteDisplayName = "";
 let selectedAthleteEmail = "";
+let selectedManagedUserRole = "";
 let activeFooterAthleteMenu = null;
 const currentUserRole = (window.currentUserRole || "athlete").toLowerCase();
 const currentUserId = window.currentUserId || null;
@@ -80,6 +81,7 @@ function setSelectedStudent(element) {
     selectedUserId = source.dataset.userId || null;
     selectedAthleteDisplayName = source.dataset.displayName || "Selected athlete";
     selectedAthleteEmail = source.dataset.email || "";
+    selectedManagedUserRole = source.dataset.role || "";
     updateRunningSheetHeaderLabel();
     return true;
 }
@@ -207,6 +209,7 @@ function clearAthleteViewSelection() {
     selectedUserId = null;
     selectedAthleteDisplayName = "";
     selectedAthleteEmail = "";
+    selectedManagedUserRole = "";
 }
 
 /**
@@ -355,20 +358,21 @@ function showSubmissionNoticeFromUrl() {
 function setupCoachAdminActions() {
     if (currentUserRole !== "coach") return;
 
-    const createAthleteForm = document.getElementById("createAthleteForm");
-    const submitButton = document.getElementById("createAthleteSubmitButton");
-    const editAthleteForm = document.getElementById("editAthleteForm");
-    const editSubmitButton = document.getElementById("editAthleteSubmitButton");
-    if (!createAthleteForm || !submitButton || !editAthleteForm || !editSubmitButton) return;
+    const createUserForm = document.getElementById("createUserForm");
+    const submitButton = document.getElementById("createUserSubmitButton");
+    const editUserForm = document.getElementById("editUserForm");
+    const editSubmitButton = document.getElementById("editUserSubmitButton");
+    if (!createUserForm || !submitButton || !editUserForm || !editSubmitButton) return;
 
-    createAthleteForm.addEventListener("submit", async (event) => {
+    createUserForm.addEventListener("submit", async (event) => {
         event.preventDefault();
 
-        const formData = new FormData(createAthleteForm);
+        const formData = new FormData(createUserForm);
         const payload = {
             firstName: String(formData.get("firstName") || "").trim(),
             lastName: String(formData.get("lastName") || "").trim(),
             email: String(formData.get("email") || "").trim(),
+            role: String(formData.get("role") || "").trim().toLowerCase(),
             temporaryPassword: String(formData.get("temporaryPassword") || "").trim()
         };
 
@@ -381,47 +385,48 @@ function setupCoachAdminActions() {
         submitButton.textContent = "Creating...";
 
         try {
-            const response = await fetch("/api/admin/athletes", {
+            const response = await fetch("/api/admin/users", {
                 method: "POST",
                 headers: jsonHeaders(),
                 body: JSON.stringify(payload)
             });
 
             if (!response.ok) {
-                throw new Error(await readErrorMessage(response, `Failed to create athlete (${response.status})`));
+                throw new Error(await readErrorMessage(response, `Failed to create user (${response.status})`));
             }
 
-            const modalElement = document.getElementById("createAthleteModal");
+            const modalElement = document.getElementById("createUserModal");
             const modal = modalElement ? bootstrap.Modal.getInstance(modalElement) : null;
             if (modal) {
                 modal.hide();
             }
 
-            createAthleteForm.reset();
-            storeReloadNotice("Athlete created in Okta and added to RaceTrack.", "success");
+            createUserForm.reset();
+            storeReloadNotice("User created in Okta and added to RaceTrack.", "success");
             window.location.reload();
         } catch (error) {
             console.error(error);
-            showSaveNotice(error.message || "Could not create athlete.", "danger");
+            showSaveNotice(error.message || "Could not create user.", "danger");
         } finally {
             submitButton.disabled = false;
-            submitButton.textContent = "Create Athlete";
+            submitButton.textContent = "Create User";
         }
     });
 
-    editAthleteForm.addEventListener("submit", async (event) => {
+    editUserForm.addEventListener("submit", async (event) => {
         event.preventDefault();
 
         if (!selectedUserId) {
-            showSaveNotice("Select an athlete before editing.", "warning");
+            showSaveNotice("Select a user before editing.", "warning");
             return;
         }
 
-        const formData = new FormData(editAthleteForm);
+        const formData = new FormData(editUserForm);
         const payload = {
             firstName: String(formData.get("firstName") || "").trim(),
             lastName: String(formData.get("lastName") || "").trim(),
             email: String(formData.get("email") || "").trim(),
+            role: String(formData.get("role") || "").trim().toLowerCase(),
             temporaryPassword: String(formData.get("temporaryPassword") || "").trim()
         };
 
@@ -434,28 +439,28 @@ function setupCoachAdminActions() {
         editSubmitButton.textContent = "Saving...";
 
         try {
-            const response = await fetch(`/api/admin/athletes/${encodeURIComponent(selectedUserId)}`, {
+            const response = await fetch(`/api/admin/users/${encodeURIComponent(selectedUserId)}`, {
                 method: "PUT",
                 headers: jsonHeaders(),
                 body: JSON.stringify(payload)
             });
 
             if (!response.ok) {
-                throw new Error(await readErrorMessage(response, `Failed to edit athlete (${response.status})`));
+                throw new Error(await readErrorMessage(response, `Failed to edit user (${response.status})`));
             }
 
-            const modalElement = document.getElementById("editAthleteModal");
+            const modalElement = document.getElementById("editUserModal");
             const modal = modalElement ? bootstrap.Modal.getInstance(modalElement) : null;
             if (modal) {
                 modal.hide();
             }
 
-            editAthleteForm.reset();
-            storeReloadNotice("Athlete updated in RaceTrack and Okta.", "success");
+            editUserForm.reset();
+            storeReloadNotice("User updated in RaceTrack and Okta.", "success");
             window.location.reload();
         } catch (error) {
             console.error(error);
-            showSaveNotice(error.message || "Could not update athlete.", "danger");
+            showSaveNotice(error.message || "Could not update user.", "danger");
         } finally {
             editSubmitButton.disabled = false;
             editSubmitButton.textContent = "Save Changes";
@@ -480,32 +485,34 @@ function splitSelectedAthleteName() {
     };
 }
 
-function openEditAthleteModal() {
+function openEditUserModal() {
     if (currentUserRole !== "coach") return;
     if (!selectedUserId) {
-        showSaveNotice("Select an athlete before editing.", "warning");
+        showSaveNotice("Select a user before editing.", "warning");
         return;
     }
 
     const name = splitSelectedAthleteName();
-    const firstNameInput = document.getElementById("editAthleteFirstName");
-    const lastNameInput = document.getElementById("editAthleteLastName");
-    const emailInput = document.getElementById("editAthleteEmail");
-    const passwordInput = document.getElementById("editAthleteTemporaryPassword");
+    const firstNameInput = document.getElementById("editUserFirstName");
+    const lastNameInput = document.getElementById("editUserLastName");
+    const emailInput = document.getElementById("editUserEmail");
+    const roleInput = document.getElementById("editUserRole");
+    const passwordInput = document.getElementById("editUserTemporaryPassword");
 
     if (firstNameInput) firstNameInput.value = name.firstName;
     if (lastNameInput) lastNameInput.value = name.lastName;
     if (emailInput) emailInput.value = selectedAthleteEmail;
+    if (roleInput) roleInput.value = selectedManagedUserRole || "athlete";
     if (passwordInput) passwordInput.value = "";
 
-    const modalElement = document.getElementById("editAthleteModal");
+    const modalElement = document.getElementById("editUserModal");
     if (!modalElement) return;
     bootstrap.Modal.getOrCreateInstance(modalElement).show();
 }
 
-function openEditAthleteModalFor(element) {
+function openEditUserModalFor(element) {
     if (!setSelectedStudent(element)) return;
-    openEditAthleteModal();
+    openEditUserModal();
 }
 
 async function clearData() {
@@ -536,51 +543,51 @@ async function clearData() {
     }
 }
 
-async function deleteSelectedAthlete() {
+async function deleteSelectedUser() {
     if (currentUserRole !== "coach") return;
 
     if (!selectedUserId) {
-        showSaveNotice("Select an athlete before deleting.", "warning");
+        showSaveNotice("Select a user before deleting.", "warning");
         return;
     }
 
-    const athleteName = selectedAthleteDisplayName || "this athlete";
+    const userName = selectedAthleteDisplayName || "this user";
     const confirmed = window.confirm(
-        `Delete ${athleteName} from RaceTrack and Okta? This will also remove that athlete's running and workout logs.`
+        `Delete ${userName} from RaceTrack and Okta? This will also remove that user's running and workout logs.`
     );
     if (!confirmed) {
         return;
     }
 
     try {
-        const response = await fetch(`/api/admin/athletes/${encodeURIComponent(selectedUserId)}`, {
+        const response = await fetch(`/api/admin/users/${encodeURIComponent(selectedUserId)}`, {
             method: "DELETE",
             headers: jsonHeaders()
         });
 
         if (!response.ok) {
-            throw new Error(await readErrorMessage(response, `Failed to delete athlete (${response.status})`));
+            throw new Error(await readErrorMessage(response, `Failed to delete user (${response.status})`));
         }
 
-        storeReloadNotice("Athlete deleted from RaceTrack and Okta.", "success");
+        storeReloadNotice("User deleted from RaceTrack and Okta.", "success");
         window.location.reload();
     } catch (error) {
         console.error(error);
-        showSaveNotice(error.message || "Could not delete the selected athlete.", "danger");
+        showSaveNotice(error.message || "Could not delete the selected user.", "danger");
     }
 }
 
-async function deleteAthleteFor(element) {
+async function deleteUserFor(element) {
     if (!setSelectedStudent(element)) return;
-    await deleteSelectedAthlete();
+    await deleteSelectedUser();
 }
 
 window.clearData = clearData;
-window.deleteSelectedAthlete = deleteSelectedAthlete;
-window.deleteAthleteFor = deleteAthleteFor;
+window.deleteSelectedUser = deleteSelectedUser;
+window.deleteUserFor = deleteUserFor;
 window.openAthleteMenu = openAthleteMenu;
-window.openEditAthleteModal = openEditAthleteModal;
-window.openEditAthleteModalFor = openEditAthleteModalFor;
+window.openEditUserModal = openEditUserModal;
+window.openEditUserModalFor = openEditUserModalFor;
 window.viewSelectedFooterSheet = viewSelectedFooterSheet;
 window.viewStudentSheet = viewStudentSheet;
 

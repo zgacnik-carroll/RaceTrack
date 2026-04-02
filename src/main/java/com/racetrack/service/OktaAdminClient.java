@@ -13,7 +13,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Minimal Okta management client for creating athlete accounts.
+ * Minimal Okta management client for creating and updating app users.
  */
 @Component
 public class OktaAdminClient {
@@ -37,10 +37,10 @@ public class OktaAdminClient {
      * @return Okta id and email for the created user
      */
     @SuppressWarnings("unchecked")
-    public CreatedOktaUser createAthlete(String firstName,
-                                         String lastName,
-                                         String email,
-                                         String temporaryPassword) {
+    public CreatedOktaUser createUser(String firstName,
+                                      String lastName,
+                                      String email,
+                                      String temporaryPassword) {
         validateConfiguration();
 
         Map<String, Object> profile = new LinkedHashMap<>();
@@ -98,11 +98,11 @@ public class OktaAdminClient {
      * @param email primary email / login
      * @param temporaryPassword optional password replacement
      */
-    public void updateAthlete(String userId,
-                              String firstName,
-                              String lastName,
-                              String email,
-                              String temporaryPassword) {
+    public void updateUser(String userId,
+                           String firstName,
+                           String lastName,
+                           String email,
+                           String temporaryPassword) {
         validateConfiguration();
 
         Map<String, Object> profile = new LinkedHashMap<>();

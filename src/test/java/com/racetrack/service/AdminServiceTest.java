@@ -37,14 +37,14 @@ class AdminServiceTest {
     private AdminService adminService;
 
     @Test
-    void createAthlete_createsOktaUserAndLocalAthleteRecord() {
-        when(oktaAdminClient.createAthlete("Jane", "Doe", "jane@example.com", "TempPass123"))
+    void createUser_createsOktaUserAndLocalUserRecord() {
+        when(oktaAdminClient.createUser("Jane", "Doe", "jane@example.com", "TempPass123"))
                 .thenReturn(new OktaAdminClient.CreatedOktaUser("okta-123", "jane@example.com"));
         when(userRepository.findById("okta-123")).thenReturn(Optional.empty());
         when(userRepository.save(org.mockito.ArgumentMatchers.any(User.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        User created = adminService.createAthlete(" Jane ", " Doe ", " JANE@example.com ", " TempPass123 ");
+        User created = adminService.createUser(" Jane ", " Doe ", " JANE@example.com ", " athlete ", " TempPass123 ");
 
         assertThat(created.getId()).isEqualTo("okta-123");
         assertThat(created.getEmail()).isEqualTo("jane@example.com");
@@ -53,16 +53,16 @@ class AdminServiceTest {
     }
 
     @Test
-    void createAthlete_rejectsBlankFirstNameBeforeCallingOkta() {
-        assertThatThrownBy(() -> adminService.createAthlete(" ", "Doe", "jane@example.com", null))
+    void createUser_rejectsBlankFirstNameBeforeCallingOkta() {
+        assertThatThrownBy(() -> adminService.createUser(" ", "Doe", "jane@example.com", "athlete", null))
                 .hasMessageContaining("First name is required.");
 
-        verify(oktaAdminClient, never()).createAthlete(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any(),
+        verify(oktaAdminClient, never()).createUser(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any(),
                 org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
     }
 
     @Test
-    void updateAthlete_updatesOktaAndLocalAthleteRecord() {
+    void updateUser_updatesOktaAndLocalUserRecord() {
         User athlete = new User();
         athlete.setId("ath-2");
         athlete.setRole("athlete");
@@ -71,24 +71,25 @@ class AdminServiceTest {
         when(userRepository.findById("ath-2")).thenReturn(Optional.of(athlete));
         when(userRepository.save(athlete)).thenReturn(athlete);
 
-        User updated = adminService.updateAthlete("ath-2", "Jane", "Runner", "jane@example.com", "NewPass123");
+        User updated = adminService.updateUser("ath-2", "Jane", "Runner", "jane@example.com", "coach", "NewPass123");
 
-        verify(oktaAdminClient).updateAthlete("ath-2", "Jane", "Runner", "jane@example.com", "NewPass123");
+        verify(oktaAdminClient).updateUser("ath-2", "Jane", "Runner", "jane@example.com", "NewPass123");
         assertThat(updated.getEmail()).isEqualTo("jane@example.com");
         assertThat(updated.getFullName()).isEqualTo("Jane Runner");
+        assertThat(updated.getRole()).isEqualTo("coach");
     }
 
     @Test
-    void updateAthlete_rejectsEditingNonAthlete() {
+    void updateUser_rejectsInvalidRole() {
         User coach = new User();
         coach.setId("coach-1");
         coach.setRole("coach");
         when(userRepository.findById("coach-1")).thenReturn(Optional.of(coach));
 
-        assertThatThrownBy(() -> adminService.updateAthlete("coach-1", "A", "B", "coach@example.com", null))
-                .hasMessageContaining("Only athletes can be edited.");
+        assertThatThrownBy(() -> adminService.updateUser("coach-1", "A", "B", "coach@example.com", "manager", null))
+                .hasMessageContaining("Role must be athlete or coach.");
 
-        verify(oktaAdminClient, never()).updateAthlete(
+        verify(oktaAdminClient, never()).updateUser(
                 org.mockito.ArgumentMatchers.any(),
                 org.mockito.ArgumentMatchers.any(),
                 org.mockito.ArgumentMatchers.any(),
@@ -107,13 +108,13 @@ class AdminServiceTest {
     }
 
     @Test
-    void deleteAthlete_deletesOktaUserLogsAndLocalUser() {
+    void deleteUser_deletesOktaUserLogsAndLocalUser() {
         User athlete = new User();
         athlete.setId("ath-1");
         athlete.setRole("athlete");
         when(userRepository.findById("ath-1")).thenReturn(Optional.of(athlete));
 
-        adminService.deleteAthlete("ath-1");
+        adminService.deleteUser("ath-1");
 
         verify(oktaAdminClient).deleteUser("ath-1");
         verify(workoutLogRepository).deleteByUser_Id("ath-1");
@@ -122,15 +123,15 @@ class AdminServiceTest {
     }
 
     @Test
-    void deleteAthlete_rejectsDeletingNonAthlete() {
+    void deleteUser_deletesCoachToo() {
         User coach = new User();
         coach.setId("coach-1");
         coach.setRole("coach");
         when(userRepository.findById("coach-1")).thenReturn(Optional.of(coach));
 
-        assertThatThrownBy(() -> adminService.deleteAthlete("coach-1"))
-                .hasMessageContaining("Only athletes can be deleted.");
+        adminService.deleteUser("coach-1");
 
-        verify(oktaAdminClient, never()).deleteUser("coach-1");
+        verify(oktaAdminClient).deleteUser("coach-1");
+        verify(userRepository).delete(coach);
     }
 }

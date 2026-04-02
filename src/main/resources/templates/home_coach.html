@@ -39,31 +39,41 @@
 
 <div th:replace="~{footer :: footerFragment}"></div>
 
-<div class="modal fade" id="createAthleteModal" tabindex="-1" aria-labelledby="createAthleteModalLabel" aria-hidden="true">
+<div class="modal fade" id="createUserModal" tabindex="-1" aria-labelledby="createUserModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <form id="createAthleteForm">
+      <form id="createUserForm">
         <div class="modal-header">
-          <h5 class="modal-title" id="createAthleteModalLabel">Create Athlete</h5>
+          <h5 class="modal-title" id="createUserModalLabel">Create User</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="form-label" for="athleteFirstName">First name</label>
-              <input class="form-control" id="athleteFirstName" name="firstName" required>
+              <label class="form-label" for="userFirstName">First name</label>
+              <input class="form-control" id="userFirstName" name="firstName" required>
             </div>
             <div class="col-md-6">
-              <label class="form-label" for="athleteLastName">Last name</label>
-              <input class="form-control" id="athleteLastName" name="lastName" required>
+              <label class="form-label" for="userLastName">Last name</label>
+              <input class="form-control" id="userLastName" name="lastName" required>
             </div>
             <div class="col-12">
-              <label class="form-label" for="athleteEmail">Email</label>
-              <input type="email" class="form-control" id="athleteEmail" name="email" required>
+              <label class="form-label" for="userEmail">Email</label>
+              <input type="email" class="form-control" id="userEmail" name="email" required>
             </div>
             <div class="col-12">
-              <label class="form-label" for="athleteTemporaryPassword">Temporary password</label>
-              <input type="text" class="form-control" id="athleteTemporaryPassword" name="temporaryPassword">
+              <label class="form-label" for="userRole">Role</label>
+              <select class="form-select" id="userRole" name="role" required>
+                <option value="athlete">Athlete</option>
+                <option value="coach">Coach</option>
+              </select>
+              <div class="form-text">
+                Athletes can submit and edit only their own logs. Coaches can view all logs, comment, and use admin actions.
+              </div>
+            </div>
+            <div class="col-12">
+              <label class="form-label" for="userTemporaryPassword">Temporary password</label>
+              <input type="text" class="form-control" id="userTemporaryPassword" name="temporaryPassword">
               <div class="form-text">
                 Optional. Leave blank if your Okta enrollment flow will handle activation credentials.
               </div>
@@ -72,47 +82,54 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary" id="createAthleteSubmitButton">Create Athlete</button>
+          <button type="submit" class="btn btn-primary" id="createUserSubmitButton">Create User</button>
         </div>
       </form>
     </div>
   </div>
 </div>
 
-<div class="modal fade" id="editAthleteModal" tabindex="-1" aria-labelledby="editAthleteModalLabel" aria-hidden="true">
+<div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <form id="editAthleteForm">
+      <form id="editUserForm">
         <div class="modal-header">
-          <h5 class="modal-title" id="editAthleteModalLabel">Edit Athlete</h5>
+          <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="form-label" for="editAthleteFirstName">First name</label>
-              <input class="form-control" id="editAthleteFirstName" name="firstName" required>
+              <label class="form-label" for="editUserFirstName">First name</label>
+              <input class="form-control" id="editUserFirstName" name="firstName" required>
             </div>
             <div class="col-md-6">
-              <label class="form-label" for="editAthleteLastName">Last name</label>
-              <input class="form-control" id="editAthleteLastName" name="lastName" required>
+              <label class="form-label" for="editUserLastName">Last name</label>
+              <input class="form-control" id="editUserLastName" name="lastName" required>
             </div>
             <div class="col-12">
-              <label class="form-label" for="editAthleteEmail">Email</label>
-              <input type="email" class="form-control" id="editAthleteEmail" name="email" required>
+              <label class="form-label" for="editUserEmail">Email</label>
+              <input type="email" class="form-control" id="editUserEmail" name="email" required>
             </div>
             <div class="col-12">
-              <label class="form-label" for="editAthleteTemporaryPassword">New password</label>
-              <input type="text" class="form-control" id="editAthleteTemporaryPassword" name="temporaryPassword">
+              <label class="form-label" for="editUserRole">Role</label>
+              <select class="form-select" id="editUserRole" name="role" required>
+                <option value="athlete">Athlete</option>
+                <option value="coach">Coach</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label" for="editUserTemporaryPassword">New password</label>
+              <input type="text" class="form-control" id="editUserTemporaryPassword" name="temporaryPassword">
               <div class="form-text">
-                Optional. Leave blank to keep the athlete's current password.
+                Optional. Leave blank to keep the user's current password.
               </div>
             </div>
           </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary" id="editAthleteSubmitButton">Save Changes</button>
+          <button type="submit" class="btn btn-primary" id="editUserSubmitButton">Save Changes</button>
         </div>
       </form>
     </div>

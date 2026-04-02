@@ -114,6 +114,15 @@ public class UserService {
     }
 
     /**
+     * Returns all users sorted by full name.
+     *
+     * @return ordered user list
+     */
+    public List<User> getUsersOrderedByName() {
+        return userRepository.findAllByOrderByFullNameAsc();
+    }
+
+    /**
      * Checks whether the given user has coach role.
      *
      * @param user user to inspect

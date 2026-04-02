@@ -33,27 +33,28 @@ public class AdminApiController {
     }
 
     /**
-     * Creates a new athlete in Okta and seeds the local user table.
+     * Creates a new user in Okta and seeds the local user table.
      *
-     * @param request athlete creation payload
+     * @param request user creation payload
      * @param oidcUser authenticated coach
-     * @return created athlete summary
+     * @return created user summary
      */
-    @PostMapping("/athletes")
-    public CreatedAthleteResponse createAthlete(@RequestBody CreateAthleteRequest request,
-                                                @AuthenticationPrincipal OidcUser oidcUser) {
+    @PostMapping("/users")
+    public CreatedUserResponse createUser(@RequestBody CreateUserRequest request,
+                                          @AuthenticationPrincipal OidcUser oidcUser) {
         requireCoach(oidcUser);
-        User athlete = adminService.createAthlete(
+        User user = adminService.createUser(
                 request.firstName(),
                 request.lastName(),
                 request.email(),
+                request.role(),
                 request.temporaryPassword()
         );
-        return new CreatedAthleteResponse(
-                athlete.getId(),
-                athlete.getEmail(),
-                athlete.getFullName(),
-                athlete.getRole()
+        return new CreatedUserResponse(
+                user.getId(),
+                user.getEmail(),
+                user.getFullName(),
+                user.getRole()
         );
     }
 
@@ -65,23 +66,24 @@ public class AdminApiController {
      * @param oidcUser authenticated coach
      * @return updated athlete summary
      */
-    @PutMapping("/athletes/{athleteId}")
-    public CreatedAthleteResponse updateAthlete(@PathVariable String athleteId,
-                                                @RequestBody UpdateAthleteRequest request,
-                                                @AuthenticationPrincipal OidcUser oidcUser) {
+    @PutMapping("/users/{userId}")
+    public CreatedUserResponse updateUser(@PathVariable String userId,
+                                          @RequestBody UpdateUserRequest request,
+                                          @AuthenticationPrincipal OidcUser oidcUser) {
         requireCoach(oidcUser);
-        User athlete = adminService.updateAthlete(
-                athleteId,
+        User user = adminService.updateUser(
+                userId,
                 request.firstName(),
                 request.lastName(),
                 request.email(),
+                request.role(),
                 request.temporaryPassword()
         );
-        return new CreatedAthleteResponse(
-                athlete.getId(),
-                athlete.getEmail(),
-                athlete.getFullName(),
-                athlete.getRole()
+        return new CreatedUserResponse(
+                user.getId(),
+                user.getEmail(),
+                user.getFullName(),
+                user.getRole()
         );
     }
 
@@ -92,11 +94,11 @@ public class AdminApiController {
      * @param oidcUser authenticated coach
      * @return empty success response
      */
-    @DeleteMapping("/athletes/{athleteId}")
-    public ResponseEntity<Void> deleteAthlete(@PathVariable String athleteId,
-                                              @AuthenticationPrincipal OidcUser oidcUser) {
+    @DeleteMapping("/users/{userId}")
+    public ResponseEntity<Void> deleteUser(@PathVariable String userId,
+                                           @AuthenticationPrincipal OidcUser oidcUser) {
         requireCoach(oidcUser);
-        adminService.deleteAthlete(athleteId);
+        adminService.deleteUser(userId);
         return ResponseEntity.noContent().build();
     }
 
@@ -120,21 +122,23 @@ public class AdminApiController {
         }
     }
 
-    public record CreateAthleteRequest(
+    public record CreateUserRequest(
             String firstName,
             String lastName,
             String email,
+            String role,
             String temporaryPassword
     ) {}
 
-    public record UpdateAthleteRequest(
+    public record UpdateUserRequest(
             String firstName,
             String lastName,
             String email,
+            String role,
             String temporaryPassword
     ) {}
 
-    public record CreatedAthleteResponse(
+    public record CreatedUserResponse(
             String id,
             String email,
             String fullName,

@@ -52,15 +52,15 @@ class WorkoutLogServiceTest {
     }
 
     @Test
-    void submitWorkoutLog_keepsDefaultTimestampWhenNullDateProvided() {
+    void submitWorkoutLog_rejectsNullDate() {
         User user = userRepository.save(user("runner-w1b", "w1b@example.com"));
         WorkoutLog log = workoutLog(user, "Strength", "Core circuit");
 
-        WorkoutLog saved = workoutLogService.submitWorkoutLog(log, null);
-
-        // WorkoutLog sets logDate = LocalDateTime.now() in the constructor
-        assertThat(saved.getId()).isNotNull();
-        assertThat(saved.getLogDate()).isNotNull();
+        assertThatThrownBy(() -> workoutLogService.submitWorkoutLog(log, null))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Date is required.")
+                .extracting(ex -> ((ResponseStatusException) ex).getStatusCode())
+                .isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
     @Test
@@ -332,6 +332,8 @@ class WorkoutLogServiceTest {
         log.setUser(user);
         log.setWorkoutType(type);
         log.setCompletionDetails(completionDetails);
+        log.setActualPaces("Steady");
+        log.setWorkoutDescription("Workout details");
         return log;
     }
 }
