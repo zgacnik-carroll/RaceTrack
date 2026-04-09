@@ -33,7 +33,7 @@ public class AdminApiController {
     }
 
     /**
-     * Creates a new user in Okta and seeds the local user table.
+     * Creates a new user in the application database.
      *
      * @param request user creation payload
      * @param oidcUser authenticated coach
@@ -47,8 +47,7 @@ public class AdminApiController {
                 request.firstName(),
                 request.lastName(),
                 request.email(),
-                request.role(),
-                request.temporaryPassword()
+                request.role()
         );
         return new CreatedUserResponse(
                 user.getId(),
@@ -59,7 +58,7 @@ public class AdminApiController {
     }
 
     /**
-     * Updates an athlete in Okta and in the application.
+     * Updates a user in the application database.
      *
      * @param athleteId target athlete id
      * @param request athlete update payload
@@ -76,8 +75,7 @@ public class AdminApiController {
                 request.firstName(),
                 request.lastName(),
                 request.email(),
-                request.role(),
-                request.temporaryPassword()
+                request.role()
         );
         return new CreatedUserResponse(
                 user.getId(),
@@ -88,7 +86,7 @@ public class AdminApiController {
     }
 
     /**
-     * Deletes an athlete from Okta and from the application.
+     * Deletes a user from the application database.
      *
      * @param athleteId target athlete id
      * @param oidcUser authenticated coach
@@ -116,7 +114,7 @@ public class AdminApiController {
     }
 
     private void requireCoach(OidcUser oidcUser) {
-        User currentUser = userService.getOrCreateForApi(oidcUser);
+        User currentUser = userService.getAuthorizedUserForApi(oidcUser);
         if (!userService.isCoach(currentUser)) {
             throw new ResponseStatusException(FORBIDDEN, "Only coaches can access admin actions.");
         }
@@ -126,16 +124,14 @@ public class AdminApiController {
             String firstName,
             String lastName,
             String email,
-            String role,
-            String temporaryPassword
+            String role
     ) {}
 
     public record UpdateUserRequest(
             String firstName,
             String lastName,
             String email,
-            String role,
-            String temporaryPassword
+            String role
     ) {}
 
     public record CreatedUserResponse(

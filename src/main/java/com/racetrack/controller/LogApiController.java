@@ -51,7 +51,8 @@ public class LogApiController {
      */
     @GetMapping("/running-logs/me")
     public List<RunningLog> myRunningLogs(@AuthenticationPrincipal OidcUser oidcUser) {
-        return runningLogService.findByUserId(oidcUser.getSubject());
+        User currentUser = userService.getAuthorizedUserForApi(oidcUser);
+        return runningLogService.findByUserId(currentUser.getId());
     }
 
     /**
@@ -65,9 +66,9 @@ public class LogApiController {
     @GetMapping("/running-logs/{userId}")
     public List<RunningLog> runningLogsByUser(@PathVariable String userId,
                                               @AuthenticationPrincipal OidcUser oidcUser) {
-        User currentUser = userService.getOrCreateForApi(oidcUser);
-        String targetUserId = resolveTargetUserId(userId, oidcUser.getSubject());
-        assertCanViewTargetUser(currentUser, oidcUser.getSubject(), targetUserId);
+        User currentUser = userService.getAuthorizedUserForApi(oidcUser);
+        String targetUserId = resolveTargetUserId(userId, currentUser.getId());
+        assertCanViewTargetUser(currentUser, currentUser.getId(), targetUserId);
         return runningLogService.findByUserId(targetUserId);
     }
 
@@ -79,7 +80,8 @@ public class LogApiController {
      */
     @GetMapping("/workout-logs/me")
     public List<WorkoutLog> myWorkoutLogs(@AuthenticationPrincipal OidcUser oidcUser) {
-        return workoutLogService.findByUserId(oidcUser.getSubject());
+        User currentUser = userService.getAuthorizedUserForApi(oidcUser);
+        return workoutLogService.findByUserId(currentUser.getId());
     }
 
     /**
@@ -93,9 +95,9 @@ public class LogApiController {
     @GetMapping("/workout-logs/{userId}")
     public List<WorkoutLog> workoutLogsByUser(@PathVariable String userId,
                                               @AuthenticationPrincipal OidcUser oidcUser) {
-        User currentUser = userService.getOrCreateForApi(oidcUser);
-        String targetUserId = resolveTargetUserId(userId, oidcUser.getSubject());
-        assertCanViewTargetUser(currentUser, oidcUser.getSubject(), targetUserId);
+        User currentUser = userService.getAuthorizedUserForApi(oidcUser);
+        String targetUserId = resolveTargetUserId(userId, currentUser.getId());
+        assertCanViewTargetUser(currentUser, currentUser.getId(), targetUserId);
         return workoutLogService.findByUserId(targetUserId);
     }
 
@@ -111,13 +113,13 @@ public class LogApiController {
     public ResponseEntity<Void> updateRunningLog(@PathVariable Long id,
                                                  @RequestBody RunningLogUpdateRequest request,
                                                  @AuthenticationPrincipal OidcUser oidcUser) {
-        User currentUser = userService.getOrCreateForApi(oidcUser);
+        User currentUser = userService.getAuthorizedUserForApi(oidcUser);
         if (userService.isCoach(currentUser)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Coaches cannot edit athlete rows.");
         }
 
         runningLogService.updateAthleteOwnedLog(
-                oidcUser.getSubject(),
+                currentUser.getId(),
                 id,
                 request.mileage(),
                 request.hurting(),
@@ -147,13 +149,13 @@ public class LogApiController {
     public ResponseEntity<Void> updateWorkoutLog(@PathVariable Long id,
                                                  @RequestBody WorkoutLogUpdateRequest request,
                                                  @AuthenticationPrincipal OidcUser oidcUser) {
-        User currentUser = userService.getOrCreateForApi(oidcUser);
+        User currentUser = userService.getAuthorizedUserForApi(oidcUser);
         if (userService.isCoach(currentUser)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Coaches cannot edit athlete rows.");
         }
 
         workoutLogService.updateAthleteOwnedLog(
-                oidcUser.getSubject(),
+                currentUser.getId(),
                 id,
                 request.workoutType(),
                 request.completionDetails(),
@@ -175,12 +177,12 @@ public class LogApiController {
     @DeleteMapping("/running-logs/{id}")
     public ResponseEntity<Void> deleteRunningLog(@PathVariable Long id,
                                                  @AuthenticationPrincipal OidcUser oidcUser) {
-        User currentUser = userService.getOrCreateForApi(oidcUser);
+        User currentUser = userService.getAuthorizedUserForApi(oidcUser);
         if (userService.isCoach(currentUser)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Coaches cannot delete athlete rows.");
         }
 
-        runningLogService.deleteAthleteOwnedLog(oidcUser.getSubject(), id);
+        runningLogService.deleteAthleteOwnedLog(currentUser.getId(), id);
         return ResponseEntity.ok().build();
     }
 
@@ -194,12 +196,12 @@ public class LogApiController {
     @DeleteMapping("/workout-logs/{id}")
     public ResponseEntity<Void> deleteWorkoutLog(@PathVariable Long id,
                                                  @AuthenticationPrincipal OidcUser oidcUser) {
-        User currentUser = userService.getOrCreateForApi(oidcUser);
+        User currentUser = userService.getAuthorizedUserForApi(oidcUser);
         if (userService.isCoach(currentUser)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Coaches cannot delete athlete rows.");
         }
 
-        workoutLogService.deleteAthleteOwnedLog(oidcUser.getSubject(), id);
+        workoutLogService.deleteAthleteOwnedLog(currentUser.getId(), id);
         return ResponseEntity.ok().build();
     }
 
@@ -215,7 +217,7 @@ public class LogApiController {
     public ResponseEntity<Void> updateRunningCoachComment(@PathVariable Long id,
                                                           @RequestBody Map<String, String> request,
                                                           @AuthenticationPrincipal OidcUser oidcUser) {
-        User currentUser = userService.getOrCreateForApi(oidcUser);
+        User currentUser = userService.getAuthorizedUserForApi(oidcUser);
         if (!userService.isCoach(currentUser)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only coaches can add comments.");
         }
@@ -237,7 +239,7 @@ public class LogApiController {
     public ResponseEntity<Void> updateWorkoutCoachComment(@PathVariable Long id,
                                                           @RequestBody Map<String, String> request,
                                                           @AuthenticationPrincipal OidcUser oidcUser) {
-        User currentUser = userService.getOrCreateForApi(oidcUser);
+        User currentUser = userService.getAuthorizedUserForApi(oidcUser);
         if (!userService.isCoach(currentUser)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only coaches can add comments.");
         }

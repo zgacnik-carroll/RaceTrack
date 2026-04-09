@@ -46,7 +46,7 @@ public class WorkoutLogController {
                                    WorkoutLog workoutLog,
                                    @RequestParam(value = "selectedDate", required = false)
                                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate selectedDate) {
-        User user = userService.getOrCreateForFormSubmit(oidcUser);
+        User user = userService.getAuthorizedUserForFormSubmit(oidcUser);
         workoutLog.setUser(user);
         workoutLogService.submitWorkoutLog(workoutLog, selectedDate);
 

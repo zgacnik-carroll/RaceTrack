@@ -9,79 +9,67 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.UUID;
+
 /**
  * Coordinates coach-only administrative actions.
  */
 @Service
 public class AdminService {
 
-    private final OktaAdminClient oktaAdminClient;
     private final UserRepository userRepository;
     private final RunningLogRepository runningLogRepository;
     private final WorkoutLogRepository workoutLogRepository;
 
-    public AdminService(OktaAdminClient oktaAdminClient,
-                        UserRepository userRepository,
+    public AdminService(UserRepository userRepository,
                         RunningLogRepository runningLogRepository,
                         WorkoutLogRepository workoutLogRepository) {
-        this.oktaAdminClient = oktaAdminClient;
         this.userRepository = userRepository;
         this.runningLogRepository = runningLogRepository;
         this.workoutLogRepository = workoutLogRepository;
     }
 
     /**
-     * Creates an app user in Okta, then upserts the local user record.
+     * Creates an app user in the local database.
      *
      * @param firstName user first name
      * @param lastName user last name
      * @param email user email/login
      * @param role requested app role
-     * @param temporaryPassword optional temporary password
      * @return saved user record
      */
     public User createUser(String firstName,
                            String lastName,
                            String email,
-                           String role,
-                           String temporaryPassword) {
+                           String role) {
         String normalizedFirstName = normalizeRequired(firstName, "First name");
         String normalizedLastName = normalizeRequired(lastName, "Last name");
         String normalizedEmail = normalizeEmail(email);
         String normalizedRole = normalizeRole(role);
-        String normalizedPassword = normalizeOptional(temporaryPassword);
+        ensureEmailAvailable(normalizedEmail);
 
-        OktaAdminClient.CreatedOktaUser createdUser = oktaAdminClient.createUser(
-                normalizedFirstName,
-                normalizedLastName,
-                normalizedEmail,
-                normalizedPassword
-        );
-
-        User user = userRepository.findById(createdUser.id()).orElseGet(User::new);
-        user.setId(createdUser.id());
-        user.setEmail(createdUser.email());
+        User user = new User();
+        user.setId(UUID.randomUUID().toString());
+        user.setEmail(normalizedEmail);
         user.setFullName(normalizedFirstName + " " + normalizedLastName);
         user.setRole(normalizedRole);
         return userRepository.save(user);
     }
 
     /**
-     * Updates an athlete in Okta and syncs the local user record.
+     * Updates a local user record.
      *
      * @param athleteId athlete user id / Okta id
      * @param firstName athlete first name
      * @param lastName athlete last name
      * @param email athlete email/login
-     * @param temporaryPassword optional replacement password
      * @return updated athlete record
      */
     public User updateUser(String userId,
                            String firstName,
                            String lastName,
                            String email,
-                           String role,
-                           String temporaryPassword) {
+                           String role) {
         String normalizedUserId = normalizeRequired(userId, "User id");
         User user = userRepository.findById(normalizedUserId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found."));
@@ -89,15 +77,7 @@ public class AdminService {
         String normalizedLastName = normalizeRequired(lastName, "Last name");
         String normalizedEmail = normalizeEmail(email);
         String normalizedRole = normalizeRole(role);
-        String normalizedPassword = normalizeOptional(temporaryPassword);
-
-        oktaAdminClient.updateUser(
-                normalizedUserId,
-                normalizedFirstName,
-                normalizedLastName,
-                normalizedEmail,
-                normalizedPassword
-        );
+        ensureEmailAvailableForOtherUser(normalizedEmail, normalizedUserId);
 
         user.setEmail(normalizedEmail);
         user.setFullName(normalizedFirstName + " " + normalizedLastName);
@@ -106,7 +86,7 @@ public class AdminService {
     }
 
     /**
-     * Deletes an athlete from Okta and removes the athlete plus owned logs from the local database.
+     * Removes the user plus owned logs from the local database.
      *
      * @param athleteId athlete user id / Okta id
      */
@@ -116,7 +96,6 @@ public class AdminService {
         User user = userRepository.findById(normalizedUserId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found."));
 
-        oktaAdminClient.deleteUser(normalizedUserId);
         workoutLogRepository.deleteByUser_Id(normalizedUserId);
         runningLogRepository.deleteByUser_Id(normalizedUserId);
         userRepository.delete(user);
@@ -153,6 +132,18 @@ public class AdminService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Role must be athlete or coach.");
         }
         return normalized;
+    }
+
+    private void ensureEmailAvailable(String email) {
+        if (userRepository.existsByEmailIgnoreCase(email)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "A user with that email already exists.");
+        }
+    }
+
+    private void ensureEmailAvailableForOtherUser(String email, String userId) {
+        if (userRepository.existsByEmailIgnoreCaseAndIdNot(email, userId)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "A user with that email already exists.");
+        }
     }
 
     private String normalizeOptional(String value) {

@@ -17,17 +17,14 @@ public class WorkoutLogService {
     private static final int TEXT_MAX = 2000;
 
     private final WorkoutLogRepository workoutLogRepository;
-    private final CoachCommentNotificationService coachCommentNotificationService;
 
     /**
      * Creates a workout-log service.
      *
      * @param workoutLogRepository persistent store for workout logs
      */
-    public WorkoutLogService(WorkoutLogRepository workoutLogRepository,
-                             CoachCommentNotificationService coachCommentNotificationService) {
+    public WorkoutLogService(WorkoutLogRepository workoutLogRepository) {
         this.workoutLogRepository = workoutLogRepository;
-        this.coachCommentNotificationService = coachCommentNotificationService;
     }
 
     /**
@@ -127,12 +124,9 @@ public class WorkoutLogService {
     public WorkoutLog updateCoachComment(Long logId, String coachComment) {
         WorkoutLog log = workoutLogRepository.findById(logId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Workout log not found."));
-        String previous = log.getCoachComment();
         String normalized = normalizeOptionalText(coachComment, "Coach comment");
         log.setCoachComment(normalized);
-        WorkoutLog saved = workoutLogRepository.save(log);
-        notifyCoachCommentChange(saved.getUser(), "workout log", previous, normalized);
-        return saved;
+        return workoutLogRepository.save(log);
     }
 
     /**
@@ -200,18 +194,5 @@ public class WorkoutLogService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, fieldName + " is required.");
         }
         return normalized;
-    }
-
-    private void notifyCoachCommentChange(com.racetrack.model.User athlete,
-                                          String logType,
-                                          String previousComment,
-                                          String updatedComment) {
-        if (updatedComment == null) {
-            return;
-        }
-        if (updatedComment.equals(previousComment)) {
-            return;
-        }
-        coachCommentNotificationService.sendCoachCommentNotification(athlete, logType, updatedComment);
     }
 }

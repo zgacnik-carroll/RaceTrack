@@ -38,7 +38,7 @@ public class HomeController {
      */
     @GetMapping("/")
     public String home(@AuthenticationPrincipal OidcUser oidcUser, Model model) {
-        User user = userService.getOrCreateForHome(oidcUser);
+        User user = userService.getAuthorizedUserForHome(oidcUser);
         boolean isCoach = userService.isCoach(user);
         List<User> athletes = userService.getAthletesOrderedByName();
         List<User> manageableUsers = userService.getUsersOrderedByName();
@@ -65,5 +65,11 @@ public class HomeController {
         model.addAttribute("manageableUsers", manageableUsers);
 
         return isCoach ? "home_coach" : "home";
+    }
+
+    @GetMapping("/unauthorized-user")
+    public String unauthorizedUser(@AuthenticationPrincipal OidcUser oidcUser, Model model) {
+        model.addAttribute("email", oidcUser != null ? oidcUser.getEmail() : null);
+        return "unauthorized_user";
     }
 }

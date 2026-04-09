@@ -372,8 +372,7 @@ function setupCoachAdminActions() {
             firstName: String(formData.get("firstName") || "").trim(),
             lastName: String(formData.get("lastName") || "").trim(),
             email: String(formData.get("email") || "").trim(),
-            role: String(formData.get("role") || "").trim().toLowerCase(),
-            temporaryPassword: String(formData.get("temporaryPassword") || "").trim()
+            role: String(formData.get("role") || "").trim().toLowerCase()
         };
 
         if (!payload.firstName || !payload.lastName || !payload.email) {
@@ -402,7 +401,7 @@ function setupCoachAdminActions() {
             }
 
             createUserForm.reset();
-            storeReloadNotice("User created in Okta and added to RaceTrack.", "success");
+            storeReloadNotice("User created in RaceTrack.", "success");
             window.location.reload();
         } catch (error) {
             console.error(error);
@@ -426,8 +425,7 @@ function setupCoachAdminActions() {
             firstName: String(formData.get("firstName") || "").trim(),
             lastName: String(formData.get("lastName") || "").trim(),
             email: String(formData.get("email") || "").trim(),
-            role: String(formData.get("role") || "").trim().toLowerCase(),
-            temporaryPassword: String(formData.get("temporaryPassword") || "").trim()
+            role: String(formData.get("role") || "").trim().toLowerCase()
         };
 
         if (!payload.firstName || !payload.lastName || !payload.email) {
@@ -456,7 +454,7 @@ function setupCoachAdminActions() {
             }
 
             editUserForm.reset();
-            storeReloadNotice("User updated in RaceTrack and Okta.", "success");
+            storeReloadNotice("User updated in RaceTrack.", "success");
             window.location.reload();
         } catch (error) {
             console.error(error);
@@ -497,13 +495,10 @@ function openEditUserModal() {
     const lastNameInput = document.getElementById("editUserLastName");
     const emailInput = document.getElementById("editUserEmail");
     const roleInput = document.getElementById("editUserRole");
-    const passwordInput = document.getElementById("editUserTemporaryPassword");
-
     if (firstNameInput) firstNameInput.value = name.firstName;
     if (lastNameInput) lastNameInput.value = name.lastName;
     if (emailInput) emailInput.value = selectedAthleteEmail;
     if (roleInput) roleInput.value = selectedManagedUserRole || "athlete";
-    if (passwordInput) passwordInput.value = "";
 
     const modalElement = document.getElementById("editUserModal");
     if (!modalElement) return;
@@ -553,7 +548,7 @@ async function deleteSelectedUser() {
 
     const userName = selectedAthleteDisplayName || "this user";
     const confirmed = window.confirm(
-        `Delete ${userName} from RaceTrack and Okta? This will also remove that user's running and workout logs.`
+        `Delete ${userName} from RaceTrack? This will also remove that user's running and workout logs.`
     );
     if (!confirmed) {
         return;
@@ -569,7 +564,7 @@ async function deleteSelectedUser() {
             throw new Error(await readErrorMessage(response, `Failed to delete user (${response.status})`));
         }
 
-        storeReloadNotice("User deleted from RaceTrack and Okta.", "success");
+        storeReloadNotice("User deleted from RaceTrack.", "success");
         window.location.reload();
     } catch (error) {
         console.error(error);

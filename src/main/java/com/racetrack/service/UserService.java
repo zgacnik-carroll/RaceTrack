@@ -2,8 +2,10 @@ package com.racetrack.service;
 
 import com.racetrack.model.User;
 import com.racetrack.repository.UserRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -25,83 +27,44 @@ public class UserService {
     }
 
     /**
-     * Loads or creates a user for the home page flow.
+     * Loads an authorized user for the home page flow.
      *
      * @param oidcUser authenticated identity payload
-     * @return existing or newly created user
+     * @return existing user matched by email
      */
-    public User getOrCreateForHome(OidcUser oidcUser) {
-        String oktaId = oidcUser.getSubject();
-        return userRepository.findById(oktaId)
-                .map(existing -> {
-                    existing.setEmail(oidcUser.getEmail());
-                    if (oidcUser.getFullName() != null && !oidcUser.getFullName().isBlank()) {
-                        existing.setFullName(oidcUser.getFullName());
-                    }
-                    if (existing.getRole() == null || existing.getRole().isBlank()) {
-                        existing.setRole("athlete");
-                    }
-                    return userRepository.save(existing);
-                })
-                .orElseGet(() -> {
-                    User newUser = new User();
-                    newUser.setId(oktaId);
-                    newUser.setEmail(oidcUser.getEmail());
-                    newUser.setFullName(oidcUser.getFullName());
-                    newUser.setRole("athlete");
-                    return userRepository.save(newUser);
-                });
+    public User getAuthorizedUserForHome(OidcUser oidcUser) {
+        return resolveAuthorizedUser(oidcUser, true);
     }
 
     /**
-     * Loads or creates a user for API calls.
+     * Loads an authorized user for API calls.
      *
      * @param oidcUser authenticated identity payload
-     * @return existing or newly created user
+     * @return existing user matched by email
      */
-    public User getOrCreateForApi(OidcUser oidcUser) {
-        String oktaId = oidcUser.getSubject();
-        return userRepository.findById(oktaId)
-                .map(existing -> {
-                    if (existing.getEmail() == null || existing.getEmail().isBlank()) {
-                        existing.setEmail(oidcUser.getEmail());
-                    }
-                    String name = oidcUser.getFullName();
-                    if (name != null && !name.isBlank() &&
-                            (existing.getFullName() == null || existing.getFullName().isBlank())) {
-                        existing.setFullName(name);
-                    }
-                    if (existing.getRole() == null || existing.getRole().isBlank()) {
-                        existing.setRole("athlete");
-                    }
-                    return userRepository.save(existing);
-                })
-                .orElseGet(() -> {
-                    User newUser = new User();
-                    newUser.setId(oktaId);
-                    newUser.setEmail(oidcUser.getEmail());
-                    newUser.setFullName(oidcUser.getFullName());
-                    newUser.setRole("athlete");
-                    return userRepository.save(newUser);
-                });
+    public User getAuthorizedUserForApi(OidcUser oidcUser) {
+        return resolveAuthorizedUser(oidcUser, false);
     }
 
     /**
-     * Loads or creates a user for form submissions.
+     * Loads an authorized user for form submissions.
      *
      * @param oidcUser authenticated identity payload
-     * @return existing or newly created user
+     * @return existing user matched by email
      */
-    public User getOrCreateForFormSubmit(OidcUser oidcUser) {
-        String oktaId = oidcUser.getSubject();
-        return userRepository.findById(oktaId)
-                .orElseGet(() -> {
-                    User newUser = new User();
-                    newUser.setId(oktaId);
-                    newUser.setEmail(oidcUser.getEmail());
-                    newUser.setRole("athlete");
-                    return userRepository.save(newUser);
-                });
+    public User getAuthorizedUserForFormSubmit(OidcUser oidcUser) {
+        return resolveAuthorizedUser(oidcUser, false);
+    }
+
+    /**
+     * Checks whether a login email belongs to a user in the local database.
+     *
+     * @param oidcUser authenticated identity payload
+     * @return true when the email is authorized for app access
+     */
+    public boolean isAuthorizedEmail(OidcUser oidcUser) {
+        String normalizedEmail = normalizeEmail(oidcUser);
+        return userRepository.findByEmailIgnoreCase(normalizedEmail).isPresent();
     }
 
     /**
@@ -146,5 +109,42 @@ public class UserService {
             return user.getEmail();
         }
         return "User";
+    }
+
+    private User resolveAuthorizedUser(OidcUser oidcUser, boolean updateNameFromLogin) {
+        String normalizedEmail = normalizeEmail(oidcUser);
+        User user = userRepository.findByEmailIgnoreCase(normalizedEmail)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.FORBIDDEN,
+                        "Your email does not have access to RaceTrack. Please reach out to your coach."
+                ));
+
+        boolean changed = false;
+        if (user.getEmail() == null || !normalizedEmail.equals(user.getEmail())) {
+            user.setEmail(normalizedEmail);
+            changed = true;
+        }
+        if (user.getRole() == null || user.getRole().isBlank()) {
+            user.setRole("athlete");
+            changed = true;
+        }
+        String fullName = oidcUser.getFullName();
+        if (updateNameFromLogin && fullName != null && !fullName.isBlank() && !fullName.equals(user.getFullName())) {
+            user.setFullName(fullName);
+            changed = true;
+        }
+
+        return changed ? userRepository.save(user) : user;
+    }
+
+    private String normalizeEmail(OidcUser oidcUser) {
+        String email = oidcUser.getEmail();
+        if (email == null || email.isBlank()) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "Your login did not provide an email address. Please reach out to your coach."
+            );
+        }
+        return email.trim().toLowerCase();
     }
 }
