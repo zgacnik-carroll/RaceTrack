@@ -6,6 +6,11 @@ html, body {
     letter-spacing: 0.5px;
 }
 
+:root {
+    --mobile-page-gutter: 0.75rem;
+    --sheet-edge-bleed: 0rem;
+}
+
 /* =========================
    Header Shell
 ========================= */
@@ -263,6 +268,8 @@ h1.app-title {
 /* Keep form content clear of fixed desktop footer */
 .container.mt-5 {
     padding-bottom: 150px;
+    padding-left: var(--mobile-page-gutter);
+    padding-right: var(--mobile-page-gutter);
 }
 
 /* =========================
@@ -612,6 +619,11 @@ h1.app-title {
 }
 
 @media (max-width: 768px) {
+    :root {
+        --mobile-page-gutter: 0.75rem;
+        --sheet-edge-bleed: 0rem;
+    }
+
     .header-shell {
         flex-direction: row;
         align-items: stretch;
@@ -620,8 +632,6 @@ h1.app-title {
 
     .container.mt-5 {
         margin-top: 1rem !important;
-        padding-left: 0.75rem;
-        padding-right: 0.75rem;
         padding-bottom: 0;
     }
 
@@ -668,6 +678,8 @@ h1.app-title {
 
     .spreadsheet-container .table-responsive {
         max-height: 62vh;
+        margin-left: calc(var(--sheet-edge-bleed) * -1);
+        margin-right: calc(var(--sheet-edge-bleed) * -1);
     }
 
     .sheet-filter-bar .btn {
@@ -708,6 +720,11 @@ h1.app-title {
 }
 
 @media (max-width: 480px) {
+    :root {
+        --mobile-page-gutter: 0.6rem;
+        --sheet-edge-bleed: 0.12rem;
+    }
+
     .header-shell {
         gap: 0.55rem;
     }
@@ -747,14 +764,67 @@ h1.app-title {
     }
 }
 
-@media (max-width: 932px) and (orientation: landscape) {
+@media (min-width: 481px) and (max-width: 640px) {
+    :root {
+        --mobile-page-gutter: 0.65rem;
+        --sheet-edge-bleed: 0.18rem;
+    }
+}
+
+@media (min-width: 641px) and (max-width: 768px) {
+    :root {
+        --mobile-page-gutter: 0.55rem;
+        --sheet-edge-bleed: 0.24rem;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 844px) {
+    :root {
+        --mobile-page-gutter: 0.45rem;
+        --sheet-edge-bleed: 0.32rem;
+    }
+
     .container.mt-5 {
-        padding-left: 0.35rem;
-        padding-right: 0.35rem;
+        padding-left: var(--mobile-page-gutter);
+        padding-right: var(--mobile-page-gutter);
     }
 
     .spreadsheet-container .table-responsive {
-        margin-left: -0.2rem;
-        margin-right: -0.2rem;
+        margin-left: calc(var(--sheet-edge-bleed) * -1);
+        margin-right: calc(var(--sheet-edge-bleed) * -1);
+    }
+}
+
+@media (max-width: 932px) and (orientation: landscape) {
+    .container.mt-5 {
+        padding-left: var(--mobile-page-gutter);
+        padding-right: var(--mobile-page-gutter);
+    }
+
+    .log-date-cell {
+        padding-left: 0.3rem !important;
+        padding-right: 0.3rem !important;
+        overflow: hidden;
+    }
+
+    .log-date-cell .sheet-input[type="date"] {
+        font-size: 0.78rem;
+        padding: 0.25rem 0.2rem;
+    }
+
+    #runningSpreadsheet .running-table th:first-child,
+    #runningSpreadsheet .running-table td:first-child,
+    #workoutSpreadsheet .workout-table th:first-child,
+    #workoutSpreadsheet .workout-table td:first-child {
+        width: 104px !important;
+        min-width: 104px !important;
+        max-width: 104px !important;
+    }
+}
+
+@media (min-width: 845px) and (max-width: 932px) and (orientation: landscape) {
+    :root {
+        --mobile-page-gutter: 0.3rem;
+        --sheet-edge-bleed: 0.4rem;
     }
 }

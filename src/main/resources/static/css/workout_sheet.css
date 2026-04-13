@@ -189,3 +189,27 @@
         min-width: 1240px;
     }
 }
+
+@media (min-width: 481px) and (max-width: 640px) {
+    .spreadsheet-table.workout-table {
+        min-width: 1300px;
+    }
+}
+
+@media (min-width: 641px) and (max-width: 768px) {
+    .spreadsheet-table.workout-table {
+        min-width: 1280px;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 844px) {
+    .spreadsheet-table.workout-table {
+        min-width: 1260px;
+    }
+}
+
+@media (min-width: 845px) and (max-width: 932px) and (orientation: landscape) {
+    .spreadsheet-table.workout-table {
+        min-width: 1220px;
+    }
+}

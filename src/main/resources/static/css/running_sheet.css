@@ -238,3 +238,27 @@
         min-width: 1390px;
     }
 }
+
+@media (min-width: 481px) and (max-width: 640px) {
+    .spreadsheet-table.running-table {
+        min-width: 1450px;
+    }
+}
+
+@media (min-width: 641px) and (max-width: 768px) {
+    .spreadsheet-table.running-table {
+        min-width: 1430px;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 844px) {
+    .spreadsheet-table.running-table {
+        min-width: 1410px;
+    }
+}
+
+@media (min-width: 845px) and (max-width: 932px) and (orientation: landscape) {
+    .spreadsheet-table.running-table {
+        min-width: 1370px;
+    }
+}
