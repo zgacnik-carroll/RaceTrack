@@ -590,6 +590,9 @@ h1.app-title {
 
 .log-date-cell .sheet-input[type="date"] {
     min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .wellness-cell {
@@ -719,5 +722,39 @@ h1.app-title {
 
     .header-bar .app-title {
         font-size: 1.65rem !important;
+    }
+}
+
+@media (max-width: 480px) and (orientation: portrait) {
+    .log-date-cell {
+        padding-left: 0.3rem !important;
+        padding-right: 0.3rem !important;
+        overflow: hidden;
+    }
+
+    .log-date-cell .sheet-input[type="date"] {
+        font-size: 0.76rem;
+        padding: 0.25rem 0.2rem;
+    }
+
+    #runningSpreadsheet .running-table th:first-child,
+    #runningSpreadsheet .running-table td:first-child,
+    #workoutSpreadsheet .workout-table th:first-child,
+    #workoutSpreadsheet .workout-table td:first-child {
+        width: 96px !important;
+        min-width: 96px !important;
+        max-width: 96px !important;
+    }
+}
+
+@media (max-width: 932px) and (orientation: landscape) {
+    .container.mt-5 {
+        padding-left: 0.35rem;
+        padding-right: 0.35rem;
+    }
+
+    .spreadsheet-container .table-responsive {
+        margin-left: -0.2rem;
+        margin-right: -0.2rem;
     }
 }

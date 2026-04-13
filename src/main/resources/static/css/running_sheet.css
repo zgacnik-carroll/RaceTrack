@@ -232,3 +232,9 @@
     min-width: 260px;
     max-width: 260px;
 }
+
+@media (max-width: 932px) and (orientation: landscape) {
+    .spreadsheet-table.running-table {
+        min-width: 1390px;
+    }
+}
