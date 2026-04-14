@@ -294,7 +294,7 @@ public class LogApiController {
             Double mileage,
             Boolean hurting,
             String painDetails,
-            Integer sleepHours,
+            Double sleepHours,
             Integer stressLevel,
             Boolean plateProportion,
             Boolean gotThatBread,

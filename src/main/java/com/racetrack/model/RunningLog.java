@@ -30,7 +30,8 @@ public class RunningLog {
     private String painDetails;
 
     // Recovery & wellness
-    private Integer sleepHours;
+    @Column(columnDefinition = "double precision")
+    private Double sleepHours;
     private Integer stressLevel; // 1-10
 
     // Nutrition
@@ -130,14 +131,14 @@ public class RunningLog {
      *
      * @return sleep hours
      */
-    public Integer getSleepHours() { return sleepHours; }
+    public Double getSleepHours() { return sleepHours; }
 
     /**
      * Sets sleep hours.
      *
      * @param sleepHours sleep hours
      */
-    public void setSleepHours(Integer sleepHours) { this.sleepHours = sleepHours; }
+    public void setSleepHours(Double sleepHours) { this.sleepHours = sleepHours; }
 
     /**
      * Returns stress level.

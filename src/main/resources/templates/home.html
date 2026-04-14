@@ -30,6 +30,9 @@
 
   <!-- Main Content Area -->
   <div class="form-container">
+    <div th:if="${param.sessionExpired}" class="alert alert-warning mb-3" role="alert">
+      Your session expired while the page was open. Please review your entry and submit it again.
+    </div>
     <div id="saveNotice" class="alert d-none mb-3" role="status" aria-live="polite"></div>
 
     <!-- Empty State -->

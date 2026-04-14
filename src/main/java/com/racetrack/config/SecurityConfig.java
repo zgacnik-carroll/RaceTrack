@@ -1,8 +1,10 @@
 package com.racetrack.config;
 
 import com.racetrack.service.UserService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
@@ -10,12 +12,16 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.security.web.csrf.InvalidCsrfTokenException;
+import org.springframework.security.web.csrf.MissingCsrfTokenException;
 
 /**
  * Spring Security configuration for protecting all application routes.
  */
 @Configuration
 public class SecurityConfig {
+    private static final String SESSION_EXPIRED_ATTRIBUTE = "sessionExpiredAfterLogin";
+    private static final String LOGIN_REDIRECT_PATH = "/oauth2/authorization/okta";
 
     private final ClientRegistrationRepository clientRegistrationRepository;
     private final UserService userService;
@@ -48,7 +54,15 @@ public class SecurityConfig {
                 response.sendRedirect("/unauthorized-user");
                 return;
             }
-            response.sendRedirect("/");
+
+            HttpSession session = request.getSession(false);
+            boolean sessionExpired = false;
+            if (session != null) {
+                sessionExpired = Boolean.TRUE.equals(session.getAttribute(SESSION_EXPIRED_ATTRIBUTE));
+                session.removeAttribute(SESSION_EXPIRED_ATTRIBUTE);
+            }
+
+            response.sendRedirect(sessionExpired ? "/?sessionExpired" : "/");
         };
     }
 
@@ -70,6 +84,22 @@ public class SecurityConfig {
                         .successHandler(authenticationSuccessHandler())
                         .loginPage("/oauth2/authorization/okta")
                 )
+                .sessionManagement(session -> session
+                        .invalidSessionStrategy((request, response) -> {
+                            markSessionExpired(request.getSession(true));
+                            response.sendRedirect(LOGIN_REDIRECT_PATH);
+                        })
+                )
+                .exceptionHandling(exceptions -> exceptions
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            if (isSessionExpiryFailure(accessDeniedException)) {
+                                markSessionExpired(request.getSession(true));
+                                response.sendRedirect(LOGIN_REDIRECT_PATH);
+                                return;
+                            }
+                            response.sendError(403);
+                        })
+                )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessHandler(oidcLogoutSuccessHandler())
@@ -79,5 +109,14 @@ public class SecurityConfig {
                 );
 
         return http.build();
+    }
+
+    private boolean isSessionExpiryFailure(AccessDeniedException exception) {
+        return exception instanceof InvalidCsrfTokenException
+                || exception instanceof MissingCsrfTokenException;
+    }
+
+    private void markSessionExpired(HttpSession session) {
+        session.setAttribute(SESSION_EXPIRED_ATTRIBUTE, Boolean.TRUE);
     }
 }

@@ -23,6 +23,9 @@
   <div th:replace="~{header :: headerFragment}"></div>
 
   <div class="form-container">
+    <div th:if="${param.sessionExpired}" class="alert alert-warning mb-3" role="alert">
+      Your session expired while the page was open. Please sign in again and retry the action.
+    </div>
     <div id="saveNotice" class="alert d-none mb-3" role="status" aria-live="polite"></div>
 
     <div id="emptyState" class="empty-state">

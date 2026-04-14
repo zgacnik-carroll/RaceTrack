@@ -70,7 +70,7 @@ class RunningLogServiceTest {
         log.setUser(user);
         log.setMileage(9.0);
         log.setHurting(false);
-        log.setSleepHours(7);
+        log.setSleepHours(7.5);
         log.setStressLevel(4);
         log.setPlateProportion(true);
         log.setGotThatBread(true);
@@ -83,7 +83,7 @@ class RunningLogServiceTest {
 
         assertThat(saved.getMileage()).isEqualTo(9.0);
         assertThat(saved.getHurting()).isFalse();
-        assertThat(saved.getSleepHours()).isEqualTo(7);
+        assertThat(saved.getSleepHours()).isEqualTo(7.5);
         assertThat(saved.getStressLevel()).isEqualTo(4);
         assertThat(saved.getPlateProportion()).isTrue();
         assertThat(saved.getGotThatBread()).isTrue();
@@ -151,7 +151,7 @@ class RunningLogServiceTest {
                 10.25,
                 true,
                 "Left shin",
-                8,
+                8.5,
                 3,
                 true,
                 false,
@@ -164,7 +164,7 @@ class RunningLogServiceTest {
         assertThat(updated.getMileage()).isEqualTo(10.25);
         assertThat(updated.getHurting()).isTrue();
         assertThat(updated.getPainDetails()).isEqualTo("Left shin");
-        assertThat(updated.getSleepHours()).isEqualTo(8);
+        assertThat(updated.getSleepHours()).isEqualTo(8.5);
         assertThat(updated.getStressLevel()).isEqualTo(3);
         assertThat(updated.getPlateProportion()).isTrue();
         assertThat(updated.getGotThatBread()).isFalse();
@@ -222,7 +222,7 @@ class RunningLogServiceTest {
                 6.0,
                 false,
                 "",
-                -1,
+                -1.0,
                 3,
                 true,
                 true,
@@ -407,7 +407,7 @@ class RunningLogServiceTest {
         log.setUser(user);
         log.setMileage(mileage);
         log.setHurting(false);
-        log.setSleepHours(8);
+        log.setSleepHours(8.0);
         log.setStressLevel(3);
         log.setPlateProportion(true);
         log.setGotThatBread(true);

@@ -218,7 +218,7 @@ function styleAttrFromColor(color) {
  * @param {number} logId
  */
 function updateRunningRowColors(logId) {
-    const sleepValue = parseIntOrNull(document.getElementById(`running-sleep-${logId}`)?.value);
+    const sleepValue = parseNumber(document.getElementById(`running-sleep-${logId}`)?.value);
     const stressValue = parseIntOrNull(document.getElementById(`running-stress-${logId}`)?.value);
     const hurtingValue = parseBoolean(document.getElementById(`running-hurting-${logId}`)?.value);
     const plateValue = parseBoolean(document.getElementById(`running-plate-${logId}`)?.value);
@@ -602,7 +602,7 @@ function loadRunningLogs(requestedUserId) {
                                 <textarea class="sheet-input sheet-textarea js-limited-text" maxlength="100" data-char-max="100" id="running-pain-details-${log.id}">${escapeHtml(log.painDetails ?? "")}</textarea>
                             </div>
                         </td>
-                        <td id="running-sleep-cell-${log.id}" class="wellness-cell"><input class="sheet-input" type="number" min="0" max="24" value="${log.sleepHours ?? ""}" id="running-sleep-${log.id}"></td>
+                        <td id="running-sleep-cell-${log.id}" class="wellness-cell"><input class="sheet-input" type="number" min="0" max="24" step="0.5" value="${log.sleepHours ?? ""}" id="running-sleep-${log.id}"></td>
                         <td id="running-stress-cell-${log.id}" class="wellness-cell"><input class="sheet-input" type="number" min="1" max="10" value="${log.stressLevel ?? ""}" id="running-stress-${log.id}"></td>
                         <td id="running-plate-cell-${log.id}" class="wellness-cell">${booleanSelect(log.plateProportion).replace('data-field="bool"', `id="running-plate-${log.id}"`)}</td>
                         <td id="running-bread-cell-${log.id}" class="wellness-cell">${booleanSelect(log.gotThatBread).replace('data-field="bool"', `id="running-bread-${log.id}"`)}</td>
@@ -691,7 +691,7 @@ function saveRunningLog(logId) {
         mileage: parseNumber(document.getElementById(`running-mileage-${logId}`).value),
         hurting: parseBoolean(document.getElementById(`running-hurting-${logId}`).value),
         painDetails: document.getElementById(`running-pain-details-${logId}`)?.value ?? "",
-        sleepHours: parseIntOrNull(document.getElementById(`running-sleep-${logId}`).value),
+        sleepHours: parseNumber(document.getElementById(`running-sleep-${logId}`).value),
         stressLevel: parseIntOrNull(document.getElementById(`running-stress-${logId}`).value),
         plateProportion: parseBoolean(document.getElementById(`running-plate-${logId}`).value),
         gotThatBread: parseBoolean(document.getElementById(`running-bread-${logId}`).value),
