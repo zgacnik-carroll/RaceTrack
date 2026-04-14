@@ -85,10 +85,9 @@ public class SecurityConfig {
                         .loginPage("/oauth2/authorization/okta")
                 )
                 .sessionManagement(session -> session
-                        .invalidSessionStrategy((request, response) -> {
-                            markSessionExpired(request.getSession(true));
-                            response.sendRedirect(LOGIN_REDIRECT_PATH);
-                        })
+                        .invalidSessionStrategy((request, response) ->
+                                response.sendRedirect(LOGIN_REDIRECT_PATH)
+                        )
                 )
                 .exceptionHandling(exceptions -> exceptions
                         .accessDeniedHandler((request, response, accessDeniedException) -> {
