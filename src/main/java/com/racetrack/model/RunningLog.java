@@ -40,7 +40,7 @@ public class RunningLog {
 
     // Perceived effort & feel
     private String feel;
-    private Integer rpe; // 1-10
+    private Integer rpe; // 0-10
 
     // Run description
     @Column(columnDefinition = "TEXT", nullable = false)

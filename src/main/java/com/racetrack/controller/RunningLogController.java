@@ -5,6 +5,8 @@ import com.racetrack.model.User;
 import com.racetrack.service.RunningLogService;
 import com.racetrack.service.UserService;
 import java.time.LocalDate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  */
 @Controller
 public class RunningLogController {
+    private static final Logger log = LoggerFactory.getLogger(RunningLogController.class);
 
     private final RunningLogService runningLogService;
     private final UserService userService;
@@ -47,8 +50,10 @@ public class RunningLogController {
                                    @RequestParam(value = "selectedDate", required = false)
                                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate selectedDate) {
         User user = userService.getAuthorizedUserForFormSubmit(oidcUser);
+        log.info("Running log submission requested by userId={} selectedDate={}", user.getId(), selectedDate);
         runningLog.setUser(user);
         runningLogService.submitRunningLog(runningLog, selectedDate);
+        log.info("Running log submission completed for userId={} selectedDate={}", user.getId(), selectedDate);
 
         return "redirect:/?runningSuccess";
     }

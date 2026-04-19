@@ -93,6 +93,17 @@ class RunningLogServiceTest {
         assertThat(saved.getDetails()).isEqualTo("Long run with strides");
     }
 
+    @Test
+    void submitRunningLog_allowsZeroRpe() {
+        User user = userRepository.save(user("runner-1h", "r1h@example.com"));
+        RunningLog log = runningLog(user, 4.5, "Recovery shuffle");
+        log.setRpe(0);
+
+        RunningLog saved = runningLogService.submitRunningLog(log, LocalDate.of(2026, 3, 13));
+
+        assertThat(saved.getRpe()).isEqualTo(0);
+    }
+
     // -------------------------------------------------------------------------
     // findByUserId
     // -------------------------------------------------------------------------
@@ -172,6 +183,30 @@ class RunningLogServiceTest {
         assertThat(updated.getRpe()).isEqualTo(6);
         assertThat(updated.getDetails()).isEqualTo("After");
         assertThat(updated.getLogDate()).isEqualTo(LocalDateTime.of(2026, 3, 2, 0, 0));
+    }
+
+    @Test
+    void updateAthleteOwnedLog_allowsZeroRpe() {
+        User user = userRepository.save(user("runner-3b", "r3b@example.com"));
+        RunningLog log = runningLogRepository.save(runningLog(user, 5.0, "Before"));
+
+        RunningLog updated = runningLogService.updateAthleteOwnedLog(
+                "runner-3b",
+                log.getId(),
+                5.0,
+                false,
+                "",
+                7.5,
+                3,
+                true,
+                true,
+                "Very easy day.",
+                0,
+                "After",
+                LocalDate.of(2026, 3, 6)
+        );
+
+        assertThat(updated.getRpe()).isEqualTo(0);
     }
 
     @Test

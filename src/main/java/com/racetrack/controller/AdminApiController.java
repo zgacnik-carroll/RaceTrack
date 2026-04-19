@@ -3,6 +3,8 @@ package com.racetrack.controller;
 import com.racetrack.model.User;
 import com.racetrack.service.AdminService;
 import com.racetrack.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
@@ -23,6 +25,7 @@ import static org.springframework.http.HttpStatus.FORBIDDEN;
 @RestController
 @RequestMapping("/api/admin")
 public class AdminApiController {
+    private static final Logger log = LoggerFactory.getLogger(AdminApiController.class);
 
     private final AdminService adminService;
     private final UserService userService;
@@ -42,7 +45,9 @@ public class AdminApiController {
     @PostMapping("/users")
     public CreatedUserResponse createUser(@RequestBody CreateUserRequest request,
                                           @AuthenticationPrincipal OidcUser oidcUser) {
-        requireCoach(oidcUser);
+        User currentUser = requireCoach(oidcUser);
+        log.info("Admin create user requested by coachUserId={} email={} role={}",
+                currentUser.getId(), request.email(), request.role());
         User user = adminService.createUser(
                 request.firstName(),
                 request.lastName(),
@@ -69,7 +74,9 @@ public class AdminApiController {
     public CreatedUserResponse updateUser(@PathVariable String userId,
                                           @RequestBody UpdateUserRequest request,
                                           @AuthenticationPrincipal OidcUser oidcUser) {
-        requireCoach(oidcUser);
+        User currentUser = requireCoach(oidcUser);
+        log.info("Admin update user requested by coachUserId={} targetUserId={} email={} role={}",
+                currentUser.getId(), userId, request.email(), request.role());
         User user = adminService.updateUser(
                 userId,
                 request.firstName(),
@@ -95,8 +102,10 @@ public class AdminApiController {
     @DeleteMapping("/users/{userId}")
     public ResponseEntity<Void> deleteUser(@PathVariable String userId,
                                            @AuthenticationPrincipal OidcUser oidcUser) {
-        requireCoach(oidcUser);
+        User currentUser = requireCoach(oidcUser);
+        log.info("Admin delete user requested by coachUserId={} targetUserId={}", currentUser.getId(), userId);
         adminService.deleteUser(userId);
+        log.info("Admin delete user completed by coachUserId={} targetUserId={}", currentUser.getId(), userId);
         return ResponseEntity.noContent().build();
     }
 
@@ -108,16 +117,20 @@ public class AdminApiController {
      */
     @DeleteMapping("/data")
     public ResponseEntity<Void> clearData(@AuthenticationPrincipal OidcUser oidcUser) {
-        requireCoach(oidcUser);
+        User currentUser = requireCoach(oidcUser);
+        log.info("Admin clear data requested by coachUserId={}", currentUser.getId());
         adminService.clearAllLogData();
+        log.info("Admin clear data completed by coachUserId={}", currentUser.getId());
         return ResponseEntity.noContent().build();
     }
 
-    private void requireCoach(OidcUser oidcUser) {
+    private User requireCoach(OidcUser oidcUser) {
         User currentUser = userService.getAuthorizedUserForApi(oidcUser);
         if (!userService.isCoach(currentUser)) {
+            log.warn("Forbidden admin action attempt by non-coach userId={}", currentUser.getId());
             throw new ResponseStatusException(FORBIDDEN, "Only coaches can access admin actions.");
         }
+        return currentUser;
     }
 
     public record CreateUserRequest(

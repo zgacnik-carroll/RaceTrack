@@ -4,6 +4,8 @@ import com.racetrack.model.RunningLog;
 import com.racetrack.model.User;
 import com.racetrack.model.WorkoutLog;
 import com.racetrack.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
@@ -18,6 +20,7 @@ import java.util.stream.Collectors;
  */
 @Controller
 public class HomeController {
+    private static final Logger log = LoggerFactory.getLogger(HomeController.class);
     private final UserService userService;
 
     /**
@@ -40,6 +43,7 @@ public class HomeController {
     public String home(@AuthenticationPrincipal OidcUser oidcUser, Model model) {
         User user = userService.getAuthorizedUserForHome(oidcUser);
         boolean isCoach = userService.isCoach(user);
+        log.info("Home page requested by userId={} role={}", user.getId(), isCoach ? "coach" : "athlete");
         List<User> athletes = userService.getAthletesOrderedByName();
         List<User> manageableUsers = userService.getUsersOrderedByName();
         if (!isCoach) {
@@ -69,6 +73,7 @@ public class HomeController {
 
     @GetMapping("/unauthorized-user")
     public String unauthorizedUser(@AuthenticationPrincipal OidcUser oidcUser, Model model) {
+        log.info("Unauthorized user page requested email={}", oidcUser != null ? oidcUser.getEmail() : null);
         model.addAttribute("email", oidcUser != null ? oidcUser.getEmail() : null);
         return "unauthorized_user";
     }

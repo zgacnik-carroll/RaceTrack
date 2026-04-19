@@ -2,6 +2,8 @@ package com.racetrack.service;
 
 import com.racetrack.model.User;
 import com.racetrack.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,7 @@ import java.util.List;
  */
 @Service
 public class UserService {
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
     private final UserRepository userRepository;
 
@@ -113,6 +116,7 @@ public class UserService {
 
     private User resolveAuthorizedUser(OidcUser oidcUser, boolean updateNameFromLogin) {
         String normalizedEmail = normalizeEmail(oidcUser);
+        log.info("Authorizing user email={} updateNameFromLogin={}", normalizedEmail, updateNameFromLogin);
         User user = userRepository.findByEmailIgnoreCase(normalizedEmail)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.FORBIDDEN,
@@ -134,12 +138,16 @@ public class UserService {
             changed = true;
         }
 
+        if (changed) {
+            log.info("Authorized user metadata updated userId={} email={}", user.getId(), normalizedEmail);
+        }
         return changed ? userRepository.save(user) : user;
     }
 
     private String normalizeEmail(OidcUser oidcUser) {
         String email = oidcUser.getEmail();
         if (email == null || email.isBlank()) {
+            log.warn("Authorization failed because login email was missing");
             throw new ResponseStatusException(
                     HttpStatus.FORBIDDEN,
                     "Your login did not provide an email address. Please reach out to your coach."

@@ -2,6 +2,8 @@ package com.racetrack.service;
 
 import com.racetrack.model.RunningLog;
 import com.racetrack.repository.RunningLogRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -14,6 +16,7 @@ import java.util.List;
  */
 @Service
 public class RunningLogService {
+    private static final Logger log = LoggerFactory.getLogger(RunningLogService.class);
     private static final int TEXT_MAX = 2000;
     private static final int FEEL_MAX = 100;
     private static final int PAIN_DETAILS_MAX = 100;
@@ -62,7 +65,10 @@ public class RunningLogService {
         } else if (runningLog.getLogDate() == null) {
             runningLog.setLogDate(LocalDate.now().atStartOfDay());
         }
-        return runningLogRepository.save(runningLog);
+        RunningLog savedLog = runningLogRepository.save(runningLog);
+        log.info("Running log saved logId={} userId={} logDate={}",
+                savedLog.getId(), savedLog.getUser() != null ? savedLog.getUser().getId() : null, savedLog.getLogDate());
+        return savedLog;
     }
 
     /**
@@ -72,7 +78,9 @@ public class RunningLogService {
      * @return running logs ordered newest first
      */
     public List<RunningLog> findByUserId(String userId) {
-        return runningLogRepository.findByUser_IdOrderByLogDateDesc(userId);
+        List<RunningLog> logs = runningLogRepository.findByUser_IdOrderByLogDateDesc(userId);
+        log.info("Running logs loaded userId={} count={}", userId, logs.size());
+        return logs;
     }
 
     /**
@@ -105,25 +113,27 @@ public class RunningLogService {
                                             Integer rpe,
                                             String details,
                                             LocalDate logDate) {
-        RunningLog log = runningLogRepository.findByIdAndUser_Id(logId, userId)
+        RunningLog runningLog = runningLogRepository.findByIdAndUser_Id(logId, userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Running log not found."));
 
         validateRunningFields(mileage, hurting, painDetails, sleepHours, stressLevel, plateProportion, gotThatBread, feel, rpe, details);
 
-        log.setMileage(mileage);
-        log.setHurting(hurting);
-        log.setPainDetails(normalizePainDetails(hurting, painDetails));
-        log.setSleepHours(sleepHours);
-        log.setStressLevel(stressLevel);
-        log.setPlateProportion(plateProportion);
-        log.setGotThatBread(gotThatBread);
-        log.setFeel(normalizeRequiredText(feel, "Feel", FEEL_MAX));
-        log.setRpe(rpe);
-        log.setDetails(normalizeRequiredText(details, "Details"));
+        runningLog.setMileage(mileage);
+        runningLog.setHurting(hurting);
+        runningLog.setPainDetails(normalizePainDetails(hurting, painDetails));
+        runningLog.setSleepHours(sleepHours);
+        runningLog.setStressLevel(stressLevel);
+        runningLog.setPlateProportion(plateProportion);
+        runningLog.setGotThatBread(gotThatBread);
+        runningLog.setFeel(normalizeRequiredText(feel, "Feel", FEEL_MAX));
+        runningLog.setRpe(rpe);
+        runningLog.setDetails(normalizeRequiredText(details, "Details"));
         if (logDate != null) {
-            log.setLogDate(logDate.atStartOfDay());
+            runningLog.setLogDate(logDate.atStartOfDay());
         }
-        return runningLogRepository.save(log);
+        RunningLog savedLog = runningLogRepository.save(runningLog);
+        log.info("Running log updated logId={} userId={} logDate={}", savedLog.getId(), userId, savedLog.getLogDate());
+        return savedLog;
     }
 
     /**
@@ -133,9 +143,10 @@ public class RunningLogService {
      * @param logId running log id
      */
     public void deleteAthleteOwnedLog(String userId, Long logId) {
-        RunningLog log = runningLogRepository.findByIdAndUser_Id(logId, userId)
+        RunningLog runningLog = runningLogRepository.findByIdAndUser_Id(logId, userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Running log not found."));
-        runningLogRepository.delete(log);
+        runningLogRepository.delete(runningLog);
+        log.info("Running log deleted logId={} userId={}", logId, userId);
     }
 
     /**
@@ -146,11 +157,13 @@ public class RunningLogService {
      * @return saved running log
      */
     public RunningLog updateCoachComment(Long logId, String coachComment) {
-        RunningLog log = runningLogRepository.findById(logId)
+        RunningLog runningLog = runningLogRepository.findById(logId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Running log not found."));
         String normalized = normalizeOptionalText(coachComment, "Coach comment");
-        log.setCoachComment(normalized);
-        return runningLogRepository.save(log);
+        runningLog.setCoachComment(normalized);
+        RunningLog savedLog = runningLogRepository.save(runningLog);
+        log.info("Running coach comment saved logId={} hasComment={}", logId, normalized != null);
+        return savedLog;
     }
 
     /**
@@ -192,8 +205,8 @@ public class RunningLogService {
         if (gotThatBread == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Did you get that bread is required.");
         }
-        if (rpe == null || rpe < 1 || rpe > 10) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "RPE must be between 1 and 10.");
+        if (rpe == null || rpe < 0 || rpe > 10) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "RPE must be between 0 and 10.");
         }
 
         normalizeRequiredText(feel, "Feel", FEEL_MAX);

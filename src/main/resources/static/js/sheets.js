@@ -607,7 +607,7 @@ function loadRunningLogs(requestedUserId) {
                         <td id="running-plate-cell-${log.id}" class="wellness-cell">${booleanSelect(log.plateProportion).replace('data-field="bool"', `id="running-plate-${log.id}"`)}</td>
                         <td id="running-bread-cell-${log.id}" class="wellness-cell">${booleanSelect(log.gotThatBread).replace('data-field="bool"', `id="running-bread-${log.id}"`)}</td>
                         <td id="running-feel-cell-${log.id}" class="running-feel-cell">${feelTextarea(log.feel, `running-feel-${log.id}`)}</td>
-                        <td class="running-rpe-column"><input class="sheet-input" type="number" min="1" max="10" value="${log.rpe ?? ""}" id="running-rpe-${log.id}"></td>
+                        <td class="running-rpe-column"><input class="sheet-input" type="number" min="0" max="10" value="${log.rpe ?? ""}" id="running-rpe-${log.id}"></td>
                         <td><textarea class="sheet-input sheet-textarea js-limited-text" maxlength="${TEXT_MAX}" data-char-max="${TEXT_MAX}" id="running-details-${log.id}">${escapeHtml(log.details ?? "")}</textarea></td>
                         <td><div class="expandable-cell">${escapeHtml(log.coachComment ?? "")}</div></td>
                     `;
@@ -1030,8 +1030,8 @@ function validateRunningPayload(payload) {
     if (payload.stressLevel !== null && (payload.stressLevel < 1 || payload.stressLevel > 10)) {
         return "Stress must be between 1 and 10.";
     }
-    if (payload.rpe !== null && (payload.rpe < 1 || payload.rpe > 10)) {
-        return "RPE must be between 1 and 10.";
+    if (payload.rpe !== null && (payload.rpe < 0 || payload.rpe > 10)) {
+        return "RPE must be between 0 and 10.";
     }
     if (!payload.feel || !payload.feel.trim()) {
         return "Feel is required.";

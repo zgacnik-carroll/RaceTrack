@@ -1,0 +1,113 @@
+2026-04-19 10:06:59.085 INFO  [Test worker] c.r.RaceTrackApplicationTests - Starting RaceTrackApplicationTests using Java 25.0.2 with PID 16872 (started by zgacnik in C:\Users\zackg\RaceTrack)
+2026-04-19 10:06:59.088 INFO  [Test worker] c.r.RaceTrackApplicationTests - No active profile set, falling back to 1 default profile: "default"
+2026-04-19 10:07:00.649 INFO  [Test worker] o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-04-19 10:07:00.778 INFO  [Test worker] o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 107 ms. Found 3 JPA repository interfaces.
+2026-04-19 10:07:01.788 INFO  [Test worker] org.hibernate.orm.jpa - HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-04-19 10:07:01.965 INFO  [Test worker] org.hibernate.orm.core - HHH000001: Hibernate ORM core version 7.2.1.Final
+2026-04-19 10:07:03.153 INFO  [Test worker] o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-04-19 10:07:03.231 INFO  [Test worker] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-04-19 10:07:03.690 INFO  [Test worker] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@1d9bd4d6
+2026-04-19 10:07:03.692 INFO  [Test worker] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-04-19 10:07:03.829 WARN  [Test worker] org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-04-19 10:07:03.907 INFO  [Test worker] o.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://localhost:5432/racetrack]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 18.2
+	Default catalog/schema: racetrack/public
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-04-19 10:07:05.919 INFO  [Test worker] org.hibernate.orm.core - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-04-19 10:07:06.186 INFO  [Test worker] o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-04-19 10:07:07.441 INFO  [Test worker] o.s.d.j.r.q.QueryEnhancerFactories - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-04-19 10:07:08.054 WARN  [Test worker] o.s.b.j.a.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-04-19 10:07:09.744 INFO  [Test worker] c.r.RaceTrackApplicationTests - Started RaceTrackApplicationTests in 11.593 seconds (process running for 14.637)
+2026-04-19 10:07:11.176 INFO  [Test worker] com.racetrack.service.AdminService - Admin service deleted user userId=ath-1
+2026-04-19 10:07:11.205 INFO  [Test worker] com.racetrack.service.AdminService - Admin service created user userId=a9490fed-4160-4963-b488-01a540938bc2 email=jane@example.com role=athlete
+2026-04-19 10:07:11.344 INFO  [Test worker] com.racetrack.service.AdminService - Admin service deleted user userId=coach-1
+2026-04-19 10:07:11.351 INFO  [Test worker] com.racetrack.service.AdminService - Admin service updated user userId=ath-2 email=jane@example.com role=coach
+2026-04-19 10:07:11.356 INFO  [Test worker] com.racetrack.service.AdminService - Admin service cleared all running and workout log data
+2026-04-19 10:07:11.378 INFO  [Test worker] o.s.t.c.s.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [com.racetrack.service.RunningLogServiceTest]: RunningLogServiceTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-19 10:07:11.503 INFO  [Test worker] o.s.b.t.c.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration com.racetrack.RaceTrackApplication for test class com.racetrack.service.RunningLogServiceTest
+2026-04-19 10:07:11.637 INFO  [Test worker] c.r.service.RunningLogServiceTest - Starting RunningLogServiceTest using Java 25.0.2 with PID 16872 (started by zgacnik in C:\Users\zackg\RaceTrack)
+2026-04-19 10:07:11.639 INFO  [Test worker] c.r.service.RunningLogServiceTest - The following 1 profile is active: "test"
+2026-04-19 10:07:12.478 INFO  [Test worker] o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-04-19 10:07:12.513 INFO  [Test worker] o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 31 ms. Found 3 JPA repository interfaces.
+2026-04-19 10:07:12.642 INFO  [Test worker] org.hibernate.orm.jpa - HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-04-19 10:07:12.702 INFO  [Test worker] o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-04-19 10:07:12.706 INFO  [Test worker] com.zaxxer.hikari.HikariDataSource - HikariPool-2 - Starting...
+2026-04-19 10:07:13.208 INFO  [Test worker] com.zaxxer.hikari.pool.HikariPool - HikariPool-2 - Added connection conn0: url=jdbc:h2:mem:racetrack user=SA
+2026-04-19 10:07:13.209 INFO  [Test worker] com.zaxxer.hikari.HikariDataSource - HikariPool-2 - Start completed.
+2026-04-19 10:07:13.216 WARN  [Test worker] org.hibernate.orm.deprecation - HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-04-19 10:07:13.231 INFO  [Test worker] o.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [jdbc:h2:mem:racetrack]
+	Database driver: H2 JDBC Driver
+	Database dialect: H2Dialect
+	Database version: 2.4.240
+	Default catalog/schema: RACETRACK/PUBLIC
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: 100
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-04-19 10:07:13.349 INFO  [Test worker] org.hibernate.orm.core - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-04-19 10:07:13.432 INFO  [Test worker] o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-04-19 10:07:13.734 WARN  [Test worker] o.s.b.j.a.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-04-19 10:07:14.030 INFO  [Test worker] c.r.service.RunningLogServiceTest - Started RunningLogServiceTest in 2.516 seconds (process running for 18.924)
+2026-04-19 10:07:14.296 INFO  [Test worker] c.r.service.RunningLogService - Running log saved logId=1 userId=runner-1 logDate=2026-03-01T00:00
+2026-04-19 10:07:14.323 INFO  [Test worker] c.r.service.RunningLogService - Running log saved logId=2 userId=runner-1g logDate=2026-03-12T00:00
+2026-04-19 10:07:15.099 INFO  [Test worker] c.r.service.RunningLogService - Running coach comment saved logId=3 hasComment=true
+2026-04-19 10:07:15.100 INFO  [Test worker] c.r.service.RunningLogService - Running coach comment saved logId=3 hasComment=false
+2026-04-19 10:07:15.138 INFO  [Test worker] c.r.service.RunningLogService - Running log deleted logId=4 userId=runner-4
+2026-04-19 10:07:15.152 INFO  [Test worker] c.r.service.RunningLogService - Running log saved logId=5 userId=runner-1h logDate=2026-03-13T00:00
+2026-04-19 10:07:15.164 INFO  [Test worker] c.r.service.RunningLogService - Running coach comment saved logId=6 hasComment=false
+2026-04-19 10:07:15.185 INFO  [Test worker] c.r.service.RunningLogService - Running log updated logId=7 userId=runner-3 logDate=2026-03-02T00:00
+2026-04-19 10:07:15.230 INFO  [Test worker] c.r.service.RunningLogService - Running logs loaded userId=runner-2b count=0
+2026-04-19 10:07:15.264 INFO  [Test worker] c.r.service.RunningLogService - Running logs loaded userId=runner-2 count=2
+2026-04-19 10:07:15.281 INFO  [Test worker] c.r.service.RunningLogService - Running log deleted logId=10 userId=runner-4d
+2026-04-19 10:07:15.305 INFO  [Test worker] c.r.service.RunningLogService - Running logs loaded userId=runner-2c count=1
+2026-04-19 10:07:15.317 INFO  [Test worker] c.r.service.RunningLogService - Running coach comment saved logId=14 hasComment=true
+2026-04-19 10:07:15.318 INFO  [Test worker] c.r.service.RunningLogService - Running coach comment saved logId=14 hasComment=true
+2026-04-19 10:07:15.329 INFO  [Test worker] c.r.service.RunningLogService - Running log saved logId=15 userId=runner-1c logDate=2026-03-05T00:00
+2026-04-19 10:07:15.376 INFO  [Test worker] c.r.service.RunningLogService - Running log saved logId=19 userId=runner-1d logDate=2026-03-09T00:00
+2026-04-19 10:07:15.388 INFO  [Test worker] c.r.service.RunningLogService - Running log updated logId=20 userId=runner-3b logDate=2026-03-06T00:00
+2026-04-19 10:07:15.407 INFO  [Test worker] o.s.t.c.s.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [com.racetrack.service.UserServiceTest]: UserServiceTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-19 10:07:15.410 INFO  [Test worker] o.s.b.t.c.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration com.racetrack.RaceTrackApplication for test class com.racetrack.service.UserServiceTest
+2026-04-19 10:07:15.601 INFO  [Test worker] com.racetrack.service.UserService - Authorizing user email=filled@example.com updateNameFromLogin=false
+2026-04-19 10:07:15.694 INFO  [Test worker] com.racetrack.service.UserService - Authorized user metadata updated userId=user-2b email=filled@example.com
+2026-04-19 10:07:15.708 INFO  [Test worker] com.racetrack.service.UserService - Authorizing user email=missing@example.com updateNameFromLogin=false
+2026-04-19 10:07:15.723 INFO  [Test worker] com.racetrack.service.UserService - Authorizing user email=apinew@example.com updateNameFromLogin=false
+2026-04-19 10:07:15.736 INFO  [Test worker] com.racetrack.service.UserService - Authorizing user email=keep@example.com updateNameFromLogin=false
+2026-04-19 10:07:15.756 INFO  [Test worker] com.racetrack.service.UserService - Authorizing user email=new@example.com updateNameFromLogin=true
+2026-04-19 10:07:15.761 INFO  [Test worker] com.racetrack.service.UserService - Authorized user metadata updated userId=user-1 email=new@example.com
+2026-04-19 10:07:15.769 INFO  [Test worker] com.racetrack.service.UserService - Authorizing user email=newuser@example.com updateNameFromLogin=true
+2026-04-19 10:07:15.781 INFO  [Test worker] com.racetrack.service.UserService - Authorizing user email=form@example.com updateNameFromLogin=false
+2026-04-19 10:07:15.795 INFO  [Test worker] com.racetrack.service.UserService - Authorizing user email=user1b@example.com updateNameFromLogin=true
+2026-04-19 10:07:15.837 INFO  [Test worker] com.racetrack.service.UserService - Authorizing user email=user2c@example.com updateNameFromLogin=false
+2026-04-19 10:07:15.865 INFO  [Test worker] o.s.t.c.s.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [com.racetrack.service.WorkoutLogServiceTest]: WorkoutLogServiceTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-19 10:07:15.867 INFO  [Test worker] o.s.b.t.c.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration com.racetrack.RaceTrackApplication for test class com.racetrack.service.WorkoutLogServiceTest
+2026-04-19 10:07:15.895 INFO  [Test worker] c.r.service.WorkoutLogService - Workout log saved logId=1 userId=runner-w1 logDate=2026-03-01T00:00
+2026-04-19 10:07:15.910 INFO  [Test worker] c.r.service.WorkoutLogService - Workout coach comment saved logId=2 hasComment=true
+2026-04-19 10:07:15.911 INFO  [Test worker] c.r.service.WorkoutLogService - Workout coach comment saved logId=2 hasComment=false
+2026-04-19 10:07:15.933 INFO  [Test worker] c.r.service.WorkoutLogService - Workout log deleted logId=3 userId=runner-w4
+2026-04-19 10:07:15.945 INFO  [Test worker] c.r.service.WorkoutLogService - Workout coach comment saved logId=4 hasComment=false
+2026-04-19 10:07:15.970 INFO  [Test worker] c.r.service.WorkoutLogService - Workout log updated logId=5 userId=runner-w3 logDate=2026-03-02T00:00
+2026-04-19 10:07:15.983 INFO  [Test worker] c.r.service.WorkoutLogService - Workout log updated logId=6 userId=runner-w3b logDate=2026-01-15T00:00
+2026-04-19 10:07:15.999 INFO  [Test worker] c.r.service.WorkoutLogService - Workout logs loaded userId=runner-w2b count=0
+2026-04-19 10:07:16.013 INFO  [Test worker] c.r.service.WorkoutLogService - Workout logs loaded userId=runner-w2 count=2
+2026-04-19 10:07:16.027 INFO  [Test worker] c.r.service.WorkoutLogService - Workout log deleted logId=9 userId=runner-w4d
+2026-04-19 10:07:16.043 INFO  [Test worker] c.r.service.WorkoutLogService - Workout logs loaded userId=runner-w2c count=1
+2026-04-19 10:07:16.056 INFO  [Test worker] c.r.service.WorkoutLogService - Workout coach comment saved logId=13 hasComment=true
+2026-04-19 10:07:16.057 INFO  [Test worker] c.r.service.WorkoutLogService - Workout coach comment saved logId=13 hasComment=true
+2026-04-19 10:07:16.088 INFO  [Test worker] c.r.service.WorkoutLogService - Workout log saved logId=16 userId=runner-w1c logDate=2026-03-10T00:00
+2026-04-19 10:07:16.147 INFO  [SpringApplicationShutdownHook] o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-04-19 10:07:16.151 INFO  [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-04-19 10:07:16.163 INFO  [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-04-19 10:07:16.170 INFO  [SpringApplicationShutdownHook] o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-04-19 10:07:16.179 INFO  [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource - HikariPool-2 - Shutdown initiated...
+2026-04-19 10:07:16.181 INFO  [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource - HikariPool-2 - Shutdown completed.

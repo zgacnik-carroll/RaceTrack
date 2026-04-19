@@ -5,6 +5,8 @@ import com.racetrack.model.WorkoutLog;
 import com.racetrack.service.UserService;
 import com.racetrack.service.WorkoutLogService;
 import java.time.LocalDate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  */
 @Controller
 public class WorkoutLogController {
+    private static final Logger log = LoggerFactory.getLogger(WorkoutLogController.class);
 
     private final WorkoutLogService workoutLogService;
     private final UserService userService;
@@ -47,8 +50,10 @@ public class WorkoutLogController {
                                    @RequestParam(value = "selectedDate", required = false)
                                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate selectedDate) {
         User user = userService.getAuthorizedUserForFormSubmit(oidcUser);
+        log.info("Workout log submission requested by userId={} selectedDate={}", user.getId(), selectedDate);
         workoutLog.setUser(user);
         workoutLogService.submitWorkoutLog(workoutLog, selectedDate);
+        log.info("Workout log submission completed for userId={} selectedDate={}", user.getId(), selectedDate);
 
         return "redirect:/?workoutSuccess";
     }

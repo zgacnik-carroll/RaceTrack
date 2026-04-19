@@ -6,6 +6,8 @@ import com.racetrack.model.WorkoutLog;
 import com.racetrack.service.RunningLogService;
 import com.racetrack.service.UserService;
 import com.racetrack.service.WorkoutLogService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.http.HttpStatus;
@@ -23,6 +25,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api")
 public class LogApiController {
+    private static final Logger log = LoggerFactory.getLogger(LogApiController.class);
 
     private final RunningLogService runningLogService;
     private final WorkoutLogService workoutLogService;
@@ -52,6 +55,7 @@ public class LogApiController {
     @GetMapping("/running-logs/me")
     public List<RunningLog> myRunningLogs(@AuthenticationPrincipal OidcUser oidcUser) {
         User currentUser = userService.getAuthorizedUserForApi(oidcUser);
+        log.info("Running logs requested for current user userId={}", currentUser.getId());
         return runningLogService.findByUserId(currentUser.getId());
     }
 
@@ -69,6 +73,7 @@ public class LogApiController {
         User currentUser = userService.getAuthorizedUserForApi(oidcUser);
         String targetUserId = resolveTargetUserId(userId, currentUser.getId());
         assertCanViewTargetUser(currentUser, currentUser.getId(), targetUserId);
+        log.info("Running logs requested by userId={} targetUserId={}", currentUser.getId(), targetUserId);
         return runningLogService.findByUserId(targetUserId);
     }
 
@@ -81,6 +86,7 @@ public class LogApiController {
     @GetMapping("/workout-logs/me")
     public List<WorkoutLog> myWorkoutLogs(@AuthenticationPrincipal OidcUser oidcUser) {
         User currentUser = userService.getAuthorizedUserForApi(oidcUser);
+        log.info("Workout logs requested for current user userId={}", currentUser.getId());
         return workoutLogService.findByUserId(currentUser.getId());
     }
 
@@ -98,6 +104,7 @@ public class LogApiController {
         User currentUser = userService.getAuthorizedUserForApi(oidcUser);
         String targetUserId = resolveTargetUserId(userId, currentUser.getId());
         assertCanViewTargetUser(currentUser, currentUser.getId(), targetUserId);
+        log.info("Workout logs requested by userId={} targetUserId={}", currentUser.getId(), targetUserId);
         return workoutLogService.findByUserId(targetUserId);
     }
 
@@ -115,9 +122,11 @@ public class LogApiController {
                                                  @AuthenticationPrincipal OidcUser oidcUser) {
         User currentUser = userService.getAuthorizedUserForApi(oidcUser);
         if (userService.isCoach(currentUser)) {
+            log.warn("Forbidden running log update attempt by coach userId={} logId={}", currentUser.getId(), id);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Coaches cannot edit athlete rows.");
         }
 
+        log.info("Running log update requested by userId={} logId={} logDate={}", currentUser.getId(), id, request.logDate());
         runningLogService.updateAthleteOwnedLog(
                 currentUser.getId(),
                 id,
@@ -133,6 +142,7 @@ public class LogApiController {
                 request.details(),
                 request.logDate()
         );
+        log.info("Running log update completed by userId={} logId={}", currentUser.getId(), id);
 
         return ResponseEntity.ok().build();
     }
@@ -151,9 +161,11 @@ public class LogApiController {
                                                  @AuthenticationPrincipal OidcUser oidcUser) {
         User currentUser = userService.getAuthorizedUserForApi(oidcUser);
         if (userService.isCoach(currentUser)) {
+            log.warn("Forbidden workout log update attempt by coach userId={} logId={}", currentUser.getId(), id);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Coaches cannot edit athlete rows.");
         }
 
+        log.info("Workout log update requested by userId={} logId={} logDate={}", currentUser.getId(), id, request.logDate());
         workoutLogService.updateAthleteOwnedLog(
                 currentUser.getId(),
                 id,
@@ -163,6 +175,7 @@ public class LogApiController {
                 request.workoutDescription(),
                 request.logDate()
         );
+        log.info("Workout log update completed by userId={} logId={}", currentUser.getId(), id);
 
         return ResponseEntity.ok().build();
     }
@@ -179,10 +192,13 @@ public class LogApiController {
                                                  @AuthenticationPrincipal OidcUser oidcUser) {
         User currentUser = userService.getAuthorizedUserForApi(oidcUser);
         if (userService.isCoach(currentUser)) {
+            log.warn("Forbidden running log delete attempt by coach userId={} logId={}", currentUser.getId(), id);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Coaches cannot delete athlete rows.");
         }
 
+        log.info("Running log delete requested by userId={} logId={}", currentUser.getId(), id);
         runningLogService.deleteAthleteOwnedLog(currentUser.getId(), id);
+        log.info("Running log delete completed by userId={} logId={}", currentUser.getId(), id);
         return ResponseEntity.ok().build();
     }
 
@@ -198,10 +214,13 @@ public class LogApiController {
                                                  @AuthenticationPrincipal OidcUser oidcUser) {
         User currentUser = userService.getAuthorizedUserForApi(oidcUser);
         if (userService.isCoach(currentUser)) {
+            log.warn("Forbidden workout log delete attempt by coach userId={} logId={}", currentUser.getId(), id);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Coaches cannot delete athlete rows.");
         }
 
+        log.info("Workout log delete requested by userId={} logId={}", currentUser.getId(), id);
         workoutLogService.deleteAthleteOwnedLog(currentUser.getId(), id);
+        log.info("Workout log delete completed by userId={} logId={}", currentUser.getId(), id);
         return ResponseEntity.ok().build();
     }
 
@@ -219,10 +238,13 @@ public class LogApiController {
                                                           @AuthenticationPrincipal OidcUser oidcUser) {
         User currentUser = userService.getAuthorizedUserForApi(oidcUser);
         if (!userService.isCoach(currentUser)) {
+            log.warn("Forbidden running coach comment attempt by non-coach userId={} logId={}", currentUser.getId(), id);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only coaches can add comments.");
         }
 
+        log.info("Running coach comment update requested by coachUserId={} logId={}", currentUser.getId(), id);
         runningLogService.updateCoachComment(id, request.get("coachComment"));
+        log.info("Running coach comment update completed by coachUserId={} logId={}", currentUser.getId(), id);
 
         return ResponseEntity.ok().build();
     }
@@ -241,10 +263,13 @@ public class LogApiController {
                                                           @AuthenticationPrincipal OidcUser oidcUser) {
         User currentUser = userService.getAuthorizedUserForApi(oidcUser);
         if (!userService.isCoach(currentUser)) {
+            log.warn("Forbidden workout coach comment attempt by non-coach userId={} logId={}", currentUser.getId(), id);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only coaches can add comments.");
         }
 
+        log.info("Workout coach comment update requested by coachUserId={} logId={}", currentUser.getId(), id);
         workoutLogService.updateCoachComment(id, request.get("coachComment"));
+        log.info("Workout coach comment update completed by coachUserId={} logId={}", currentUser.getId(), id);
 
         return ResponseEntity.ok().build();
     }

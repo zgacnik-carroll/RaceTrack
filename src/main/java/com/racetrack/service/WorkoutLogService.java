@@ -2,6 +2,8 @@ package com.racetrack.service;
 
 import com.racetrack.model.WorkoutLog;
 import com.racetrack.repository.WorkoutLogRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -14,6 +16,7 @@ import java.util.List;
  */
 @Service
 public class WorkoutLogService {
+    private static final Logger log = LoggerFactory.getLogger(WorkoutLogService.class);
     private static final int TEXT_MAX = 2000;
 
     private final WorkoutLogRepository workoutLogRepository;
@@ -55,7 +58,10 @@ public class WorkoutLogService {
         } else if (workoutLog.getLogDate() == null) {
             workoutLog.setLogDate(LocalDate.now().atStartOfDay());
         }
-        return workoutLogRepository.save(workoutLog);
+        WorkoutLog savedLog = workoutLogRepository.save(workoutLog);
+        log.info("Workout log saved logId={} userId={} logDate={}",
+                savedLog.getId(), savedLog.getUser() != null ? savedLog.getUser().getId() : null, savedLog.getLogDate());
+        return savedLog;
     }
 
     /**
@@ -65,7 +71,9 @@ public class WorkoutLogService {
      * @return workout logs ordered newest first
      */
     public List<WorkoutLog> findByUserId(String userId) {
-        return workoutLogRepository.findByUser_IdOrderByLogDateDesc(userId);
+        List<WorkoutLog> logs = workoutLogRepository.findByUser_IdOrderByLogDateDesc(userId);
+        log.info("Workout logs loaded userId={} count={}", userId, logs.size());
+        return logs;
     }
 
     /**
@@ -87,19 +95,21 @@ public class WorkoutLogService {
                                             String actualPaces,
                                             String workoutDescription,
                                             LocalDate logDate) {
-        WorkoutLog log = workoutLogRepository.findByIdAndUser_Id(logId, userId)
+        WorkoutLog workoutLog = workoutLogRepository.findByIdAndUser_Id(logId, userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Workout log not found."));
 
         validateWorkoutFields(workoutType, completionDetails, actualPaces, workoutDescription);
 
-        log.setWorkoutType(normalizeWorkoutType(workoutType));
-        log.setCompletionDetails(normalizeOptionalText(completionDetails, "Completion details"));
-        log.setActualPaces(normalizeOptionalText(actualPaces, "Actual paces"));
-        log.setWorkoutDescription(normalizeOptionalText(workoutDescription, "Workout description"));
+        workoutLog.setWorkoutType(normalizeWorkoutType(workoutType));
+        workoutLog.setCompletionDetails(normalizeOptionalText(completionDetails, "Completion details"));
+        workoutLog.setActualPaces(normalizeOptionalText(actualPaces, "Actual paces"));
+        workoutLog.setWorkoutDescription(normalizeOptionalText(workoutDescription, "Workout description"));
         if (logDate != null) {
-            log.setLogDate(logDate.atStartOfDay());
+            workoutLog.setLogDate(logDate.atStartOfDay());
         }
-        return workoutLogRepository.save(log);
+        WorkoutLog savedLog = workoutLogRepository.save(workoutLog);
+        log.info("Workout log updated logId={} userId={} logDate={}", savedLog.getId(), userId, savedLog.getLogDate());
+        return savedLog;
     }
 
     /**
@@ -109,9 +119,10 @@ public class WorkoutLogService {
      * @param logId workout log id
      */
     public void deleteAthleteOwnedLog(String userId, Long logId) {
-        WorkoutLog log = workoutLogRepository.findByIdAndUser_Id(logId, userId)
+        WorkoutLog workoutLog = workoutLogRepository.findByIdAndUser_Id(logId, userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Workout log not found."));
-        workoutLogRepository.delete(log);
+        workoutLogRepository.delete(workoutLog);
+        log.info("Workout log deleted logId={} userId={}", logId, userId);
     }
 
     /**
@@ -122,11 +133,13 @@ public class WorkoutLogService {
      * @return saved workout log
      */
     public WorkoutLog updateCoachComment(Long logId, String coachComment) {
-        WorkoutLog log = workoutLogRepository.findById(logId)
+        WorkoutLog workoutLog = workoutLogRepository.findById(logId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Workout log not found."));
         String normalized = normalizeOptionalText(coachComment, "Coach comment");
-        log.setCoachComment(normalized);
-        return workoutLogRepository.save(log);
+        workoutLog.setCoachComment(normalized);
+        WorkoutLog savedLog = workoutLogRepository.save(workoutLog);
+        log.info("Workout coach comment saved logId={} hasComment={}", logId, normalized != null);
+        return savedLog;
     }
 
     /**

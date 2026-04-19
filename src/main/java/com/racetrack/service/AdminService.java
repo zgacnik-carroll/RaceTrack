@@ -5,6 +5,8 @@ import com.racetrack.repository.RunningLogRepository;
 import com.racetrack.repository.UserRepository;
 import com.racetrack.repository.WorkoutLogRepository;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -16,6 +18,7 @@ import java.util.UUID;
  */
 @Service
 public class AdminService {
+    private static final Logger log = LoggerFactory.getLogger(AdminService.class);
 
     private final UserRepository userRepository;
     private final RunningLogRepository runningLogRepository;
@@ -53,7 +56,10 @@ public class AdminService {
         user.setEmail(normalizedEmail);
         user.setFullName(normalizedFirstName + " " + normalizedLastName);
         user.setRole(normalizedRole);
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        log.info("Admin service created user userId={} email={} role={}",
+                savedUser.getId(), savedUser.getEmail(), savedUser.getRole());
+        return savedUser;
     }
 
     /**
@@ -82,7 +88,10 @@ public class AdminService {
         user.setEmail(normalizedEmail);
         user.setFullName(normalizedFirstName + " " + normalizedLastName);
         user.setRole(normalizedRole);
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        log.info("Admin service updated user userId={} email={} role={}",
+                savedUser.getId(), savedUser.getEmail(), savedUser.getRole());
+        return savedUser;
     }
 
     /**
@@ -99,6 +108,7 @@ public class AdminService {
         workoutLogRepository.deleteByUser_Id(normalizedUserId);
         runningLogRepository.deleteByUser_Id(normalizedUserId);
         userRepository.delete(user);
+        log.info("Admin service deleted user userId={}", normalizedUserId);
     }
 
     /**
@@ -108,6 +118,7 @@ public class AdminService {
     public void clearAllLogData() {
         workoutLogRepository.deleteAllInBatch();
         runningLogRepository.deleteAllInBatch();
+        log.info("Admin service cleared all running and workout log data");
     }
 
     private String normalizeRequired(String value, String fieldName) {
