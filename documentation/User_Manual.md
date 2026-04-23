@@ -1,272 +1,388 @@
 # User Manual
+
 ## RaceTrack
 
-### Document Purpose
-This manual explains what RaceTrack is, what users can do inside it, and how to navigate the app effectively.
-It is focused on user capabilities and workflows, not technical implementation.
+*Note: This application is only accessible through the Carroll HaloNet WiFi*
+
+*Once you are connected to HaloNet, navigate to [racetrack.carroll.edu](racetrack.carroll.edu)*
+
+
+### Purpose
+
+This manual explains how the current RaceTrack application works for athletes and coaches.
+
+It reflects the current live behavior of the codebase, including:
+
+- login and access approval
+- athlete workflows
+- coach review workflows
+- coach admin tools
+- spreadsheet editing and date filters
 
 ---
 
-### 1. App Overview
-RaceTrack is a daily training log platform used by athletes and coaches.
+## 1. What RaceTrack Is
 
-The app is built around two core ideas:
-- Athletes should be able to record daily training and wellness data quickly.
-- Coaches should be able to review recent athlete data in a clear, spreadsheet-like format and leave feedback.
+RaceTrack is a training log application for recording and reviewing:
 
-RaceTrack supports two main data categories:
-- Running data (daily run + wellness context)
-- Workout data (session type + completion details)
+- daily running logs
+- workout logs
 
----
+Athletes use RaceTrack to enter their own training and wellness data.
 
-### 2. Who Uses RaceTrack
-
-#### Athlete Experience
-Athletes use RaceTrack to:
-- Enter daily logs through two forms
-- Review recent entries in table format
-- Edit previously entered rows
-- Delete rows that are no longer needed
-- View coach comments attached to entries
-
-#### Coach Experience
-Coaches use RaceTrack to:
-- Find athletes quickly using search
-- Select one athlete at a time for focused review
-- Switch between running and workout sheets
-- Review recent athlete trends
-- Add or update comments on individual rows
+Coaches use RaceTrack to review athlete logs, leave comments, and manage authorized RaceTrack users.
 
 ---
 
-### 3. Main Interface Areas
+## 2. Signing In and Access Approval
 
-#### Header
-The header provides:
-- RaceTrack branding/title
-- Current signed-in user display
-- Logout action
+RaceTrack uses Okta for sign-in.
 
-Athlete-only controls also appear in the header for switching form views:
-- All Forms
-- Running Log
-- Workout Log
+Important current behavior:
 
-#### Form Area
-The form area is where athletes enter new information.
+- signing in through Okta does not automatically give access to RaceTrack
+- the signed-in email must already exist in RaceTrack's user database
 
-Athletes can access:
-- Daily Running Log form
-- Workout Log form
+If your email is not already listed in RaceTrack, you will be taken to the "Access to RaceTrack was not approved" page and asked to contact your coach.
 
-Coaches do not use form entry mode and focus on spreadsheet views.
+---
 
-#### Spreadsheet Area
-The spreadsheet area is for reviewing and managing existing entries.
+## 3. Main Areas of the App
+
+### Header
+
+The header shows:
+
+- the RaceTrack title
+- whether you are in Athlete or Coach view
+- the signed-in user name
+- logout
+
+Athletes also see header buttons for:
+
+- `Running Log`
+- `Workout Log`
+- `My Running Sheet`
+- `My Workout Sheet`
+
+Coaches see header tools for:
+
+- `Add User`
+- `Edit User`
+- `Delete User`
+- `Clear Data`
+
+### Form Area
+
+The form area is where athletes submit new entries.
+
+Athletes can open:
+
+- the Daily Running Log form
+- the Workout Log form
+
+Coaches do not submit athlete forms.
+
+### Spreadsheet Area
+
+The spreadsheet area shows saved log rows.
 
 Available sheets:
+
 - Running Sheet
 - Workout Sheet
 
-These sheets are designed for fast scanning and row-level updates.
+### Footer
 
-#### Footer Navigation
-The footer includes:
-- Running Sheet button
-- Workout Sheet button
+The footer contains:
 
-Coach-only footer controls include:
-- Athlete search bar
-- Athlete selection buttons
-- Clear Athlete action
+- a search bar for athlete names or emails
+- athlete buttons
+- a popup menu to open a selected athlete's Running Sheet or Workout Sheet
 
----
+Current behavior:
 
-### 4. Navigation Workflows
-
-#### Athlete Navigation Flow
-Typical athlete flow:
-1. Sign in and land on form mode.
-2. Choose `All Forms` to view both entry forms together, or switch to a single form.
-3. Submit new daily entries.
-4. Open `Running Sheet` or `Workout Sheet` from the footer to review recent logs.
-5. Update a row and click Save, or remove a row with Delete if needed.
-
-#### Coach Navigation Flow
-Typical coach flow:
-1. Sign in and land on coach review layout.
-2. Search for an athlete by name/email or select from the athlete list.
-3. Review running logs first (default athlete view).
-4. Switch to workout logs using the footer.
-5. Enter feedback in Coach Comment for specific rows and save.
-6. Clear athlete selection to return to neutral state.
+- coaches use the footer to select athletes for review
+- athletes can also use the footer to open teammates' sheets in read-only mode
 
 ---
 
-### 5. Forms and What They Capture
+## 4. Athlete Experience
 
-#### A. Daily Running Log
-The Running Log captures daily running and wellness context, including:
+### Default landing view
+
+Athletes land on the `Daily Running Log` form by default.
+
+### Athlete actions
+
+Athletes can:
+
+- submit a new running log
+- submit a new workout log
+- open their own running and workout sheets
+- edit their own sheet rows
+- delete their own rows
+- read coach comments on their rows
+- view other athletes' sheets read-only from the footer
+
+### What athletes cannot do
+
+Athletes cannot:
+
+- edit another athlete's row
+- delete another athlete's row
+- save coach comments
+- use coach admin actions
+
+---
+
+## 5. Coach Experience
+
+### Default landing view
+
+Coaches land on a review layout with an empty state message until an athlete is selected.
+
+### Coach review actions
+
+Coaches can:
+
+- select or search for an athlete from the footer
+- open the athlete's Running Sheet
+- open the athlete's Workout Sheet
+- write and save coach comments on any row
+
+### Coach admin actions
+
+Coaches can also:
+
+- add a user to RaceTrack
+- edit a RaceTrack user
+- delete a RaceTrack user
+- clear all running and workout logs while preserving user accounts
+
+Important note:
+
+These actions manage RaceTrack access and RaceTrack data. They do not necessarily create or update the person's Okta account.
+
+---
+
+## 6. Daily Running Log Form
+
+The Daily Running Log form includes:
+
 - Date
 - Mileage
-- Hurting status
-- Sleep hours
-- Stress level
-- Plate proportions (nutrition check)
-- “Got that bread” (carbohydrate/fueling check)
-- Overall feel
-- RPE (effort rating)
-- Comments/details
-
-Why this matters for users:
-- Athletes can document both workload and recovery indicators in one place.
-- Coaches can read run output in context of readiness and wellness.
-
-#### B. Workout Log
-The Workout Log captures non-daily-run training details, including:
-- Date
-- Workout type
-- Completion details
-- Actual paces
-- Workout description
-
-Why this matters for users:
-- Athletes can record what was planned vs what was completed.
-- Coaches can evaluate session execution and quality over time.
-
----
-
-### 6. Spreadsheet Views and Data Review
-
-#### Running Sheet
-Shows each running entry with fields such as:
-- Date
-- Miles
-- Wellness indicators
+- Hurting?
+- Hurting details
+- Sleep
+- Stress
+- Plate Proportions?
+- Did you get that bread?
+- How feel?
 - RPE
-- Athlete details
-- Coach comment
+- Comments
 
-Athletes can:
-- Edit own rows directly in table cells
-- Save row updates
-- Delete rows
+### Special behavior
 
-Coaches can:
-- View athlete running rows
-- Add/update coach comments
-- Use filtering for faster review
+- if `Hurting?` is set to `Yes`, the hurting-details field appears and becomes required
+- the `How feel?` field is plain text and is not color-coded in the spreadsheet
 
-#### Workout Sheet
-Shows each workout entry with fields such as:
+### Validation rules users will notice
+
+- mileage must be 0 or greater
+- sleep must be between 0 and 24
+- stress must be between 1 and 10
+- RPE must be between 0 and 10
+- hurting details are required when hurting is `Yes`
+- `How feel?` is required and limited to 100 characters
+- `Comments` are required and limited to 2000 characters
+
+---
+
+## 7. Workout Log Form
+
+The Workout Log form includes:
+
 - Date
-- Workout type
-- Completion details
-- Actual paces
-- Description
-- Coach comment
+- Workout Type
+- Completion
+- Actual Paces
+- Workout Description
 
-Athletes can:
-- Edit and save own rows
-- Delete own rows
+### Workout Type options
+
+- `Strength`
+- `Strides`
+- `Workout`
+
+### Validation rules users will notice
+
+- workout type is required
+- completion is required
+- actual paces are required
+- workout description is required
+- text fields are limited to 2000 characters
+
+---
+
+## 8. Running Sheet
+
+The Running Sheet shows saved running logs in a spreadsheet-style table.
+
+Typical columns include:
+
+- Date
+- Mileage
+- Hurting / pain details
+- Sleep
+- Stress
+- Plate Proportions
+- Did you get that bread?
+- How Feel?
+- RPE
+- Details
+- Coach Comment
+
+### Athlete view
+
+When athletes open their own running sheet, they can:
+
+- edit row values directly
+- save changes with `Save Changes`
+- delete rows
+
+When athletes open another athlete's running sheet, they can only view it.
+
+### Coach view
+
+Coaches see the running sheet in read-only mode for athlete-entered fields.
 
 Coaches can:
-- Review athlete workout history
-- Add/update coach comments per row
+
+- type into the Coach Comment field
+- save the comment for that row
+
+### Wellness coloring
+
+Some running-sheet wellness cells use color cues:
+
+- sleep
+- stress
+- plate proportions
+- did you get that bread
 
 ---
 
-### 7. Filtering and Recent Data Views
-Both sheets support quick date-range filtering:
-- Recent 60
-- Today
-- Week
-- Month
+## 9. Workout Sheet
 
-How users benefit:
-- `Recent 60` gives broad trend context.
-- `Today` isolates current-day checks.
-- `Week` helps with short-cycle monitoring.
-- `Month` supports medium-term pattern review.
+The Workout Sheet shows saved workout logs in a spreadsheet-style table.
 
----
+Typical columns include:
 
-### 8. Role-Based Permissions (What Each Role Can and Cannot Do)
+- Date
+- Workout Type
+- Completion
+- Actual Paces
+- Workout Description
+- Coach Comment
 
-#### Athlete
-Can:
-- Submit running/workout forms
-- View own logs
-- Edit own log rows
-- Delete own log rows
-- View coach comments
+### Athlete view
 
-Cannot:
-- Access or modify other athletes’ logs
-- Add coach comments as a coach action
+When athletes open their own workout sheet, they can:
 
-#### Coach
-Can:
-- View athlete logs
-- Switch athletes
-- Add/update coach comments
-- Use search and filtering for review workflows
+- edit row values
+- save changes
+- delete rows
 
-Cannot:
-- Edit athlete-entered data fields
-- Delete athlete rows
+When athletes open another athlete's workout sheet, they can only view it.
+
+### Coach view
+
+Coaches can:
+
+- review athlete workout rows
+- add or update row-level coach comments
 
 ---
 
-### 9. On-Screen Status Messages
-RaceTrack shows short notification banners for key actions, such as:
-- Running log saved
-- Workout log saved
-- Row saved
-- Row deleted
-- Coach comment saved
-- Error notices when a save/delete action fails
+## 10. Date Filters
 
-These messages confirm whether an action completed successfully.
+Both sheets support the following filters:
 
----
+- `Today`
+- `Week`
+- `Month`
+- `Custom`
 
-### 10. Practical Usage Patterns
+### How they work
 
-#### Pattern 1: Daily Athlete Check-In
-- Open forms
-- Enter running and/or workout data
-- Submit
-- Review row in sheet for confirmation
+- `Today` shows rows for the current date
+- `Week` shows the recent 7-day window
+- `Month` shows the recent 30-day window
+- `Custom` lets you choose a start and end date
 
-#### Pattern 2: End-of-Week Athlete Cleanup
-- Open Running Sheet and Workout Sheet
-- Filter to `Week`
-- Update missing details
-- Save corrected rows
-
-#### Pattern 3: Coach Review Block
-- Search/select athlete
-- Open Running Sheet and filter to `Week` or `Month`
-- Add comments on relevant rows
-- Switch to Workout Sheet for session-level feedback
+When a sheet is opened, it defaults to the `Week` filter.
 
 ---
 
-### 11. Best-Use Guidelines (User-Focused)
-- Enter logs close to when training happens for better accuracy.
-- Use comments/details fields to capture context (surface, weather, fatigue, etc.).
-- Use sheet filters before reviewing to reduce noise.
-- Save row changes immediately after editing.
-- Coaches should leave row-level comments tied to specific entries for clearer follow-up.
+## 11. Save Messages and Alerts
+
+RaceTrack shows short on-screen notices for actions such as:
+
+- `Running log saved.`
+- `Workout log saved.`
+- `Running row saved.`
+- `Workout row saved.`
+- `Running row deleted.`
+- `Workout row deleted.`
+- `Coach comment saved.`
+- warning or error messages if validation fails or a request cannot be completed
+
+These notices disappear automatically after a short time.
 
 ---
 
-### 12. Summary
-RaceTrack provides:
-- Two core submission forms (Running + Workout)
-- Two spreadsheet-style review views (Running Sheet + Workout Sheet)
-- Fast navigation for both athletes and coaches
-- Role-based controls for clean ownership of data
-- Practical filtering and row-level actions for day-to-day training management
+## 12. Typical Athlete Workflow
+
+1. Sign in through Okta.
+2. Land on the Daily Running Log form.
+3. Enter a running log or switch to the Workout Log form.
+4. Submit the entry.
+5. Open `My Running Sheet` or `My Workout Sheet` from the header.
+6. Edit or delete your own rows if needed.
+7. Review any coach comments attached to your entries.
+
+---
+
+## 13. Typical Coach Workflow
+
+1. Sign in through Okta.
+2. Search for an athlete in the footer or select one from the athlete list.
+3. Open that athlete's Running Sheet or Workout Sheet.
+4. Review recent rows using `Week`, `Month`, or `Custom` filters.
+5. Add coach comments and save them.
+6. If needed, use the header admin actions to add, edit, or remove RaceTrack users.
+
+---
+
+## 14. Practical Notes for Users
+
+- enter logs as close to the training day as possible
+- use the Comments field to capture context that numbers alone do not show
+- save spreadsheet row edits before navigating away
+- coaches should keep comments specific to the row they are attached to
+- if you can sign into Okta but RaceTrack denies access, contact a coach because your email likely has not been added locally
+
+---
+
+## 15. Summary
+
+RaceTrack currently provides:
+
+- athlete running and workout submission forms
+- spreadsheet-style review and editing
+- coach row-level commenting
+- footer-based athlete selection
+- coach admin tools for RaceTrack user management
+- email-based authorization after Okta login
+
