@@ -176,23 +176,6 @@ function yesNoColor(value) {
 }
 
 /**
- * Maps legacy "feel" values to cell background colors.
- * @param {string|null|undefined} value
- * @returns {string}
- */
-function feelColor(value) {
-    if (!value) return "";
-    const map = {
-        Good: "hsl(120, 55%, 86%)",
-        Okay: "hsl(85, 65%, 86%)",
-        Tired: "hsl(40, 80%, 85%)",
-        Sore: "hsl(18, 80%, 85%)",
-        Bad: "hsl(0, 65%, 87%)"
-    };
-    return map[value] ?? "";
-}
-
-/**
  * Applies a background color to a row cell if it exists.
  * @param {string} cellId
  * @param {string} color
@@ -223,14 +206,11 @@ function updateRunningRowColors(logId) {
     const hurtingValue = parseBoolean(document.getElementById(`running-hurting-${logId}`)?.value);
     const plateValue = parseBoolean(document.getElementById(`running-plate-${logId}`)?.value);
     const breadValue = parseBoolean(document.getElementById(`running-bread-${logId}`)?.value);
-    const feelValue = document.getElementById(`running-feel-${logId}`)?.value ?? "";
-
 
     setWellnessCellColor(`running-sleep-cell-${logId}`, sleepColor(sleepValue));
     setWellnessCellColor(`running-stress-cell-${logId}`, stressColor(stressValue));
     setWellnessCellColor(`running-plate-cell-${logId}`, yesNoColor(plateValue));
     setWellnessCellColor(`running-bread-cell-${logId}`, yesNoColor(breadValue));
-    setWellnessCellColor(`running-feel-cell-${logId}`, feelColor(feelValue));
 }
 
 /**
@@ -265,7 +245,6 @@ function bindRunningRowColorHandlers(logId) {
     const stressInput = document.getElementById(`running-stress-${logId}`);
     const plateSelect = document.getElementById(`running-plate-${logId}`);
     const breadSelect = document.getElementById(`running-bread-${logId}`);
-    const feelInput = document.getElementById(`running-feel-${logId}`);
 
     if (hurtingSelect) hurtingSelect.addEventListener("change", () => {
         updateRunningRowColors(logId);
@@ -275,7 +254,6 @@ function bindRunningRowColorHandlers(logId) {
     if (stressInput) stressInput.addEventListener("input", () => updateRunningRowColors(logId));
     if (plateSelect) plateSelect.addEventListener("change", () => updateRunningRowColors(logId));
     if (breadSelect) breadSelect.addEventListener("change", () => updateRunningRowColors(logId));
-    if (feelInput) feelInput.addEventListener("input", () => updateRunningRowColors(logId));
 }
 
 /**
