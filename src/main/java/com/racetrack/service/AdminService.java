@@ -24,6 +24,14 @@ public class AdminService {
     private final RunningLogRepository runningLogRepository;
     private final WorkoutLogRepository workoutLogRepository;
 
+    /**
+     * Creates the admin service with repositories needed for local user and
+     * log maintenance.
+     *
+     * @param userRepository user persistence access
+     * @param runningLogRepository running-log persistence access
+     * @param workoutLogRepository workout-log persistence access
+     */
     public AdminService(UserRepository userRepository,
                         RunningLogRepository runningLogRepository,
                         WorkoutLogRepository workoutLogRepository) {
@@ -51,6 +59,7 @@ public class AdminService {
         String normalizedRole = normalizeRole(role);
         ensureEmailAvailable(normalizedEmail);
 
+        // The current admin flow creates a local RaceTrack user only; it does not create an Okta account.
         User user = new User();
         user.setId(UUID.randomUUID().toString());
         user.setEmail(normalizedEmail);
@@ -105,6 +114,7 @@ public class AdminService {
         User user = userRepository.findById(normalizedUserId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found."));
 
+        // Remove dependent log rows first so the user record can be deleted cleanly.
         workoutLogRepository.deleteByUser_Id(normalizedUserId);
         runningLogRepository.deleteByUser_Id(normalizedUserId);
         userRepository.delete(user);
@@ -121,6 +131,14 @@ public class AdminService {
         log.info("Admin service cleared all running and workout log data");
     }
 
+    /**
+     * Normalizes a required string field and raises a validation error when it
+     * is null or blank.
+     *
+     * @param value raw field value
+     * @param fieldName human-readable field label
+     * @return trimmed, non-empty value
+     */
     private String normalizeRequired(String value, String fieldName) {
         String normalized = normalizeOptional(value);
         if (normalized == null) {
@@ -129,6 +147,12 @@ public class AdminService {
         return normalized;
     }
 
+    /**
+     * Normalizes and validates an email address used for RaceTrack login matching.
+     *
+     * @param email raw email value
+     * @return trimmed, lowercased email
+     */
     private String normalizeEmail(String email) {
         String normalized = normalizeRequired(email, "Email").toLowerCase();
         if (!normalized.contains("@")) {
@@ -137,6 +161,12 @@ public class AdminService {
         return normalized;
     }
 
+    /**
+     * Normalizes and validates the supported application roles.
+     *
+     * @param role raw role value
+     * @return normalized role string
+     */
     private String normalizeRole(String role) {
         String normalized = normalizeRequired(role, "Role").toLowerCase();
         if (!"athlete".equals(normalized) && !"coach".equals(normalized)) {
@@ -145,18 +175,35 @@ public class AdminService {
         return normalized;
     }
 
+    /**
+     * Rejects a create request when the email is already assigned locally.
+     *
+     * @param email normalized email to check
+     */
     private void ensureEmailAvailable(String email) {
         if (userRepository.existsByEmailIgnoreCase(email)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "A user with that email already exists.");
         }
     }
 
+    /**
+     * Rejects an update request when another local user already owns the email.
+     *
+     * @param email normalized email to check
+     * @param userId current user id that should be excluded from the duplicate check
+     */
     private void ensureEmailAvailableForOtherUser(String email, String userId) {
         if (userRepository.existsByEmailIgnoreCaseAndIdNot(email, userId)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "A user with that email already exists.");
         }
     }
 
+    /**
+     * Normalizes optional text values so blank strings are stored as {@code null}.
+     *
+     * @param value raw field value
+     * @return trimmed value or {@code null}
+     */
     private String normalizeOptional(String value) {
         if (value == null) {
             return null;

@@ -35,6 +35,7 @@
             if (!input.value) {
                 input.value = today;
             }
+            // Bind picker helpers after any default value has been applied.
             attachDatePickerBehavior(input);
         });
     });

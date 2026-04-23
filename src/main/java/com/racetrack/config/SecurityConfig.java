@@ -27,6 +27,13 @@ public class SecurityConfig {
     private final ClientRegistrationRepository clientRegistrationRepository;
     private final UserService userService;
 
+    /**
+     * Creates the security configuration with the collaborators required for
+     * OIDC logout and post-login authorization checks.
+     *
+     * @param clientRegistrationRepository OAuth client registrations used for OIDC logout
+     * @param userService application-level authorization service
+     */
     public SecurityConfig(ClientRegistrationRepository clientRegistrationRepository,
                           UserService userService) {
         this.clientRegistrationRepository = clientRegistrationRepository;
@@ -47,6 +54,12 @@ public class SecurityConfig {
         return handler;
     }
 
+    /**
+     * Builds the authentication-success handler that performs the application's
+     * second authorization gate after Okta login.
+     *
+     * @return success handler that redirects either to the app or the unauthorized page
+     */
     @Bean
     AuthenticationSuccessHandler authenticationSuccessHandler() {
         return (request, response, authentication) -> {
@@ -112,15 +125,35 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /**
+     * Returns whether the access-denied event was caused by an expired session
+     * surfacing as a CSRF token failure instead of a true authorization failure.
+     *
+     * @param exception access-denied exception raised by Spring Security
+     * @return {@code true} when the failure should trigger a relogin flow
+     */
     private boolean isSessionExpiryFailure(AccessDeniedException exception) {
         return exception instanceof InvalidCsrfTokenException
                 || exception instanceof MissingCsrfTokenException;
     }
 
+    /**
+     * Marks the current session so the login-success handler can show a
+     * session-expired message after the user authenticates again.
+     *
+     * @param session HTTP session to annotate
+     */
     private void markSessionExpired(HttpSession session) {
         session.setAttribute(SESSION_EXPIRED_ATTRIBUTE, Boolean.TRUE);
     }
 
+    /**
+     * Clears the current session cookie on the active context path so the
+     * browser stops presenting a stale session identifier on the next request.
+     *
+     * @param contextPath servlet context path used to scope the cookie
+     * @param cookieConsumer callback used to add the clearing cookie to the response
+     */
     private void clearSessionCookie(String contextPath, java.util.function.Consumer<Cookie> cookieConsumer) {
         Cookie cookie = new Cookie("JSESSIONID", "");
         cookie.setPath(contextPath == null || contextPath.isBlank() ? "/" : contextPath);

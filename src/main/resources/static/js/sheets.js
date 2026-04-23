@@ -6,10 +6,12 @@
 const role = (window.currentUserRole || "athlete").toLowerCase();
 const userId = window.currentUserId || "";
 const TEXT_MAX = 2000;
+// Filters are reset to the default range whenever a sheet is opened.
 const dateFilters = {
     running: "week",
     workout: "week"
 };
+// Prevent rebinding the same custom-date listeners every time a sheet is shown.
 const customDateFilterBindings = {
     running: false,
     workout: false
@@ -111,6 +113,7 @@ function booleanSelect(value) {
 /**
  * Renders the running "feel" textarea.
  * @param {string|null|undefined} value
+ * @param {string} id
  * @returns {string}
  */
 function feelTextarea(value, id) {
@@ -301,6 +304,7 @@ function applyDateFilter(logs, type) {
     const now = new Date();
     const todayKey = shiftedDateKey(now, 0);
 
+    // Keep all comparisons in YYYY-MM-DD string space so inclusive-range checks stay stable.
     let filtered = logs;
     if (range === "today") {
         filtered = logs.filter(log => dateKey(log.logDate) === todayKey);
@@ -565,6 +569,7 @@ function loadRunningLogs(requestedUserId) {
                 const row = document.createElement("tr");
 
                 if (editable) {
+                    // Athletes editing their own rows get inline inputs plus save/delete actions.
                     row.innerHTML = `
                         <td class="log-date-cell"><input class="sheet-input" type="date" value="${formatDateForInput(log.logDate)}" id="running-date-${log.id}"></td>
                         <td>
@@ -590,6 +595,7 @@ function loadRunningLogs(requestedUserId) {
                         <td><div class="expandable-cell">${escapeHtml(log.coachComment ?? "")}</div></td>
                     `;
                 } else {
+                    // Read-only rows use text rendering plus coach-comment editing when the viewer is a coach.
                     row.innerHTML = `
                         <td class="log-date-cell">${formatDate(log.logDate)}</td>
                         <td>${escapeHtml(log.mileage ?? "")}</td>
@@ -611,6 +617,7 @@ function loadRunningLogs(requestedUserId) {
                 }
 
                 if (editable) {
+                    // Rebind row-specific dirty-state and date-picker behaviors after every rerender.
                     bindRowDirtyState("running", log.id, [
                         `running-date-${log.id}`,
                         `running-mileage-${log.id}`,
@@ -648,6 +655,7 @@ function showRunningSheet(userIdParam = null) {
             window.clearAthleteViewSelection();
         }
     }
+    // Opening a sheet resets it to the product default filter instead of preserving stale UI state.
     dateFilters.running = "week";
     hideMainContent();
     document.getElementById("runningSpreadsheet").style.display = "block";
@@ -694,6 +702,7 @@ function saveRunningLog(logId) {
     })
         .then(res => {
             if (!res.ok) throw new Error(`Failed to save running row (${res.status})`);
+            // Reload from the backend so the table reflects canonical saved values and sort order.
             loadRunningLogs("me");
             if (window.showSaveNotice) window.showSaveNotice("Running row saved.", "success");
         })
@@ -733,6 +742,7 @@ function loadWorkoutLogs(requestedUserId) {
                 const row = document.createElement("tr");
 
                 if (editable) {
+                    // Editable workout rows mirror the running-sheet pattern: inline fields plus row actions.
                     row.innerHTML = `
                         <td class="log-date-cell"><input class="sheet-input" type="date" value="${formatDateForInput(log.logDate)}" id="workout-date-${log.id}"></td>
                         <td>
@@ -748,6 +758,7 @@ function loadWorkoutLogs(requestedUserId) {
                         <td><div class="expandable-cell">${escapeHtml(log.coachComment ?? "")}</div></td>
                     `;
                 } else {
+                    // Coaches and teammate viewers receive read-only workout fields.
                     row.innerHTML = `
                         <td class="log-date-cell">${formatDate(log.logDate)}</td>
                         <td>${escapeHtml(log.workoutType ?? "")}</td>
@@ -764,6 +775,7 @@ function loadWorkoutLogs(requestedUserId) {
                 }
 
                 if (editable) {
+                    // Row-level event bindings must be recreated after each render because tbody HTML is replaced.
                     bindRowDirtyState("workout", log.id, [
                         `workout-date-${log.id}`,
                         `workout-type-${log.id}`,
@@ -792,6 +804,7 @@ function showWorkoutSheet(userIdParam = null) {
             window.clearAthleteViewSelection();
         }
     }
+    dateFilters.workout = "week";
     hideMainContent();
     document.getElementById("workoutSpreadsheet").style.display = "block";
     bindCustomDateFilterInputs("workout");
@@ -831,6 +844,7 @@ function saveWorkoutLog(logId) {
     })
         .then(res => {
             if (!res.ok) throw new Error(`Failed to save workout row (${res.status})`);
+            // Reload from the backend so the athlete sees the saved source of truth.
             loadWorkoutLogs("me");
             if (window.showSaveNotice) window.showSaveNotice("Workout row saved.", "success");
         })
@@ -938,6 +952,7 @@ function saveCoachComment(logType, logId) {
             if (indicator) {
                 indicator.textContent = "";
             }
+            // Do not rerender the full table here; the textarea already contains the saved comment.
             if (window.showSaveNotice) window.showSaveNotice("Coach comment saved.", "success");
         })
         .catch(error => {

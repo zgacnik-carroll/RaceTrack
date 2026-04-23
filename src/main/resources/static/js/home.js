@@ -9,6 +9,7 @@ let selectedAthleteDisplayName = "";
 let selectedAthleteEmail = "";
 let selectedManagedUserRole = "";
 let activeFooterAthleteMenu = null;
+// Snapshot the server-rendered identity context once so role checks stay consistent across handlers.
 const currentUserRole = (window.currentUserRole || "athlete").toLowerCase();
 const currentUserId = window.currentUserId || null;
 const currentUserName = window.currentUserName || "";
@@ -46,6 +47,9 @@ function showDefaultForm() {
     showForm("running");
 }
 
+/**
+ * Keeps the top-of-form hurting-details field in sync with the hurting select.
+ */
 function syncRunningPainDetailsVisibility() {
     const hurtingSelect = document.getElementById("runningHurtingSelect");
     const painRow = document.getElementById("runningPainDetailsWrapper");
@@ -285,6 +289,11 @@ function showSaveNotice(message, type = "success") {
 
 window.showSaveNotice = showSaveNotice;
 
+/**
+ * Persists a one-time banner message through a full-page reload.
+ * @param {string} message
+ * @param {"success"|"danger"|"warning"} [type="success"]
+ */
 function storeReloadNotice(message, type = "success") {
     try {
         window.sessionStorage.setItem("racetrackReloadNotice", JSON.stringify({ message, type }));
@@ -293,6 +302,9 @@ function storeReloadNotice(message, type = "success") {
     }
 }
 
+/**
+ * Restores and clears the one-time banner message stored before a reload.
+ */
 function showStoredNotice() {
     try {
         const raw = window.sessionStorage.getItem("racetrackReloadNotice");
@@ -307,6 +319,12 @@ function showStoredNotice() {
     }
 }
 
+/**
+ * Extracts the most useful message body from a failed fetch response.
+ * @param {Response} response
+ * @param {string} fallbackMessage
+ * @returns {Promise<string>}
+ */
 async function readErrorMessage(response, fallbackMessage) {
     try {
         const text = await response.text();
@@ -355,6 +373,9 @@ function showSubmissionNoticeFromUrl() {
     }
 }
 
+/**
+ * Binds create/edit modal submit handlers for coach-only admin actions.
+ */
 function setupCoachAdminActions() {
     if (currentUserRole !== "coach") return;
 
@@ -384,6 +405,7 @@ function setupCoachAdminActions() {
         submitButton.textContent = "Creating...";
 
         try {
+            // Submit the trimmed form payload to the local RaceTrack admin API.
             const response = await fetch("/api/admin/users", {
                 method: "POST",
                 headers: jsonHeaders(),
@@ -394,6 +416,7 @@ function setupCoachAdminActions() {
                 throw new Error(await readErrorMessage(response, `Failed to create user (${response.status})`));
             }
 
+            // Close the modal before reloading so the next page starts from a clean state.
             const modalElement = document.getElementById("createUserModal");
             const modal = modalElement ? bootstrap.Modal.getInstance(modalElement) : null;
             if (modal) {
@@ -437,6 +460,7 @@ function setupCoachAdminActions() {
         editSubmitButton.textContent = "Saving...";
 
         try {
+            // The selected user id comes from the footer/admin dropdown state, not the modal form itself.
             const response = await fetch(`/api/admin/users/${encodeURIComponent(selectedUserId)}`, {
                 method: "PUT",
                 headers: jsonHeaders(),
@@ -466,6 +490,10 @@ function setupCoachAdminActions() {
     });
 }
 
+/**
+ * Splits the selected display name into first/last-name fields for the edit modal.
+ * @returns {{firstName: string, lastName: string}}
+ */
 function splitSelectedAthleteName() {
     const trimmed = (selectedAthleteDisplayName || "").trim();
     if (!trimmed) {
@@ -483,6 +511,9 @@ function splitSelectedAthleteName() {
     };
 }
 
+/**
+ * Opens the edit-user modal using the currently selected footer/admin user.
+ */
 function openEditUserModal() {
     if (currentUserRole !== "coach") return;
     if (!selectedUserId) {
@@ -505,11 +536,18 @@ function openEditUserModal() {
     bootstrap.Modal.getOrCreateInstance(modalElement).show();
 }
 
+/**
+ * Selects the clicked user and opens the edit modal in one step.
+ * @param {HTMLElement} element
+ */
 function openEditUserModalFor(element) {
     if (!setSelectedStudent(element)) return;
     openEditUserModal();
 }
 
+/**
+ * Clears all persisted log data after an explicit coach confirmation.
+ */
 async function clearData() {
     if (currentUserRole !== "coach") return;
 
@@ -521,6 +559,7 @@ async function clearData() {
     }
 
     try {
+        // This endpoint preserves user accounts and deletes only running/workout log rows.
         const response = await fetch("/api/admin/data", {
             method: "DELETE",
             headers: jsonHeaders()
@@ -538,6 +577,9 @@ async function clearData() {
     }
 }
 
+/**
+ * Deletes the currently selected RaceTrack user after a confirmation prompt.
+ */
 async function deleteSelectedUser() {
     if (currentUserRole !== "coach") return;
 
@@ -555,6 +597,7 @@ async function deleteSelectedUser() {
     }
 
     try {
+        // Delete targets the currently selected user id so the confirmation text and API target stay aligned.
         const response = await fetch(`/api/admin/users/${encodeURIComponent(selectedUserId)}`, {
             method: "DELETE",
             headers: jsonHeaders()
@@ -572,6 +615,11 @@ async function deleteSelectedUser() {
     }
 }
 
+/**
+ * Selects the clicked user and then deletes that user.
+ * @param {HTMLElement} element
+ * @returns {Promise<void>}
+ */
 async function deleteUserFor(element) {
     if (!setSelectedStudent(element)) return;
     await deleteSelectedUser();

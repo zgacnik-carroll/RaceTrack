@@ -114,6 +114,14 @@ public class UserService {
         return "User";
     }
 
+    /**
+     * Resolves the current user by email and optionally refreshes local profile
+     * metadata from the latest OIDC payload.
+     *
+     * @param oidcUser authenticated identity payload
+     * @param updateNameFromLogin whether the local full name should be refreshed from Okta
+     * @return authorized local user
+     */
     private User resolveAuthorizedUser(OidcUser oidcUser, boolean updateNameFromLogin) {
         String normalizedEmail = normalizeEmail(oidcUser);
         log.info("Authorizing user email={} updateNameFromLogin={}", normalizedEmail, updateNameFromLogin);
@@ -128,6 +136,7 @@ public class UserService {
             user.setEmail(normalizedEmail);
             changed = true;
         }
+        // Backfill a default role for any older rows that predate strict role assignment.
         if (user.getRole() == null || user.getRole().isBlank()) {
             user.setRole("athlete");
             changed = true;
@@ -144,6 +153,13 @@ public class UserService {
         return changed ? userRepository.save(user) : user;
     }
 
+    /**
+     * Normalizes the email claim from the OIDC user and rejects logins that do
+     * not provide one.
+     *
+     * @param oidcUser authenticated identity payload
+     * @return trimmed, lowercased email
+     */
     private String normalizeEmail(OidcUser oidcUser) {
         String email = oidcUser.getEmail();
         if (email == null || email.isBlank()) {

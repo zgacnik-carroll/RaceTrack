@@ -56,6 +56,7 @@ public class RunningLogService {
                 runningLog.getDetails()
         );
 
+        // Persist normalized text so spreadsheet edits and form submissions share the same storage rules.
         runningLog.setFeel(normalizeRequiredText(runningLog.getFeel(), "Feel", FEEL_MAX));
         runningLog.setPainDetails(normalizePainDetails(runningLog.getHurting(), runningLog.getPainDetails()));
         runningLog.setDetails(normalizeRequiredText(runningLog.getDetails(), "Details"));
@@ -116,6 +117,7 @@ public class RunningLogService {
         RunningLog runningLog = runningLogRepository.findByIdAndUser_Id(logId, userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Running log not found."));
 
+        // Reuse the same validation rules as form submission so row editing cannot bypass constraints.
         validateRunningFields(mileage, hurting, painDetails, sleepHours, stressLevel, plateProportion, gotThatBread, feel, rpe, details);
 
         runningLog.setMileage(mileage);
@@ -209,8 +211,8 @@ public class RunningLogService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "RPE must be between 0 and 10.");
         }
 
+        // Validate required freeform fields after numeric and boolean guardrails have passed.
         normalizeRequiredText(feel, "Feel", FEEL_MAX);
-
         normalizeRequiredText(details, "Details");
     }
 

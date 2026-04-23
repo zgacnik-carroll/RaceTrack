@@ -21,6 +21,12 @@ public class OktaAdminClient {
     private final String orgUrl;
     private final String apiToken;
 
+    /**
+     * Creates the Okta management client from application configuration.
+     *
+     * @param orgUrl Okta organization base URL
+     * @param apiToken Okta management API token
+     */
     public OktaAdminClient(@Value("${okta.management.org-url:}") String orgUrl,
                            @Value("${okta.management.api-token:}") String apiToken) {
         this.orgUrl = orgUrl;
@@ -77,6 +83,7 @@ public class OktaAdminClient {
 
             return new CreatedOktaUser(String.valueOf(response.get("id")), createdEmail);
         } catch (RestClientResponseException ex) {
+            // Surface the most common Okta API responses as more actionable application errors.
             if (ex.getStatusCode().value() == 409) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "An Okta user with that email already exists.", ex);
             }
@@ -145,6 +152,7 @@ public class OktaAdminClient {
         validateConfiguration();
 
         try {
+            // Okta requires deactivation before permanent deletion for active users.
             restClient().post()
                     .uri(uriBuilder -> uriBuilder.path("/api/v1/users/{id}/lifecycle/deactivate")
                             .queryParam("sendEmail", false)
@@ -173,6 +181,11 @@ public class OktaAdminClient {
         }
     }
 
+    /**
+     * Builds a RestClient with the configured base URL and SSWS API token header.
+     *
+     * @return configured RestClient
+     */
     private RestClient restClient() {
         return RestClient.builder()
                 .baseUrl(normalizeOrgUrl(orgUrl))
@@ -180,6 +193,9 @@ public class OktaAdminClient {
                 .build();
     }
 
+    /**
+     * Verifies that Okta management settings are present before any API call.
+     */
     private void validateConfiguration() {
         if (orgUrl == null || orgUrl.isBlank() || apiToken == null || apiToken.isBlank()) {
             throw new ResponseStatusException(
@@ -189,11 +205,23 @@ public class OktaAdminClient {
         }
     }
 
+    /**
+     * Removes a trailing slash from the configured organization URL so path building remains stable.
+     *
+     * @param value raw organization URL
+     * @return normalized organization URL
+     */
     private String normalizeOrgUrl(String value) {
         String trimmed = value.trim();
         return trimmed.endsWith("/") ? trimmed.substring(0, trimmed.length() - 1) : trimmed;
     }
 
+    /**
+     * Maps common Okta management API response codes into application-specific exceptions.
+     *
+     * @param message fallback message for unexpected responses
+     * @param ex original Okta response exception
+     */
     private void handleOktaError(String message, RestClientResponseException ex) {
         if (ex.getStatusCode().value() == 404) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Okta user not found.", ex);
@@ -204,5 +232,11 @@ public class OktaAdminClient {
         throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, message, ex);
     }
 
+    /**
+     * Minimal response returned after a successful Okta user-creation call.
+     *
+     * @param id Okta user id
+     * @param email primary email returned by Okta
+     */
     public record CreatedOktaUser(String id, String email) {}
 }

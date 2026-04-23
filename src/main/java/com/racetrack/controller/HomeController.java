@@ -46,6 +46,7 @@ public class HomeController {
         log.info("Home page requested by userId={} role={}", user.getId(), isCoach ? "coach" : "athlete");
         List<User> athletes = userService.getAthletesOrderedByName();
         List<User> manageableUsers = userService.getUsersOrderedByName();
+        // Athletes should not see themselves in the teammate footer or user-management lists.
         if (!isCoach) {
             athletes = athletes.stream()
                     .filter(athlete -> !user.getId().equals(athlete.getId()))
@@ -54,11 +55,13 @@ public class HomeController {
                     .filter(manageableUser -> !user.getId().equals(manageableUser.getId()))
                     .collect(Collectors.toList());
         } else {
+            // Coaches can manage all other users, but not their own account from the shared modal list.
             manageableUsers = manageableUsers.stream()
                     .filter(manageableUser -> !user.getId().equals(manageableUser.getId()))
                     .collect(Collectors.toList());
         }
 
+        // Both home templates expect empty form-backing objects and shared identity context.
         model.addAttribute("runningLog", new RunningLog());
         model.addAttribute("workoutLog", new WorkoutLog());
         model.addAttribute("currentUserId", user.getId());
@@ -71,6 +74,14 @@ public class HomeController {
         return isCoach ? "home_coach" : "home";
     }
 
+    /**
+     * Renders the unauthorized page shown when Okta authentication succeeds but
+     * the email is not present in the local RaceTrack user table.
+     *
+     * @param oidcUser authenticated user payload when available
+     * @param model thymeleaf model for the page
+     * @return unauthorized-user template
+     */
     @GetMapping("/unauthorized-user")
     public String unauthorizedUser(@AuthenticationPrincipal OidcUser oidcUser, Model model) {
         log.info("Unauthorized user page requested email={}", oidcUser != null ? oidcUser.getEmail() : null);

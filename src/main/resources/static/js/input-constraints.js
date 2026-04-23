@@ -35,6 +35,7 @@
             return;
         }
 
+        // Normalize the DOM max-length so browser-native enforcement matches the rendered counter.
         const max = resolveMax(field);
         field.maxLength = max;
 
@@ -63,6 +64,7 @@
     }
 
     document.addEventListener("DOMContentLoaded", () => {
+        // Bind once on initial page load; dynamically rendered rows call attachCharCounters separately.
         attachCharCounters(document);
     });
 

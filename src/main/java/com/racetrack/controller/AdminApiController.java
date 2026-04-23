@@ -30,6 +30,12 @@ public class AdminApiController {
     private final AdminService adminService;
     private final UserService userService;
 
+    /**
+     * Creates the coach-only admin API controller.
+     *
+     * @param adminService service for local user-management actions
+     * @param userService service for resolving and authorizing the current user
+     */
     public AdminApiController(AdminService adminService, UserService userService) {
         this.adminService = adminService;
         this.userService = userService;
@@ -124,6 +130,13 @@ public class AdminApiController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Resolves the current user and rejects the request unless that user has
+     * the coach role.
+     *
+     * @param oidcUser authenticated principal from Spring Security
+     * @return resolved coach user
+     */
     private User requireCoach(OidcUser oidcUser) {
         User currentUser = userService.getAuthorizedUserForApi(oidcUser);
         if (!userService.isCoach(currentUser)) {
@@ -133,6 +146,14 @@ public class AdminApiController {
         return currentUser;
     }
 
+    /**
+     * Request payload for creating a local RaceTrack user.
+     *
+     * @param firstName user first name
+     * @param lastName user last name
+     * @param email login email that must match Okta authentication
+     * @param role application role to assign
+     */
     public record CreateUserRequest(
             String firstName,
             String lastName,
@@ -140,6 +161,14 @@ public class AdminApiController {
             String role
     ) {}
 
+    /**
+     * Request payload for updating a local RaceTrack user.
+     *
+     * @param firstName updated first name
+     * @param lastName updated last name
+     * @param email updated login email
+     * @param role updated application role
+     */
     public record UpdateUserRequest(
             String firstName,
             String lastName,
@@ -147,6 +176,14 @@ public class AdminApiController {
             String role
     ) {}
 
+    /**
+     * Response payload returned after a user create/update operation.
+     *
+     * @param id local RaceTrack user id
+     * @param email user email
+     * @param fullName display name shown in the UI
+     * @param role assigned application role
+     */
     public record CreatedUserResponse(
             String id,
             String email,

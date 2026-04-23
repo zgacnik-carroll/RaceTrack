@@ -48,6 +48,7 @@ public class WorkoutLogService {
                 workoutLog.getWorkoutDescription()
         );
 
+        // Store normalized text consistently so form submits and spreadsheet edits behave the same way.
         workoutLog.setWorkoutType(normalizeWorkoutType(workoutLog.getWorkoutType()));
         workoutLog.setCompletionDetails(normalizeOptionalText(workoutLog.getCompletionDetails(), "Completion details"));
         workoutLog.setActualPaces(normalizeOptionalText(workoutLog.getActualPaces(), "Actual paces"));
@@ -92,12 +93,13 @@ public class WorkoutLogService {
                                             Long logId,
                                             String workoutType,
                                             String completionDetails,
-                                            String actualPaces,
-                                            String workoutDescription,
-                                            LocalDate logDate) {
+                                             String actualPaces,
+                                             String workoutDescription,
+                                             LocalDate logDate) {
         WorkoutLog workoutLog = workoutLogRepository.findByIdAndUser_Id(logId, userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Workout log not found."));
 
+        // Spreadsheet edits follow the exact same field rules as new workout submissions.
         validateWorkoutFields(workoutType, completionDetails, actualPaces, workoutDescription);
 
         workoutLog.setWorkoutType(normalizeWorkoutType(workoutType));
