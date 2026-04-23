@@ -1,6 +1,7 @@
 package com.racetrack.config;
 
 import com.racetrack.service.UserService;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -85,9 +86,10 @@ public class SecurityConfig {
                         .loginPage("/oauth2/authorization/okta")
                 )
                 .sessionManagement(session -> session
-                        .invalidSessionStrategy((request, response) ->
-                                response.sendRedirect(LOGIN_REDIRECT_PATH)
-                        )
+                        .invalidSessionStrategy((request, response) -> {
+                            clearSessionCookie(request.getContextPath(), response::addCookie);
+                            response.sendRedirect(LOGIN_REDIRECT_PATH);
+                        })
                 )
                 .exceptionHandling(exceptions -> exceptions
                         .accessDeniedHandler((request, response, accessDeniedException) -> {
@@ -117,5 +119,13 @@ public class SecurityConfig {
 
     private void markSessionExpired(HttpSession session) {
         session.setAttribute(SESSION_EXPIRED_ATTRIBUTE, Boolean.TRUE);
+    }
+
+    private void clearSessionCookie(String contextPath, java.util.function.Consumer<Cookie> cookieConsumer) {
+        Cookie cookie = new Cookie("JSESSIONID", "");
+        cookie.setPath(contextPath == null || contextPath.isBlank() ? "/" : contextPath);
+        cookie.setHttpOnly(true);
+        cookie.setMaxAge(0);
+        cookieConsumer.accept(cookie);
     }
 }

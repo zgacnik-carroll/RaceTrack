@@ -134,6 +134,7 @@ SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OKTA_CLIENT_SECRET=carroll_okta_clien
 SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_OKTA_ISSUER_URI=<insert Carroll Okta domain here>
 
 SERVER_PORT=8080
+SERVER_FORWARD_HEADERS_STRATEGY=framework
 SPRING_JPA_HIBERNATE_DDL_AUTO=update
 SPRING_JPA_SHOW_SQL=false
 ```
@@ -436,6 +437,11 @@ server {
 }
 EOF
 ```
+
+Spring uses the `X-Forwarded-*` headers to build the Okta `{baseUrl}` callback. Keep
+`SERVER_FORWARD_HEADERS_STRATEGY=framework` enabled when the app is behind Nginx or
+another proxy; otherwise Okta redirects can be generated with the internal
+`localhost:8080` URL instead of the public hostname.
 
 Enable the site:
 
