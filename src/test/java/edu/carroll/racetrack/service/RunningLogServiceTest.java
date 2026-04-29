@@ -1,0 +1,455 @@
+package edu.carroll.racetrack.service;
+
+import edu.carroll.racetrack.model.RunningLog;
+import edu.carroll.racetrack.model.User;
+import edu.carroll.racetrack.repository.RunningLogRepository;
+import edu.carroll.racetrack.repository.UserRepository;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+/**
+ * Unit tests for {@link RunningLogService} backed by in-memory H2.
+ */
+@SpringBootTest
+@ActiveProfiles("test")
+@Transactional
+class RunningLogServiceTest {
+
+    @Autowired
+    private RunningLogService runningLogService;
+
+    @Autowired
+    private RunningLogRepository runningLogRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    // -------------------------------------------------------------------------
+    // submitRunningLog
+    // -------------------------------------------------------------------------
+
+    @Test
+    void submitRunningLog_setsSelectedDateAtStartOfDay() {
+        User user = userRepository.save(user("r1@example.com"));
+        RunningLog log = runningLog(user, 7.5, "Easy run");
+
+        RunningLog saved = runningLogService.submitRunningLog(log, LocalDate.of(2026, 3, 1));
+
+        assertThat(saved.getId()).isNotNull();
+        assertThat(saved.getLogDate()).isNotNull();
+    }
+
+    @Test
+    void submitRunningLog_rejectsNullDate() {
+        User user = userRepository.save(user("r1b@example.com"));
+        RunningLog log = runningLog(user, 5.0, "No date provided");
+
+        assertThatThrownBy(() -> runningLogService.submitRunningLog(log, null))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Date is required.")
+                .extracting(ex -> ((ResponseStatusException) ex).getStatusCode())
+                .isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    void submitRunningLog_persistsAllSuppliedFields() {
+        User user = userRepository.save(user("r1c@example.com"));
+        RunningLog log = new RunningLog();
+        log.setUser(user);
+        log.setMileage(9.0);
+        log.setHurting(false);
+        log.setSleepHours(7.5);
+        log.setStressLevel(4);
+        log.setPlateProportion(true);
+        log.setGotThatBread(true);
+        log.setPainDetails(null);
+        log.setFeel("Legs felt smooth, lungs a little heavy.");
+        log.setRpe(7);
+        log.setDetails("Long run with strides");
+
+        RunningLog saved = runningLogService.submitRunningLog(log, LocalDate.of(2026, 3, 5));
+
+        assertThat(saved.getMileage()).isEqualTo(9.0);
+        assertThat(saved.getHurting()).isFalse();
+        assertThat(saved.getSleepHours()).isEqualTo(7.5);
+        assertThat(saved.getStressLevel()).isEqualTo(4);
+        assertThat(saved.getPlateProportion()).isTrue();
+        assertThat(saved.getGotThatBread()).isTrue();
+        assertThat(saved.getPainDetails()).isNull();
+        assertThat(saved.getFeel()).isEqualTo("Legs felt smooth, lungs a little heavy.");
+        assertThat(saved.getRpe()).isEqualTo(7);
+        assertThat(saved.getDetails()).isEqualTo("Long run with strides");
+    }
+
+    @Test
+    void submitRunningLog_allowsZeroRpe() {
+        User user = userRepository.save(user("r1h@example.com"));
+        RunningLog log = runningLog(user, 4.5, "Recovery shuffle");
+        log.setRpe(0);
+
+        RunningLog saved = runningLogService.submitRunningLog(log, LocalDate.of(2026, 3, 13));
+
+        assertThat(saved.getRpe()).isEqualTo(0);
+    }
+
+    // -------------------------------------------------------------------------
+    // findByUserId
+    // -------------------------------------------------------------------------
+
+    @Test
+    void findByUserId_returnsNewestFirst() {
+        User user = userRepository.save(user("r2@example.com"));
+        RunningLog older = runningLog(user, 4.0, "Older");
+        older.setLogDate(LocalDateTime.of(2026, 2, 1, 0, 0));
+        RunningLog newer = runningLog(user, 8.0, "Newer");
+        newer.setLogDate(LocalDateTime.of(2026, 3, 1, 0, 0));
+        runningLogRepository.save(older);
+        runningLogRepository.save(newer);
+
+        List<RunningLog> logs = runningLogService.findByUserId(user.getId());
+
+        assertThat(logs).hasSize(2);
+        assertThat(logs.get(0).getDetails()).isEqualTo("Newer");
+        assertThat(logs.get(1).getDetails()).isEqualTo("Older");
+    }
+
+    @Test
+    void findByUserId_returnsEmptyListWhenUserHasNoLogs() {
+        User user = userRepository.save(user("r2b@example.com"));
+
+        List<RunningLog> logs = runningLogService.findByUserId(user.getId());
+
+        assertThat(logs).isEmpty();
+    }
+
+    @Test
+    void findByUserId_doesNotReturnLogsOwnedByOtherUsers() {
+        User userA = userRepository.save(user("r2c@example.com"));
+        User userB = userRepository.save(user("r2d@example.com"));
+        runningLogRepository.save(runningLog(userA, 5.0, "User A log"));
+        runningLogRepository.save(runningLog(userB, 6.0, "User B log"));
+
+        List<RunningLog> logs = runningLogService.findByUserId(userA.getId());
+
+        assertThat(logs).hasSize(1);
+        assertThat(logs.get(0).getDetails()).isEqualTo("User A log");
+    }
+
+    // -------------------------------------------------------------------------
+    // updateAthleteOwnedLog
+    // -------------------------------------------------------------------------
+
+    @Test
+    void updateAthleteOwnedLog_updatesFieldsWhenOwnedByUser() {
+        User user = userRepository.save(user("r3@example.com"));
+        RunningLog log = runningLogRepository.save(runningLog(user, 5.0, "Before"));
+
+        RunningLog updated = runningLogService.updateAthleteOwnedLog(
+                user.getId(),
+                log.getId(),
+                10.25,
+                true,
+                "Left shin",
+                8.5,
+                3,
+                true,
+                false,
+                "Felt better after the first mile.",
+                6,
+                "After",
+                LocalDate.of(2026, 3, 2)
+        );
+
+        assertThat(updated.getMileage()).isEqualTo(10.25);
+        assertThat(updated.getHurting()).isTrue();
+        assertThat(updated.getPainDetails()).isEqualTo("Left shin");
+        assertThat(updated.getSleepHours()).isEqualTo(8.5);
+        assertThat(updated.getStressLevel()).isEqualTo(3);
+        assertThat(updated.getPlateProportion()).isTrue();
+        assertThat(updated.getGotThatBread()).isFalse();
+        assertThat(updated.getFeel()).isEqualTo("Felt better after the first mile.");
+        assertThat(updated.getRpe()).isEqualTo(6);
+        assertThat(updated.getDetails()).isEqualTo("After");
+        assertThat(updated.getLogDate()).isEqualTo(LocalDateTime.of(2026, 3, 2, 0, 0));
+    }
+
+    @Test
+    void updateAthleteOwnedLog_allowsZeroRpe() {
+        User user = userRepository.save(user("r3b@example.com"));
+        RunningLog log = runningLogRepository.save(runningLog(user, 5.0, "Before"));
+
+        RunningLog updated = runningLogService.updateAthleteOwnedLog(
+                user.getId(),
+                log.getId(),
+                5.0,
+                false,
+                "",
+                7.5,
+                3,
+                true,
+                true,
+                "Very easy day.",
+                0,
+                "After",
+                LocalDate.of(2026, 3, 6)
+        );
+
+        assertThat(updated.getRpe()).isEqualTo(0);
+    }
+
+    @Test
+    void updateAthleteOwnedLog_throwsNotFoundWhenNotOwned() {
+        assertThatThrownBy(() -> runningLogService.updateAthleteOwnedLog(
+                999L,
+                999L,
+                1.0,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                "none",
+                null
+        ))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Running log not found.")
+                .extracting(ex -> ((ResponseStatusException) ex).getStatusCode())
+                .isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void updateAthleteOwnedLog_throwsNotFoundWhenLogExistsButBelongsToDifferentUser() {
+        User owner = userRepository.save(user("r3c@example.com"));
+        RunningLog log = runningLogRepository.save(runningLog(owner, 4.0, "Owner's log"));
+
+        assertThatThrownBy(() -> runningLogService.updateAthleteOwnedLog(
+                1000L, log.getId(),
+                4.0, null, null, null, null, null, null, null, null, "hack attempt", null
+        ))
+                .isInstanceOf(ResponseStatusException.class)
+                .extracting(ex -> ((ResponseStatusException) ex).getStatusCode())
+                .isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void updateAthleteOwnedLog_rejectsNegativeSleepHours() {
+        User user = userRepository.save(user("r3d@example.com"));
+        RunningLog log = runningLogRepository.save(runningLog(user, 6.0, "Before"));
+
+        assertThatThrownBy(() -> runningLogService.updateAthleteOwnedLog(
+                user.getId(),
+                log.getId(),
+                6.0,
+                false,
+                "",
+                -1.0,
+                3,
+                true,
+                true,
+                "Pretty flat today",
+                5,
+                "After",
+                LocalDate.of(2026, 3, 7)
+        ))
+                .isInstanceOf(ResponseStatusException.class)
+                .extracting(ex -> ((ResponseStatusException) ex).getStatusCode())
+                .isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    void submitRunningLog_trimsFreeformFeelText() {
+        User user = userRepository.save(user("r1d@example.com"));
+        RunningLog log = runningLog(user, 6.0, "Steady run");
+        log.setFeel("  A little sore but improving  ");
+
+        RunningLog saved = runningLogService.submitRunningLog(log, LocalDate.of(2026, 3, 9));
+
+        assertThat(saved.getFeel()).isEqualTo("A little sore but improving");
+    }
+
+    @Test
+    void submitRunningLog_rejectsFeelOver100Characters() {
+        User user = userRepository.save(user("r1e@example.com"));
+        RunningLog log = runningLog(user, 6.0, "Steady run");
+        log.setFeel("x".repeat(101));
+
+        assertThatThrownBy(() -> runningLogService.submitRunningLog(log, LocalDate.of(2026, 3, 10)))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Feel cannot exceed 100 characters.")
+                .extracting(ex -> ((ResponseStatusException) ex).getStatusCode())
+                .isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    void submitRunningLog_requiresPainDetailsWhenHurting() {
+        User user = userRepository.save(user("r1f@example.com"));
+        RunningLog log = runningLog(user, 6.0, "Steady run");
+        log.setHurting(true);
+        log.setPainDetails("   ");
+
+        assertThatThrownBy(() -> runningLogService.submitRunningLog(log, LocalDate.of(2026, 3, 11)))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Hurting details is required.")
+                .extracting(ex -> ((ResponseStatusException) ex).getStatusCode())
+                .isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    void submitRunningLog_clearsPainDetailsWhenNotHurting() {
+        User user = userRepository.save(user("r1g@example.com"));
+        RunningLog log = runningLog(user, 6.0, "Steady run");
+        log.setHurting(false);
+        log.setPainDetails("Old note");
+
+        RunningLog saved = runningLogService.submitRunningLog(log, LocalDate.of(2026, 3, 12));
+
+        assertThat(saved.getPainDetails()).isNull();
+    }
+
+    // -------------------------------------------------------------------------
+    // deleteAthleteOwnedLog
+    // -------------------------------------------------------------------------
+
+    @Test
+    void deleteAthleteOwnedLog_removesRow() {
+        User user = userRepository.save(user("r4@example.com"));
+        RunningLog log = runningLogRepository.save(runningLog(user, 3.0, "Delete me"));
+
+        runningLogService.deleteAthleteOwnedLog(user.getId(), log.getId());
+
+        assertThat(runningLogRepository.findById(log.getId())).isEmpty();
+    }
+
+    @Test
+    void deleteAthleteOwnedLog_throwsNotFoundWhenLogDoesNotExist() {
+        assertThatThrownBy(() -> runningLogService.deleteAthleteOwnedLog(18L, 999L))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Running log not found.")
+                .extracting(ex -> ((ResponseStatusException) ex).getStatusCode())
+                .isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void deleteAthleteOwnedLog_throwsNotFoundWhenLogBelongsToDifferentUser() {
+        User owner = userRepository.save(user("r4c@example.com"));
+        RunningLog log = runningLogRepository.save(runningLog(owner, 5.0, "Not yours"));
+
+        assertThatThrownBy(() -> runningLogService.deleteAthleteOwnedLog(1001L, log.getId()))
+                .isInstanceOf(ResponseStatusException.class)
+                .extracting(ex -> ((ResponseStatusException) ex).getStatusCode())
+                .isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void deleteAthleteOwnedLog_onlyDeletesTargetLog() {
+        User user = userRepository.save(user("r4d@example.com"));
+        RunningLog toDelete = runningLogRepository.save(runningLog(user, 3.0, "Delete me"));
+        RunningLog toKeep   = runningLogRepository.save(runningLog(user, 6.0, "Keep me"));
+
+        runningLogService.deleteAthleteOwnedLog(user.getId(), toDelete.getId());
+
+        assertThat(runningLogRepository.findById(toDelete.getId())).isEmpty();
+        assertThat(runningLogRepository.findById(toKeep.getId())).isPresent();
+    }
+
+    // -------------------------------------------------------------------------
+    // updateCoachComment
+    // -------------------------------------------------------------------------
+
+    @Test
+    void updateCoachComment_trimsAndNullsBlank() {
+        User user = userRepository.save(user("r5@example.com"));
+        RunningLog log = runningLogRepository.save(runningLog(user, 6.0, "Comment target"));
+
+        RunningLog trimmed = runningLogService.updateCoachComment(log.getId(), "  Nice work  ");
+        assertThat(trimmed.getCoachComment()).isEqualTo("Nice work");
+
+        RunningLog blank = runningLogService.updateCoachComment(log.getId(), "   ");
+        assertThat(blank.getCoachComment()).isNull();
+    }
+
+    @Test
+    void updateCoachComment_storesNullWhenNullPassed() {
+        User user = userRepository.save(user("r5b@example.com"));
+        RunningLog log = runningLogRepository.save(runningLog(user, 5.0, "Null comment"));
+
+        RunningLog updated = runningLogService.updateCoachComment(log.getId(), null);
+
+        assertThat(updated.getCoachComment()).isNull();
+    }
+
+    @Test
+    void updateCoachComment_overwritesPreviousComment() {
+        User user = userRepository.save(user("r5c@example.com"));
+        RunningLog log = runningLogRepository.save(runningLog(user, 7.0, "Has comment"));
+
+        runningLogService.updateCoachComment(log.getId(), "First comment");
+        RunningLog updated = runningLogService.updateCoachComment(log.getId(), "Second comment");
+
+        assertThat(updated.getCoachComment()).isEqualTo("Second comment");
+    }
+
+    @Test
+    void updateCoachComment_throwsNotFoundForUnknownLogId() {
+        assertThatThrownBy(() -> runningLogService.updateCoachComment(999L, "Great effort"))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Running log not found.")
+                .extracting(ex -> ((ResponseStatusException) ex).getStatusCode())
+                .isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void updateCoachComment_rejectsTextOver2000Characters() {
+        User user = userRepository.save(user("r5d@example.com"));
+        RunningLog log = runningLogRepository.save(runningLog(user, 4.0, "Comment target"));
+        String tooLong = "x".repeat(2001);
+
+        assertThatThrownBy(() -> runningLogService.updateCoachComment(log.getId(), tooLong))
+                .isInstanceOf(ResponseStatusException.class)
+                .extracting(ex -> ((ResponseStatusException) ex).getStatusCode())
+                .isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    // -------------------------------------------------------------------------
+    // Helpers
+    // -------------------------------------------------------------------------
+
+    private User user(String email) {
+        User user = new User();
+        user.setEmail(email);
+        user.setRole("athlete");
+        return user;
+    }
+
+    private RunningLog runningLog(User user, double mileage, String details) {
+        RunningLog log = new RunningLog();
+        log.setUser(user);
+        log.setMileage(mileage);
+        log.setHurting(false);
+        log.setSleepHours(8.0);
+        log.setStressLevel(3);
+        log.setPlateProportion(true);
+        log.setGotThatBread(true);
+        log.setPainDetails(null);
+        log.setFeel("Solid overall");
+        log.setRpe(5);
+        log.setDetails(details);
+        return log;
+    }
+}
+

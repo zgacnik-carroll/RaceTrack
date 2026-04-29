@@ -6,7 +6,7 @@
 
 ![Java](https://img.shields.io/badge/Java-25-orange?style=flat-square&logo=openjdk)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-4.0.2-6db33f?style=flat-square&logo=springboot)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18.2-336791?style=flat-square&logo=postgresql)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15%2B-336791?style=flat-square&logo=postgresql)
 ![Gradle](https://img.shields.io/badge/Gradle-9.3.0-02303a?style=flat-square&logo=gradle)
 ![Okta](https://img.shields.io/badge/Auth-Okta_OIDC-00297a?style=flat-square&logo=okta)
 
@@ -20,9 +20,9 @@ RaceTrack is a web application that lets Carroll College's cross country athlete
 
 **Athletes** submit daily running logs (mileage, wellness, RPE, notes) and workout logs (type, paces, completion details), then review and edit their history in an inline spreadsheet view.
 
-**Coaches** see every athlete's logs side by side, filter by date range, and leave comments directly on individual rows — no spreadsheet exports or shared documents needed.
+**Coaches** can review any athlete's logs, filter by date range, and leave comments directly on individual rows without spreadsheet exports or shared documents.
 
-All access is gated behind **Okta SSO** — users log in with their existing Carroll credentials and are provisioned automatically on first login.
+All access is gated behind **Okta SSO**. Okta handles authentication, and RaceTrack authorizes access only when the signed-in email already exists in the local `users` table.
 
 ---
 
@@ -33,7 +33,7 @@ All access is gated behind **Okta SSO** — users log in with their existing Car
 - Submit workout logs — type (Strength / Strides / Workout), completion details, actual paces, and description
 - Review personal log history in a sortable, filterable spreadsheet view
 - Edit and delete own entries inline without leaving the page
-- Date filters: Today · This Week · This Month · Recent 60
+- Date filters: Today · Week · Month · Custom
 
 **For coaches**
 - View the full roster's running and workout logs from a single page
@@ -46,16 +46,16 @@ All access is gated behind **Okta SSO** — users log in with their existing Car
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Language | Java 25 |
-| Framework | Spring Boot 3.x |
-| View Layer | Thymeleaf (server-rendered) |
-| Frontend | Bootstrap 5.3 + Vanilla JS |
-| Database | PostgreSQL 15+ |
-| ORM | Spring Data JPA / Hibernate |
+| Layer | Technology                                 |
+|---|--------------------------------------------|
+| Language | Java 25                                    |
+| Framework | Spring Boot 4.0.2                          |
+| View Layer | Thymeleaf (server-rendered)                |
+| Frontend | Bootstrap 5.3 + Vanilla JS                 |
+| Database | PostgreSQL 15+                            |
+| ORM | Spring Data JPA / Hibernate                |
 | Authentication | Okta OIDC via Spring Security OAuth2 Login |
-| Build | Gradle |
+| Build | Gradle                                     |
 
 ---
 
@@ -64,34 +64,44 @@ All access is gated behind **Okta SSO** — users log in with their existing Car
 ### Prerequisites
 
 - Java 25
-- Gradle 8+ *(or use the included `./gradlew` wrapper — no install needed)*
+- Gradle 9.3.0 *(or use the included `./gradlew` wrapper — no install needed)*
 - PostgreSQL 15+
-- Okta credentials — Client ID and Client Secret from the `integrator-9628955` Okta org
+- Okta OIDC credentials — client ID, client secret, and issuer URI
 
 ### 1. Clone
 
 ```bash
-git clone https://github.com/your-org/racetrack.git
-cd racetrack
+git clone https://github.com/zgacnik-carroll/RaceTrack.git
+cd RaceTrack
 ```
 
 ### 2. Create the database
 
+#### IMPORTANT: Replace 'your_password' with a safe, unique password.
+
 ```sql
-CREATE DATABASE racetrack_db;
-CREATE USER racetrack_user WITH ENCRYPTED PASSWORD 'your_password';
-GRANT ALL PRIVILEGES ON DATABASE racetrack_db TO racetrack_user;
+CREATE DATABASE racetrack;
+CREATE USER racetrackuser WITH ENCRYPTED PASSWORD 'your_password';
+GRANT ALL PRIVILEGES ON DATABASE racetrack TO racetrackuser;
+```
+
+Then grant schema rights for first-run Hibernate table creation:
+
+```sql
+\c racetrack
+GRANT USAGE, CREATE ON SCHEMA public TO racetrackuser;
+ALTER SCHEMA public OWNER TO racetrackuser;
 ```
 
 ### 3. Configure `application.yaml`
 
-Edit `src/main/resources/application.yaml` and fill in your database credentials and Okta secrets:
+Edit `src/main/resources/application.yaml` and fill in your database credentials and Okta settings:
 
 ```yaml
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/racetrack_db
-    username: racetrack_user
+    url: jdbc:postgresql://localhost:5432/racetrack
+    username: racetrackuser
     password: your_password
   security:
     oauth2:
@@ -102,9 +112,11 @@ spring:
             client-secret: ${OKTA_CLIENT_SECRET}
         provider:
           okta:
-            issuer-uri: https://integrator-9628955.okta.com/oauth2/default
+            issuer-uri: ${OKTA_ISSUER_URI}
 ```
 
+> For an older PostgreSQL database created before `User.id` was converted to sequence-backed numeric ids, run the one-time migration in [`documentation/Deployment_Manual.md`](./documentation/Deployment_Manual.md) before startup.
+>
 > ⚠️ Never commit `client-secret` in plaintext. Use environment variables or a gitignored local override file.
 
 ### 4. Run
@@ -121,10 +133,10 @@ Then open [http://localhost:8080](http://localhost:8080) — you'll be redirecte
 
 | Role | How assigned | Access |
 |---|---|---|
-| `athlete` | Automatically on first login | Submit, view, edit, and delete own logs |
-| `coach` | Manual DB update required | Read-only view of all athletes; can add coach comments |
+| `athlete` | Coach/admin creates local RaceTrack user | Submit, view, edit, and delete own logs |
+| `coach` | Coach/admin creates or updates local RaceTrack user role | View all athletes, add coach comments, and use admin tools |
 
-To promote a user to coach after their first login:
+To promote an existing local user to coach:
 
 ```sql
 UPDATE users SET role = 'coach' WHERE email = 'coach@carrollu.edu';
@@ -134,7 +146,7 @@ UPDATE users SET role = 'coach' WHERE email = 'coach@carrollu.edu';
 
 ## Running Tests
 
-Tests use an in-memory H2 database and the `test` Spring profile — no additional setup required.
+Tests use an in-memory H2 database and the `test` Spring profile from `src/test/resources/application-test.yaml` — no additional setup required.
 
 ```bash
 ./gradlew test
@@ -147,15 +159,16 @@ Tests use an in-memory H2 database and the `test` Spring profile — no addition
 ```
 src/
 └── main/
-    ├── java/com/racetrack/
+    ├── java/edu/carroll/racetrack/
     │   ├── config/          # SecurityConfig (Okta OAuth2 + logout)
-    │   ├── controller/      # HomeController, RunningLogController,
-    │   │                    # WorkoutLogController, LogApiController
+    │   ├── controller/      # MVC page controllers and REST API controllers
     │   ├── model/           # User, RunningLog, WorkoutLog
     │   ├── repository/      # JPA repositories
-    │   └── service/         # UserService, RunningLogService, WorkoutLogService
+    │   └── service/         # UserService, RunningLogService, WorkoutLogService,
+    │                        # AdminService, OktaAdminClient
     └── resources/
         ├── application.yaml
+        ├── static/          # JavaScript and static assets
         └── templates/       # Thymeleaf templates + fragments
             ├── home.html          # Athlete view
             ├── home_coach.html    # Coach view
@@ -169,7 +182,7 @@ src/
 
 ## Documentation
 
-Full developer manual — including architecture diagrams, authentication flow, database setup, deployment guide, and pre-production checklist — is available in [`Developer Manual.md`](./documentation/Developer_Manual.md).
+Full developer manual — including architecture diagrams, authentication flow, database setup, PostgreSQL migration notes, deployment guidance, and pre-production checklist — is available in [`Developer_Manual.md`](./documentation/Developer_Manual.md).
 
 Full user manual - including all the detailed uses of our web application are available at [User_Manual.md](./documentation/User_Manual.md)
 

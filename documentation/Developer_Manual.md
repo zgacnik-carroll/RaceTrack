@@ -2,7 +2,7 @@
 
 > Organization: Carroll College
 > 
-> Last Updated: 2026-04-23  
+> Last Updated: 2026-04-29  
 > 
 > Developers: Zack Gacnik and Jace Claassen
 
@@ -14,7 +14,7 @@
 
 ## 1. Purpose
 
-This manual explains the current RaceTrack codebase as it exists of 4/23/2026.
+This manual explains the current RaceTrack codebase as it exists on 4/29/2026.
 It covers:
 
 - architecture and runtime behavior
@@ -149,7 +149,7 @@ Coaches cannot:
 
 ## 6. Backend Classes
 
-### `com.racetrack.config`
+### `edu.carroll.racetrack.config`
 
 #### `SecurityConfig`
 
@@ -161,7 +161,7 @@ Responsibilities:
 - redirects invalid sessions back through Okta login
 - marks session-expiry events caused by invalid or missing CSRF tokens
 
-### `com.racetrack.controller`
+### `edu.carroll.racetrack.controller`
 
 #### `HomeController`
 
@@ -212,7 +212,15 @@ Coach-only APIs:
 
 These APIs operate through `AdminService`, which currently changes local RaceTrack data only.
 
-### `com.racetrack.service`
+Request validation currently enforces:
+
+- non-blank `firstName`
+- non-blank `lastName`
+- non-blank `email`
+- valid email format
+- non-blank `role`
+
+### `edu.carroll.racetrack.service`
 
 #### `UserService`
 
@@ -282,7 +290,7 @@ Responsibilities:
 
 Current behavior:
 
-- user creation generates a UUID locally for `users.id`
+- user creation relies on a database sequence for `users.id`
 - user deletion removes local user data and owned logs
 - it does not currently call `OktaAdminClient`
 
@@ -296,7 +304,7 @@ This component contains methods for:
 
 It is currently an available integration helper only. It is not part of the active admin execution path unless the service layer is changed to use it.
 
-### `com.racetrack.repository`
+### `edu.carroll.racetrack.repository`
 
 #### `UserRepository`
 
@@ -331,7 +339,7 @@ Used for:
 
 | Field | Type | Notes |
 |---|---|---|
-| `id` | `String` | Primary key |
+| `id` | `Long` | Primary key, sequence-backed |
 | `email` | `String` | Authorization lookup key |
 | `fullName` | `String` | Displayed in UI |
 | `role` | `String` | `athlete` or `coach` |
@@ -417,7 +425,7 @@ Relationships:
 ```text
 src/
   main/
-    java/com/racetrack/
+    java/edu/carroll/racetrack/
       RaceTrackApplication.java
       config/
         SecurityConfig.java
@@ -443,9 +451,12 @@ src/
         WorkoutLogService.java
     resources/
       application.yaml
-      application.properties
       static/
       templates/
+  test/
+    java/edu/carroll/racetrack/
+    resources/
+      application-test.yaml
 documentation/
   Deployment_Manual.md
   Developer_Manual.md
@@ -502,6 +513,104 @@ or on Windows:
 ```powershell
 .\gradlew.bat bootRun
 ```
+
+### Existing PostgreSQL databases after the `User.id` conversion
+
+RaceTrack now stores `users.id` and the related `running_logs.user_id` and `workout_logs.user_id` columns as `bigint`.
+
+If you are starting from a fresh local database, Hibernate can create the schema normally.
+
+If you are pointing the app at an older PostgreSQL database that still uses string user ids, you must run a one-time SQL migration before starting the updated app code. The codebase no longer includes an automatic startup migration for that conversion.
+
+Use this migration once against the target PostgreSQL database:
+
+```sql
+BEGIN;
+
+CREATE SEQUENCE IF NOT EXISTS public.users_seq START WITH 1 INCREMENT BY 1;
+
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS id_new bigint;
+UPDATE public.users
+SET id_new = nextval('public.users_seq')
+WHERE id_new IS NULL;
+
+ALTER TABLE public.running_logs ADD COLUMN IF NOT EXISTS user_id_new bigint;
+UPDATE public.running_logs rl
+SET user_id_new = u.id_new
+FROM public.users u
+WHERE rl.user_id_new IS NULL
+  AND rl.user_id = u.id;
+
+ALTER TABLE public.workout_logs ADD COLUMN IF NOT EXISTS user_id_new bigint;
+UPDATE public.workout_logs wl
+SET user_id_new = u.id_new
+FROM public.users u
+WHERE wl.user_id_new IS NULL
+  AND wl.user_id = u.id;
+
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM public.running_logs
+        WHERE user_id IS NOT NULL
+          AND user_id_new IS NULL
+    ) THEN
+        RAISE EXCEPTION 'Could not migrate running_logs.user_id values';
+    END IF;
+
+    IF EXISTS (
+        SELECT 1
+        FROM public.workout_logs
+        WHERE user_id IS NOT NULL
+          AND user_id_new IS NULL
+    ) THEN
+        RAISE EXCEPTION 'Could not migrate workout_logs.user_id values';
+    END IF;
+END $$;
+
+ALTER TABLE public.running_logs DROP CONSTRAINT IF EXISTS fk_running_logs_user_id;
+ALTER TABLE public.workout_logs DROP CONSTRAINT IF EXISTS fk_workout_logs_user_id;
+
+ALTER TABLE public.running_logs DROP COLUMN user_id;
+ALTER TABLE public.workout_logs DROP COLUMN user_id;
+
+ALTER TABLE public.users DROP CONSTRAINT IF EXISTS users_pkey;
+ALTER TABLE public.users RENAME COLUMN id TO legacy_id;
+ALTER TABLE public.users RENAME COLUMN id_new TO id;
+
+ALTER TABLE public.running_logs RENAME COLUMN user_id_new TO user_id;
+ALTER TABLE public.workout_logs RENAME COLUMN user_id_new TO user_id;
+
+ALTER TABLE public.users ALTER COLUMN id SET NOT NULL;
+ALTER TABLE public.running_logs ALTER COLUMN user_id SET NOT NULL;
+ALTER TABLE public.workout_logs ALTER COLUMN user_id SET NOT NULL;
+
+ALTER TABLE public.users ALTER COLUMN id SET DEFAULT nextval('public.users_seq');
+ALTER TABLE public.users ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+ALTER TABLE public.running_logs
+    ADD CONSTRAINT fk_running_logs_user_id
+    FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+ALTER TABLE public.workout_logs
+    ADD CONSTRAINT fk_workout_logs_user_id
+    FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+SELECT setval(
+    'public.users_seq',
+    GREATEST(COALESCE((SELECT MAX(id) FROM public.users), 0), 1),
+    true
+);
+
+COMMIT;
+```
+
+Important notes:
+
+- back up the database before running the migration
+- the migration preserves the previous string user id as `users.legacy_id`
+- once the database has been migrated, normal `./gradlew bootRun` startup works without any extra schema files
 
 ---
 
@@ -634,3 +743,4 @@ After startup, verify:
 - an athlete can view another athlete's logs read-only
 - a coach can save coach comments
 - a coach can create, edit, delete users, and clear log data
+

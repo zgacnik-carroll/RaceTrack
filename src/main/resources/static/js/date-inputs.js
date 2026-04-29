@@ -1,3 +1,6 @@
+/**
+ * Initializes date inputs with today's date when blank and wires native picker behavior.
+ */
 (() => {
     /**
      * Returns current date in YYYY-MM-DD format for date inputs.

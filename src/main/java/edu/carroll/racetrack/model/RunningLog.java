@@ -1,0 +1,342 @@
+package edu.carroll.racetrack.model;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+
+import java.time.LocalDateTime;
+
+/**
+ * Entity representing a daily running log submitted by a user.
+ */
+@Entity
+@Table(name = "running_logs")
+public class RunningLog {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @Column(nullable = false)
+    private Double mileage;
+
+    private Boolean hurting;
+
+    @Column(columnDefinition = "TEXT")
+    private String painDetails;
+
+    @Column(columnDefinition = "double precision")
+    private Double sleepHours;
+
+    private Integer stressLevel;
+
+    private Boolean plateProportion;
+
+    private Boolean gotThatBread;
+
+    private String feel;
+
+    private Integer rpe;
+
+    @Column(columnDefinition = "TEXT", nullable = false)
+    private String details;
+
+    @Column(columnDefinition = "TEXT")
+    private String coachComment;
+
+    private LocalDateTime logDate;
+
+    /**
+     * Creates an empty running log.
+     */
+    public RunningLog() {
+    }
+
+    /**
+     * Returns the running log id.
+     *
+     * @return log id
+     */
+    public Long getId() {
+        return id;
+    }
+
+    /**
+     * Sets the running log id.
+     *
+     * @param id log id
+     */
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    /**
+     * Returns the owning user.
+     *
+     * @return owning user
+     */
+    public User getUser() {
+        return user;
+    }
+
+    /**
+     * Sets the owning user.
+     *
+     * @param user owning user
+     */
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    /**
+     * Returns mileage.
+     *
+     * @return mileage
+     */
+    public Double getMileage() {
+        return mileage;
+    }
+
+    /**
+     * Sets mileage.
+     *
+     * @param mileage mileage
+     */
+    public void setMileage(Double mileage) {
+        this.mileage = mileage;
+    }
+
+    /**
+     * Returns hurting flag.
+     *
+     * @return hurting value
+     */
+    public Boolean getHurting() {
+        return hurting;
+    }
+
+    /**
+     * Sets hurting flag.
+     *
+     * @param hurting hurting value
+     */
+    public void setHurting(Boolean hurting) {
+        this.hurting = hurting;
+    }
+
+    /**
+     * Returns hurting description text.
+     *
+     * @return hurting details
+     */
+    public String getPainDetails() {
+        return painDetails;
+    }
+
+    /**
+     * Sets hurting description text.
+     *
+     * @param painDetails hurting details
+     */
+    public void setPainDetails(String painDetails) {
+        this.painDetails = painDetails;
+    }
+
+    /**
+     * Returns sleep hours.
+     *
+     * @return sleep hours
+     */
+    public Double getSleepHours() {
+        return sleepHours;
+    }
+
+    /**
+     * Sets sleep hours.
+     *
+     * @param sleepHours sleep hours
+     */
+    public void setSleepHours(Double sleepHours) {
+        this.sleepHours = sleepHours;
+    }
+
+    /**
+     * Returns stress level.
+     *
+     * @return stress level
+     */
+    public Integer getStressLevel() {
+        return stressLevel;
+    }
+
+    /**
+     * Sets stress level.
+     *
+     * @param stressLevel stress level
+     */
+    public void setStressLevel(Integer stressLevel) {
+        this.stressLevel = stressLevel;
+    }
+
+    /**
+     * Returns plate proportion flag.
+     *
+     * @return plate proportion value
+     */
+    public Boolean getPlateProportion() {
+        return plateProportion;
+    }
+
+    /**
+     * Sets plate proportion flag.
+     *
+     * @param plateProportion plate proportion value
+     */
+    public void setPlateProportion(Boolean plateProportion) {
+        this.plateProportion = plateProportion;
+    }
+
+    /**
+     * Returns got-that-bread flag.
+     *
+     * @return got-that-bread value
+     */
+    public Boolean getGotThatBread() {
+        return gotThatBread;
+    }
+
+    /**
+     * Sets got-that-bread flag.
+     *
+     * @param gotThatBread got-that-bread value
+     */
+    public void setGotThatBread(Boolean gotThatBread) {
+        this.gotThatBread = gotThatBread;
+    }
+
+    /**
+     * Returns feel value.
+     *
+     * @return feel text
+     */
+    public String getFeel() {
+        return feel;
+    }
+
+    /**
+     * Sets feel value.
+     *
+     * @param feel feel text
+     */
+    public void setFeel(String feel) {
+        this.feel = feel;
+    }
+
+    /**
+     * Returns RPE score.
+     *
+     * @return RPE score
+     */
+    public Integer getRpe() {
+        return rpe;
+    }
+
+    /**
+     * Sets RPE score.
+     *
+     * @param rpe RPE score
+     */
+    public void setRpe(Integer rpe) {
+        this.rpe = rpe;
+    }
+
+    /**
+     * Returns details text.
+     *
+     * @return details text
+     */
+    public String getDetails() {
+        return details;
+    }
+
+    /**
+     * Sets details text.
+     *
+     * @param details details text
+     */
+    public void setDetails(String details) {
+        this.details = details;
+    }
+
+    /**
+     * Returns coach comment text.
+     *
+     * @return coach comment
+     */
+    public String getCoachComment() {
+        return coachComment;
+    }
+
+    /**
+     * Sets coach comment text.
+     *
+     * @param coachComment coach comment
+     */
+    public void setCoachComment(String coachComment) {
+        this.coachComment = coachComment;
+    }
+
+    /**
+     * Returns log date.
+     *
+     * @return log date
+     */
+    public LocalDateTime getLogDate() {
+        return logDate;
+    }
+
+    /**
+     * Sets log date.
+     *
+     * @param logDate log date
+     */
+    public void setLogDate(LocalDateTime logDate) {
+        this.logDate = logDate;
+    }
+
+    /**
+     * Returns a debug representation of this running log.
+     *
+     * @return log debug string
+     */
+    @Override
+    public String toString() {
+        return "RunningLog{" +
+                "id=" + id +
+                ", user=" + (user != null ? user.getEmail() : "null") +
+                ", mileage=" + mileage +
+                ", hurting=" + hurting +
+                ", painDetails='" + painDetails + '\'' +
+                ", sleepHours=" + sleepHours +
+                ", stressLevel=" + stressLevel +
+                ", plateProportion=" + plateProportion +
+                ", gotThatBread=" + gotThatBread +
+                ", feel='" + feel + '\'' +
+                ", rpe=" + rpe +
+                ", details='" + details + '\'' +
+                ", coachComment='" + coachComment + '\'' +
+                ", logDate=" + logDate +
+                '}';
+    }
+}
+
